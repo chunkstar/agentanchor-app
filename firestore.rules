@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // --- Helper Functions ---
+    function isSuperAdmin() {
+      return request.auth.token.email == 'admin@banquetai.com';
+    }
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    function isOrgMember(orgId) {
+      return get(/databases/$(database)/documents/organizations/$(orgId)).data.users[request.auth.uid] != null;
+    }
+    function getTierLevel(tier) {
+      return tier == 'Superadmin' ? 5 :
+             tier == 'Business' ? 4 :
+             tier == 'Exec' ? 3 :
+             tier == 'Pro' ? 2 :
+             tier == 'Basic' ? 1 : 1;  // Default to lowest if unknown
+    }
+    // --- User Profiles ---
+    match /users/{userId} {
+      allow read, update: if request.auth.uid == userId || isSuperAdmin();
+      allow create: if request.auth.uid == userId || isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    // --- Organizations ---
+    match /organizations/{orgId} {
+      allow read, write: if isSuperAdmin() || (isOrgMember(orgId) && getTierLevel(getUserData().tier) >= 2);
+    }
+    // --- Events within an Organization ---
+    match /organizations/{orgId}/events/{eventId} {
+      allow read: if isSuperAdmin() || (isOrgMember(orgId) && getTierLevel(getUserData().tier) >= 2);
+      allow create: if isSuperAdmin() || (isOrgMember(orgId) && request.resource.data.creatorUid == request.auth.uid);
+      allow update: if isSuperAdmin() || (isOrgMember(orgId) && ((getTierLevel(getUserData().tier) >= 3) || (getTierLevel(getUserData().tier) == 2 && resource.data.creatorUid == request.auth.uid)));
+      allow delete: if isSuperAdmin() || (isOrgMember(orgId) && ((getTierLevel(getUserData().tier) >= 3) || (getTierLevel(getUserData().tier) == 2 && resource.data.creatorUid == request.auth.uid)));
+    }
+    // --- Events for Tier 1 Users ---
+    match /users/{userId}/events/{eventId} {
+      allow read, write, delete: if isSuperAdmin() || request.auth.uid == userId;
+    }
+    // --- BEO Data within an Organization ---
+    match /organizations/{orgId}/beoData/{beoId} {
+      allow read, write: if isSuperAdmin() || (isOrgMember(orgId) && getTierLevel(getUserData().tier) >= 4);
+    }
+  }
+}
