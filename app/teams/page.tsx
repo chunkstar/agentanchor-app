@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { Users, Plus } from 'lucide-react'
+import { Users, Plus, MessageSquare } from 'lucide-react'
 
 export default async function TeamsPage() {
   const supabase = createClient()
@@ -49,11 +49,8 @@ export default async function TeamsPage() {
       {teams && teams.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {teams.map((team) => (
-            <Link
-              key={team.id}
-              href={`/teams/${team.id}`}
-              className="card hover:shadow-xl transition-shadow"
-            >
+            <div key={team.id} className="card hover:shadow-xl transition-shadow">
+              <Link href={`/teams/${team.id}`} className="block">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center">
                   <div className="h-12 w-12 rounded-full bg-green-600 dark:bg-green-500 flex items-center justify-center">
@@ -98,7 +95,21 @@ export default async function TeamsPage() {
                   )}
                 </div>
               )}
-            </Link>
+              </Link>
+
+              {/* Action Buttons */}
+              {team.team_bots && team.team_bots.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <Link
+                    href={`/teams/${team.id}/chat`}
+                    className="btn-primary w-full text-sm flex items-center justify-center gap-2"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    Team Chat
+                  </Link>
+                </div>
+              )}
+            </div>
           ))}
         </div>
       ) : (

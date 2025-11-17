@@ -282,11 +282,127 @@ export default function OrchestratorPage() {
         },
       ])
 
+      // Parse intent and auto-create resources
+      await checkAndCreateResources(userMessage, assistantMessage)
+
       setLoading(false)
       checkSetupProgress()
     } catch (error) {
       console.error('Error:', error)
       setLoading(false)
+    }
+  }
+
+  const checkAndCreateResources = async (userMessage: string, assistantResponse: string) => {
+    try {
+      // Parse user intent
+      const intentResponse = await fetch('/api/orchestrator/parse-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage }),
+      })
+
+      const { intent } = await intentResponse.json()
+
+      if (intent.action === 'create_bot') {
+        // Create bot automatically
+        const createResponse = await fetch('/api/orchestrator/create-bot', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: intent.params.name,
+            description: intent.params.description,
+            type: intent.params.type,
+            systemPrompt: intent.params.systemPrompt,
+          }),
+        })
+
+        const { bot } = await createResponse.json()
+
+        if (bot) {
+          // Add system message about creation
+          const successMsg = {
+            id: Date.now() + 100,
+            role: 'system',
+            content: `✅ Successfully created bot "${bot.name}"! You can find it in your Bots page.`,
+            created_at: new Date().toISOString(),
+          }
+          setMessages((prev) => [...prev, successMsg])
+
+          await supabase.from('messages').insert([
+            {
+              conversation_id: conversationId,
+              role: 'system',
+              content: successMsg.content,
+            },
+          ])
+        }
+      } else if (intent.action === 'create_team') {
+        const createResponse = await fetch('/api/orchestrator/create-team', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: intent.params.name,
+            description: intent.params.description,
+            botIds: intent.params.botIds || [],
+          }),
+        })
+
+        const { team } = await createResponse.json()
+
+        if (team) {
+          const successMsg = {
+            id: Date.now() + 100,
+            role: 'system',
+            content: `✅ Successfully created team "${team.name}"! You can find it in your Teams page.`,
+            created_at: new Date().toISOString(),
+          }
+          setMessages((prev) => [...prev, successMsg])
+
+          await supabase.from('messages').insert([
+            {
+              conversation_id: conversationId,
+              role: 'system',
+              content: successMsg.content,
+            },
+          ])
+        }
+      } else if (intent.action === 'create_mcp') {
+        const createResponse = await fetch('/api/orchestrator/create-mcp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: intent.params.name,
+            type: intent.params.type,
+            description: intent.params.description,
+          }),
+        })
+
+        const { mcpServer } = await createResponse.json()
+
+        if (mcpServer) {
+          const successMsg = {
+            id: Date.now() + 100,
+            role: 'system',
+            content: `✅ Successfully created MCP server "${mcpServer.name}"! You can configure it in your MCP Servers page.`,
+            created_at: new Date().toISOString(),
+          }
+          setMessages((prev) => [...prev, successMsg])
+
+          await supabase.from('messages').insert([
+            {
+              conversation_id: conversationId,
+              role: 'system',
+              content: successMsg.content,
+            },
+          ])
+        }
+      }
+
+      // Refresh progress after any creation
+      await checkSetupProgress()
+    } catch (error) {
+      console.error('Resource creation error:', error)
     }
   }
 
@@ -416,6 +532,8 @@ export default function OrchestratorPage() {
                         className={`rounded-2xl p-4 shadow-sm ${
                           message.role === 'user'
                             ? 'bg-blue-600 text-white'
+                            : message.role === 'system'
+                            ? 'bg-green-100 dark:bg-green-900/30 border-2 border-green-400 dark:border-green-600 text-green-900 dark:text-green-100'
                             : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
                         }`}
                       >
