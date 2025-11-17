@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Bot, Users, MessageSquare, Settings, LogOut, Menu, X } from 'lucide-react'
+import { Bot, Users, MessageSquare, Settings, LogOut, Menu, X, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 
 export default function Navigation() {
@@ -20,6 +20,7 @@ export default function Navigation() {
 
   const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: MessageSquare },
+    { href: '/orchestrator', label: 'Orchestrator', icon: Sparkles },
     { href: '/bots', label: 'Bots', icon: Bot },
     { href: '/teams', label: 'Teams', icon: Users },
     { href: '/mcp', label: 'MCP Servers', icon: Settings },

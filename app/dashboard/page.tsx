@@ -35,8 +35,49 @@ export default async function DashboardPage() {
       .limit(5),
   ])
 
+  // Check if user has Master Orchestrator
+  const { data: orchestrator } = await supabase
+    .from('bots')
+    .select('*')
+    .eq('user_id', session.user.id)
+    .eq('name', '🎯 Master Orchestrator')
+    .single()
+
+  // Check if user is new (only has orchestrator bot)
+  const isNewUser = bots && bots.length === 1 && orchestrator
+
   return (
     <div className="space-y-8">
+      {/* Master Orchestrator Banner */}
+      {orchestrator && (
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-lg p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center">
+                <MessageSquare className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold">
+                  {isNewUser ? '🎉 Welcome! Start with your Master Orchestrator' : '💡 Need help? Talk to your Master Orchestrator'}
+                </h3>
+                <p className="text-purple-100 mt-1">
+                  {isNewUser
+                    ? 'Get personalized guidance on setting up your first bots, teams, and MCP servers'
+                    : 'Get expert guidance on bots, teams, and MCP server setup'}
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/orchestrator"
+              className="bg-white text-purple-600 hover:bg-purple-50 font-semibold py-2 px-6 rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap"
+            >
+              {isNewUser ? 'Get Started' : 'Open Orchestrator'}
+              <MessageSquare className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">

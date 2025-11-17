@@ -2,15 +2,34 @@
 
 A powerful web application for building, managing, and deploying custom AI assistants with MCP (Model Context Protocol) team integration.
 
-## Features
+## ✨ Key Features
 
-- **Custom AI Bots**: Create AI assistants with custom personalities and system prompts
-- **Team Management**: Organize bots into collaborative teams
-- **MCP Integration**: Connect bots to external tools and data sources via MCP servers
-- **Real-time Chat**: Interactive chat interface with streaming responses
-- **Claude AI**: Powered by Anthropic's Claude models
-- **Supabase Backend**: Secure authentication and database
-- **Vercel Deployment**: Easy deployment and scaling
+- **🎯 Master Orchestrator**: AI-powered setup guide that helps you build your bot ecosystem
+  - Automatically created for every new user
+  - Provides personalized guidance on bot creation, team organization, and MCP setup
+  - Interactive onboarding with progress tracking
+  - Suggests specialized bots based on your use case
+
+- **🤖 Custom AI Bots**: Create AI assistants with custom personalities and system prompts
+  - Multiple Claude models (Sonnet, Opus, Haiku)
+  - Configurable temperature and token limits
+  - Pre-built templates (Code, Writer, Analyst, Research, Support, DevOps)
+
+- **👥 Team Management**: Organize bots into collaborative teams
+  - Create specialized teams (Development, Content, Analytics)
+  - Assign multiple bots per team
+  - Team-specific configurations
+
+- **🔧 MCP Integration**: Connect bots to external tools and data sources
+  - Filesystem access
+  - GitHub integration
+  - Database connectivity
+  - Web search capabilities
+  - Custom integrations
+
+- **💬 Real-time Chat**: Interactive chat interface with streaming responses
+- **🔐 Secure Authentication**: Email/password + Google OAuth
+- **☁️ Cloud-Ready**: Built for Supabase + Vercel deployment
 
 ## Tech Stack
 
@@ -100,8 +119,26 @@ A powerful web application for building, managing, and deploying custom AI assis
 
 ## Usage
 
+### First Steps with Master Orchestrator
+
+When you create an account, you'll automatically get a **Master Orchestrator** bot that guides you through setup:
+
+1. After signup, visit the "Orchestrator" page
+2. Tell the Orchestrator about your goals (development, content, analysis, etc.)
+3. Get personalized recommendations for:
+   - Which bots to create
+   - What MCP servers to set up
+   - How to organize teams
+4. Follow the interactive setup wizard with progress tracking
+
 ### Creating a Bot
 
+**Option 1: With Orchestrator Guidance (Recommended)**
+- Chat with the Master Orchestrator
+- Describe what you want the bot to do
+- Get template suggestions and guided creation
+
+**Option 2: Manual Creation**
 1. Navigate to "Bots" in the sidebar
 2. Click "Create Bot"
 3. Fill in:
@@ -168,8 +205,37 @@ fresh/
 - **conversations**: Chat conversations
 - **messages**: Chat messages
 
+## Master Orchestrator Capabilities
+
+The Master Orchestrator can help you:
+
+### Bot Creation
+- Suggest specialized bot types based on your needs
+- Provide optimized system prompts
+- Recommend model configurations
+- Guide through MCP server attachments
+
+### Team Organization
+- Suggest team structures (Development Team, Content Team, etc.)
+- Recommend bot combinations
+- Help organize by function or project
+
+### MCP Server Setup
+- Explain different MCP server types
+- Guide through configuration
+- Suggest integrations for your use case
+
+### Best Practices
+- Share tips on bot design
+- Recommend workflow patterns
+- Help troubleshoot issues
+- Provide examples and templates
+
 ## Features Roadmap
 
+- [x] Master Orchestrator for guided setup
+- [x] Pre-built bot templates
+- [x] Interactive onboarding flow
 - [ ] Team chat (multiple bots collaborating)
 - [ ] Bot marketplace (share public bots)
 - [ ] Advanced MCP server types
@@ -178,6 +244,7 @@ fresh/
 - [ ] Voice input/output
 - [ ] Image generation integration
 - [ ] Custom themes
+- [ ] Orchestrator API integration (auto-create resources)
 
 ## Contributing
 

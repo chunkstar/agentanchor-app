@@ -14,7 +14,9 @@ export async function middleware(req: NextRequest) {
   if (req.nextUrl.pathname.startsWith('/dashboard') ||
       req.nextUrl.pathname.startsWith('/bots') ||
       req.nextUrl.pathname.startsWith('/teams') ||
-      req.nextUrl.pathname.startsWith('/chat')) {
+      req.nextUrl.pathname.startsWith('/chat') ||
+      req.nextUrl.pathname.startsWith('/orchestrator') ||
+      req.nextUrl.pathname.startsWith('/mcp')) {
     if (!session) {
       return NextResponse.redirect(new URL('/auth/login', req.url))
     }
@@ -31,5 +33,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/bots/:path*', '/teams/:path*', '/chat/:path*', '/auth/:path*'],
+  matcher: ['/dashboard/:path*', '/bots/:path*', '/teams/:path*', '/chat/:path*', '/orchestrator/:path*', '/mcp/:path*', '/auth/:path*'],
 }
