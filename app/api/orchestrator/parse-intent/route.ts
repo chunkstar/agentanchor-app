@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
 
     // Use Claude to parse the user's intent
     const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
+      model: process.env.ANTHROPIC_DEFAULT_MODEL || 'claude-3-5-sonnet-20241022',
       max_tokens: 1024,
       temperature: 0,
       system: `You are an intent parser for an AI bot building platform. Analyze user messages and determine if they want to create a bot, team, or MCP server.

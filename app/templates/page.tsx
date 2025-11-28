@@ -32,7 +32,7 @@ Always provide:
 - Edge case handling
 
 Focus on producing production-ready code that is maintainable, scalable, and follows industry best practices.`,
-    model: 'claude-3-5-sonnet-20241022',
+    model: 'claude-3-sonnet-20240229',
     temperature: 0.7,
   },
   {
@@ -66,7 +66,7 @@ Always consider:
 - Call-to-action placement
 - Content structure and flow
 - Readability scores`,
-    model: 'claude-3-5-sonnet-20241022',
+    model: 'claude-3-sonnet-20240229',
     temperature: 1.0,
   },
   {
@@ -100,7 +100,7 @@ Always focus on:
 - Clear communication of findings
 - Business impact of insights
 - Data quality considerations`,
-    model: 'claude-3-5-sonnet-20241022',
+    model: 'claude-3-sonnet-20240229',
     temperature: 0.5,
   },
   {
@@ -136,7 +136,7 @@ Focus on:
 - Unbiased presentation
 - Clear organization
 - Actionable conclusions`,
-    model: 'claude-3-5-sonnet-20241022',
+    model: 'claude-3-sonnet-20240229',
     temperature: 0.7,
   },
   {
@@ -171,7 +171,7 @@ Always:
 - Confirm understanding
 - End positively
 - Offer additional help`,
-    model: 'claude-3-5-sonnet-20241022',
+    model: 'claude-3-sonnet-20240229',
     temperature: 0.8,
   },
   {
@@ -208,7 +208,7 @@ Always provide:
 - Monitoring strategies
 - Disaster recovery plans
 - Cost optimization tips`,
-    model: 'claude-3-5-sonnet-20241022',
+    model: 'claude-3-sonnet-20240229',
     temperature: 0.6,
   },
 ]

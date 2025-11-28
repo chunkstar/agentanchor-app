@@ -7,10 +7,71 @@ import { ArrowLeft, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
 const MODELS = [
-  { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet' },
-  { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus' },
-  { id: 'claude-3-sonnet-20240229', name: 'Claude 3 Sonnet' },
-  { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku' },
+  {
+    id: 'claude-3-5-sonnet-20241022',
+    name: '⭐ Claude 3.7 Sonnet (Recommended)',
+    description: 'Best balance - fast & smart'
+  },
+  {
+    id: 'claude-sonnet-4-5-20250514',
+    name: '🆕 Claude 4.5 Sonnet (Newest)',
+    description: 'Highest intelligence & reasoning'
+  },
+  {
+    id: 'claude-3-5-haiku-20241022',
+    name: '⚡ Claude 3.5 Haiku',
+    description: 'Fastest & most cost-effective'
+  },
+  {
+    id: 'claude-3-opus-20240229',
+    name: '🎨 Claude 3 Opus',
+    description: 'Best for creativity & deep thinking'
+  },
+]
+
+const BOT_AVATARS = [
+  { id: '🤖', name: 'Robot', emoji: '🤖' },
+  { id: '🧠', name: 'Brain', emoji: '🧠' },
+  { id: '💡', name: 'Lightbulb', emoji: '💡' },
+  { id: '🎯', name: 'Target', emoji: '🎯' },
+  { id: '⚡', name: 'Lightning', emoji: '⚡' },
+  { id: '🚀', name: 'Rocket', emoji: '🚀' },
+  { id: '🎨', name: 'Art', emoji: '🎨' },
+  { id: '📊', name: 'Chart', emoji: '📊' },
+  { id: '🔬', name: 'Microscope', emoji: '🔬' },
+  { id: '💻', name: 'Computer', emoji: '💻' },
+  { id: '🎭', name: 'Theater', emoji: '🎭' },
+  { id: '🌟', name: 'Star', emoji: '🌟' },
+  { id: '⏰', name: 'Alarm Clock', emoji: '⏰' },
+  { id: '🧮', name: 'Calculator', emoji: '🧮' },
+  { id: '📋', name: 'Clipboard', emoji: '📋' },
+  { id: '🚂', name: 'Train', emoji: '🚂' },
+  { id: '🖥️', name: 'Server', emoji: '🖥️' },
+  { id: '🐕', name: 'Dog', emoji: '🐕' },
+  { id: '🐈', name: 'Cat', emoji: '🐈' },
+  { id: '🦁', name: 'Lion', emoji: '🦁' },
+  { id: '🦅', name: 'Eagle', emoji: '🦅' },
+  { id: '🎬', name: 'Red Carpet', emoji: '🎬' },
+  { id: '💼', name: 'Executive', emoji: '💼' },
+  { id: '👔', name: 'Business', emoji: '👔' },
+  { id: '📈', name: 'Sales', emoji: '📈' },
+  { id: '💰', name: 'Finance', emoji: '💰' },
+  { id: '🤝', name: 'HR', emoji: '🤝' },
+  { id: '📞', name: 'Customer Service', emoji: '📞' },
+  { id: '⚖️', name: 'Legal', emoji: '⚖️' },
+  { id: '🔒', name: 'Security', emoji: '🔒' },
+  { id: '⚙️', name: 'Operations', emoji: '⚙️' },
+  { id: '📚', name: 'Training', emoji: '📚' },
+  { id: '🎓', name: 'Education', emoji: '🎓' },
+  { id: '📢', name: 'Marketing', emoji: '📢' },
+  { id: '✍️', name: 'Content Writer', emoji: '✍️' },
+  { id: '🏆', name: 'Quality', emoji: '🏆' },
+  { id: '📦', name: 'Logistics', emoji: '📦' },
+  { id: '🔧', name: 'Maintenance', emoji: '🔧' },
+  { id: '💾', name: 'Data', emoji: '💾' },
+  { id: '🛡️', name: 'Protection', emoji: '🛡️' },
+  { id: '📝', name: 'Documentation', emoji: '📝' },
+  { id: '🎧', name: 'Support', emoji: '🎧' },
 ]
 
 export default function NewBotPage() {
@@ -27,6 +88,7 @@ export default function NewBotPage() {
     temperature: 1.0,
     max_tokens: 4096,
     is_public: false,
+    avatar_url: '🤖',
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -119,6 +181,32 @@ export default function NewBotPage() {
             rows={3}
             placeholder="A helpful AI assistant for..."
           />
+        </div>
+
+        <div>
+          <label className="label">Bot Avatar *</label>
+          <div className="grid grid-cols-6 md:grid-cols-12 gap-2 mt-2">
+            {BOT_AVATARS.map((avatar) => (
+              <button
+                key={avatar.id}
+                type="button"
+                onClick={() =>
+                  setFormData({ ...formData, avatar_url: avatar.emoji })
+                }
+                className={`p-3 text-3xl rounded-lg border-2 transition-all hover:scale-110 ${
+                  formData.avatar_url === avatar.emoji
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                }`}
+                title={avatar.name}
+              >
+                {avatar.emoji}
+              </button>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            Choose an icon to represent your bot
+          </p>
         </div>
 
         <div>

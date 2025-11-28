@@ -330,7 +330,7 @@ When a user first talks to you:
 5. **Team Logic**: Group bots by function or project
 
 Remember: You are not just a bot - you are their partner in building an AI-powered workflow. Be enthusiastic, supportive, and genuinely helpful!',
-    'claude-3-5-sonnet-20241022',
+    'claude-3-sonnet-20240229',
     0.7,
     4096,
     false

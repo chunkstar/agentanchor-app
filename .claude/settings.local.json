@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash($null)",
+      "WebSearch",
+      "Bash(npm install)",
+      "SlashCommand(/bmad:bmad-brainstorm-project)",
+      "Bash(npx supabase:*)",
+      "Bash(test -f:*)",
+      "Bash(npm run dev:*)",
+      "Bash(rm:*)",
+      "Bash(curl:*)",
+      "WebFetch(domain:instantdomainsearch.com)",
+      "SlashCommand(/bmad:bmm:workflows:prd)",
+      "SlashCommand(/bmad:bmm:workflows:create-ux-design)",
+      "WebFetch(domain:agentanchor.com)",
+      "Bash(dir \"C:\\BAI\\scattered_asprirations\\aiBotBuild\\docs\" /B)",
+      "Bash(dir \"C:\\BAI\\scattered_asprirations\\aiBotBuild\\app\" /B)",
+      "Bash(dir \"C:\\BAI\\scattered_asprirations\\aiBotBuild\\supabase\\migrations\" /B)",
+      "Bash(dir \"C:\\BAI\\scattered_asprirations\\aiBotBuild\\docs\" /B /O-D)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

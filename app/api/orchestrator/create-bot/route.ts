@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     // Predefined templates based on bot type
     const templates: Record<string, { model: string; temperature: number; prompt: string }> = {
       code: {
-        model: 'claude-3-5-sonnet-20241022',
+        model: process.env.ANTHROPIC_DEFAULT_MODEL || 'claude-3-5-sonnet-20241022',
         temperature: 0.7,
         prompt: systemPrompt || `You are a Code Assistant specialized in software development, programming, and technical problem-solving.
 
@@ -32,7 +32,7 @@ Your expertise includes:
 Always provide clear explanations, well-commented code, and consider edge cases in your solutions.`,
       },
       writer: {
-        model: 'claude-3-5-sonnet-20241022',
+        model: process.env.ANTHROPIC_DEFAULT_MODEL || 'claude-3-5-sonnet-20241022',
         temperature: 1.0,
         prompt: systemPrompt || `You are a Writer Bot specialized in content creation, copywriting, and editing.
 
@@ -46,7 +46,7 @@ Your expertise includes:
 Focus on clear, engaging content that resonates with the target audience.`,
       },
       analyst: {
-        model: 'claude-3-5-sonnet-20241022',
+        model: process.env.ANTHROPIC_DEFAULT_MODEL || 'claude-3-5-sonnet-20241022',
         temperature: 0.5,
         prompt: systemPrompt || `You are an Analyst Bot specialized in data analysis, insights, and strategic thinking.
 
@@ -60,7 +60,7 @@ Your expertise includes:
 Provide clear, actionable insights backed by data and logical reasoning.`,
       },
       researcher: {
-        model: 'claude-3-5-sonnet-20241022',
+        model: process.env.ANTHROPIC_DEFAULT_MODEL || 'claude-3-5-sonnet-20241022',
         temperature: 0.7,
         prompt: systemPrompt || `You are a Research Bot specialized in information gathering, synthesis, and fact-checking.
 
@@ -74,7 +74,7 @@ Your expertise includes:
 Provide thorough, well-sourced information with proper attribution.`,
       },
       support: {
-        model: 'claude-3-5-sonnet-20241022',
+        model: process.env.ANTHROPIC_DEFAULT_MODEL || 'claude-3-5-sonnet-20241022',
         temperature: 0.8,
         prompt: systemPrompt || `You are a Customer Support Bot dedicated to helping users with empathy and efficiency.
 
@@ -88,7 +88,7 @@ Your expertise includes:
 Always be patient, friendly, and solution-oriented.`,
       },
       devops: {
-        model: 'claude-3-5-sonnet-20241022',
+        model: process.env.ANTHROPIC_DEFAULT_MODEL || 'claude-3-5-sonnet-20241022',
         temperature: 0.6,
         prompt: systemPrompt || `You are a DevOps Bot specialized in infrastructure, deployment, and automation.
 
