@@ -1,6 +1,6 @@
 # Story 1.5: Basic Navigation & Layout
 
-Status: ready-for-dev
+Status: in-progress
 
 ## Story
 
