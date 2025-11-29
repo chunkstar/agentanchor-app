@@ -44,8 +44,8 @@ development_status:
   1-1-project-setup-deployment-pipeline: done
   1-2-database-schema-supabase-setup: ready-for-dev
   1-3-user-registration-authentication: drafted
-  1-4-user-profile-role-selection: backlog
-  1-5-basic-navigation-layout: backlog
+  1-4-user-profile-role-selection: drafted
+  1-5-basic-navigation-layout: drafted
   epic-1-retrospective: optional
 
   # ═══════════════════════════════════════════════════════════════════
