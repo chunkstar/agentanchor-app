@@ -13,12 +13,11 @@ export default async function AnalyticsPage() {
     return null
   }
 
-  // Fetch analytics data
+  // Fetch analytics data - first batch (no dependencies)
   const [
     { data: bots },
     { data: teams },
     { data: conversations },
-    { data: messages },
     { data: mcpServers },
   ] = await Promise.all([
     supabase.from('bots').select('id, name, created_at').eq('user_id', session.user.id),
@@ -27,16 +26,18 @@ export default async function AnalyticsPage() {
       .from('conversations')
       .select('id, created_at, updated_at')
       .eq('user_id', session.user.id),
-    supabase
-      .from('messages')
-      .select('id, role, bot_id, created_at')
-      .in(
-        'conversation_id',
-        (conversations || []).map((c) => c.id)
-      )
-      .order('created_at', { ascending: false }),
     supabase.from('mcp_servers').select('id, name, created_at').eq('user_id', session.user.id),
   ])
+
+  // Fetch messages (depends on conversations)
+  const conversationIds = (conversations || []).map((c) => c.id)
+  const { data: messages } = conversationIds.length > 0
+    ? await supabase
+        .from('messages')
+        .select('id, role, bot_id, created_at')
+        .in('conversation_id', conversationIds)
+        .order('created_at', { ascending: false })
+    : { data: [] }
 
   // Calculate statistics
   const totalBots = bots?.length || 0

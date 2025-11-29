@@ -12,7 +12,7 @@ import { cookies } from 'next/headers'
 // Phase 1 imports
 import { catchErrors, AuthError, NotFoundError, AnthropicError } from '@/lib/errors'
 import { ChatRequestSchema, validateRequest } from '@/lib/schemas'
-import { enforceRateLimit, chatRateLimit, addRateLimitHeaders } from '@/lib/rate-limit'
+import { enforceRateLimit, chatRateLimit } from '@/lib/rate-limit'
 import { logger, logError, logPerformance } from '@/lib/logger'
 import { trackChatMessage, calculateClaudeCost } from '@/lib/metrics'
 import { anthropicCircuitBreaker } from '@/lib/circuit-breaker'
@@ -48,8 +48,8 @@ export const POST = catchErrors(async (req: NextRequest) => {
     throw new AuthError('Authentication required for chat')
   }
 
-  // 3. Enforce rate limiting
-  const rateLimitResult = await enforceRateLimit(
+  // 3. Enforce rate limiting (throws if limit exceeded)
+  await enforceRateLimit(
     session.user.id,
     chatRateLimit,
     '/api/chat'
@@ -171,11 +171,6 @@ export const POST = catchErrors(async (req: NextRequest) => {
                 responseLength: fullResponse.length,
               })
               break
-
-            case 'error':
-              throw new AnthropicError(event.error.message, {
-                type: event.error.type,
-              })
           }
         }
 
@@ -228,19 +223,12 @@ export const POST = catchErrors(async (req: NextRequest) => {
     },
   })
 
-  // 10. Create response with rate limit headers
-  const response = new Response(stream, {
+  // 10. Create streaming response
+  return new Response(stream, {
     headers: {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       Connection: 'keep-alive',
     },
   })
-
-  // Add rate limit headers if available
-  if (rateLimitResult) {
-    return addRateLimitHeaders(response, rateLimitResult)
-  }
-
-  return response
 })

@@ -18,7 +18,14 @@
       "Bash(dir \"C:\\BAI\\scattered_asprirations\\aiBotBuild\\app\" /B)",
       "Bash(dir \"C:\\BAI\\scattered_asprirations\\aiBotBuild\\supabase\\migrations\" /B)",
       "Bash(dir \"C:\\BAI\\scattered_asprirations\\aiBotBuild\\docs\" /B /O-D)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nComplete AgentAnchor architecture and documentation ecosystem\n\n- Add comprehensive system architecture (72KB, 1665 lines)\n  - Seven-layer governance: Human → Council → Validators → Academy → Truth Chain → Observer → Workers\n  - Trust Score system (0-1000 with 6 tiers)\n  - Three acquisition models: Commission, Clone, Enterprise Lock\n  - Client-first protection with walk-away rights\n\n- Add supporting architecture documents\n  - Observer isolation architecture (complete separation for audit)\n  - Truth Chain architecture (hybrid hash chain + blockchain anchoring)\n\n- Add UX design system\n  - Design specification document\n  - Interactive dashboard mockup (HTML)\n\n- Add BMAD integration\n  - Full .bmad/ module installation\n  - Agent manifests and workflows\n  - Claude Code slash commands\n\n- Add project infrastructure\n  - GitHub workflows\n  - Supabase migrations (bot trust, collaboration, usage logs)\n  - API routes (orchestrator, chat, bot-trust, collaborate, export, presets)\n  - Session notes and workflow status tracking\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git config:*)",
+      "SlashCommand(/bmad:bmm:workflows:sprint-planning)",
+      "Bash(git commit:*)",
+      "Bash(npm run build:*)",
+      "Bash(timeout 10 npm run dev:*)",
+      "SlashCommand(/bmad:bmm:agents:sm)"
     ],
     "deny": [],
     "ask": []

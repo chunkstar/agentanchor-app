@@ -48,7 +48,7 @@ if (config.monitoring.sentry) {
       // Filter out non-error rejections
       if (event.exception) {
         const error = hint.originalException
-        if (error && typeof error === 'object' && 'message' in error) {
+        if (error instanceof Error) {
           // Don't send errors that are just informational
           if (error.message?.includes('ResizeObserver loop')) {
             return null
