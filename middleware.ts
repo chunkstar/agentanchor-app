@@ -10,19 +10,38 @@ export async function middleware(req: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession()
 
-  // Protect dashboard routes
-  if (req.nextUrl.pathname.startsWith('/dashboard') ||
-      req.nextUrl.pathname.startsWith('/bots') ||
-      req.nextUrl.pathname.startsWith('/teams') ||
-      req.nextUrl.pathname.startsWith('/chat') ||
-      req.nextUrl.pathname.startsWith('/orchestrator') ||
-      req.nextUrl.pathname.startsWith('/mcp')) {
+  // List of protected routes that require authentication
+  const protectedRoutes = [
+    '/dashboard',
+    '/bots',
+    '/teams',
+    '/chat',
+    '/orchestrator',
+    '/mcp',
+    '/settings',
+    '/collaborate',
+    '/conversations',
+  ]
+
+  const isProtectedRoute = protectedRoutes.some(route =>
+    req.nextUrl.pathname.startsWith(route)
+  )
+
+  // Protect dashboard and other authenticated routes
+  if (isProtectedRoute) {
     if (!session) {
       return NextResponse.redirect(new URL('/auth/login', req.url))
     }
   }
 
-  // Redirect to dashboard if already logged in
+  // Protect onboarding routes - must be logged in
+  if (req.nextUrl.pathname.startsWith('/onboarding')) {
+    if (!session) {
+      return NextResponse.redirect(new URL('/auth/login', req.url))
+    }
+  }
+
+  // Redirect to dashboard if already logged in (from auth pages)
   if (req.nextUrl.pathname.startsWith('/auth')) {
     if (session) {
       return NextResponse.redirect(new URL('/dashboard', req.url))
@@ -80,5 +99,17 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/bots/:path*', '/teams/:path*', '/chat/:path*', '/orchestrator/:path*', '/mcp/:path*', '/auth/:path*'],
+  matcher: [
+    '/dashboard/:path*',
+    '/bots/:path*',
+    '/teams/:path*',
+    '/chat/:path*',
+    '/orchestrator/:path*',
+    '/mcp/:path*',
+    '/auth/:path*',
+    '/onboarding/:path*',
+    '/settings/:path*',
+    '/collaborate/:path*',
+    '/conversations/:path*',
+  ],
 }
