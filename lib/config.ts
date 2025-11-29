@@ -19,12 +19,30 @@ const configSchema = z.object({
     port: z.number().default(3000),
   }),
 
-  // Supabase
+  // Supabase (Auth only)
   supabase: z.object({
     url: z.string().url(),
     anonKey: z.string().min(1),
     serviceRoleKey: z.string().min(1),
   }),
+
+  // Database (Neon PostgreSQL)
+  database: z
+    .object({
+      url: z.string().min(1),
+      urlUnpooled: z.string().optional(),
+    })
+    .optional(),
+
+  // Pusher (Realtime)
+  pusher: z
+    .object({
+      appId: z.string().min(1),
+      key: z.string().min(1),
+      secret: z.string().min(1),
+      cluster: z.string().min(1),
+    })
+    .optional(),
 
   // Anthropic
   anthropic: z.object({
@@ -96,6 +114,22 @@ function parseConfig(): Config {
       anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
     },
+
+    database: process.env.DATABASE_URL
+      ? {
+          url: process.env.DATABASE_URL,
+          urlUnpooled: process.env.DATABASE_URL_UNPOOLED,
+        }
+      : undefined,
+
+    pusher: process.env.PUSHER_APP_ID
+      ? {
+          appId: process.env.PUSHER_APP_ID,
+          key: process.env.PUSHER_KEY!,
+          secret: process.env.PUSHER_SECRET!,
+          cluster: process.env.PUSHER_CLUSTER!,
+        }
+      : undefined,
 
     anthropic: {
       apiKey: process.env.ANTHROPIC_API_KEY!,

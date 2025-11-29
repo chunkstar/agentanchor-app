@@ -72,6 +72,36 @@ export const globalRateLimit = config.rateLimit.enabled && config.rateLimit.redi
   : null
 
 /**
+ * Auth rate limiters - more restrictive to prevent brute force attacks
+ */
+export const authLoginRateLimit = config.rateLimit.enabled && config.rateLimit.redis
+  ? new Ratelimit({
+      redis: getRedisClient(),
+      limiter: Ratelimit.slidingWindow(5, '1 m'), // 5 login attempts per minute
+      analytics: true,
+      prefix: 'ratelimit:auth:login',
+    })
+  : null
+
+export const authSignupRateLimit = config.rateLimit.enabled && config.rateLimit.redis
+  ? new Ratelimit({
+      redis: getRedisClient(),
+      limiter: Ratelimit.slidingWindow(3, '1 h'), // 3 signups per hour per IP
+      analytics: true,
+      prefix: 'ratelimit:auth:signup',
+    })
+  : null
+
+export const authPasswordResetRateLimit = config.rateLimit.enabled && config.rateLimit.redis
+  ? new Ratelimit({
+      redis: getRedisClient(),
+      limiter: Ratelimit.slidingWindow(3, '15 m'), // 3 reset requests per 15 min
+      analytics: true,
+      prefix: 'ratelimit:auth:password-reset',
+    })
+  : null
+
+/**
  * Rate limit check result
  */
 export interface RateLimitResult {
@@ -198,7 +228,7 @@ export async function getRateLimitStats(userId: string) {
   }
 
   const client = getRedisClient()
-  const prefixes = ['chat', 'bot-creation', 'orchestrator', 'global']
+  const prefixes = ['chat', 'bot-creation', 'orchestrator', 'global', 'auth:login', 'auth:signup', 'auth:password-reset']
   const stats: Record<string, any> = {}
 
   for (const prefix of prefixes) {

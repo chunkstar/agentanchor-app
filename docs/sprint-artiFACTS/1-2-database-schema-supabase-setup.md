@@ -1,6 +1,6 @@
 # Story 1.2: Database Schema & Neon Setup
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -236,26 +236,98 @@ useEffect(() => {
 
 ### Context Reference
 
-<!-- Path(s) to story context XML will be added here by context workflow -->
+No context file required - new infrastructure story.
 
 ### Agent Model Used
 
-<!-- To be filled by dev agent -->
+claude-opus-4-5-20251101
 
 ### Debug Log References
 
-<!-- To be filled during implementation -->
+- Fixed config validation by making `database` config optional (build failed without DATABASE_URL)
+- Updated `lib/db/index.ts` to use lazy initialization pattern for serverless builds
 
 ### Completion Notes List
 
-<!-- To be filled after implementation -->
+**AC1 - Neon Project Configured:** ✅ IMPLEMENTED
+- Environment variables added to `lib/config.ts` and `.env.example`
+- DATABASE_URL and DATABASE_URL_UNPOOLED documented
+- Config validation with graceful fallback when DB not configured
+
+**AC2 - Core Tables Created:** ✅ IMPLEMENTED
+- All 9 tables defined in Drizzle schema:
+  - profiles, agents, trust_history, council_decisions, truth_chain
+  - observer_events, marketplace_listings, acquisitions, academy_progress
+- Full TypeScript type inference via Drizzle ORM
+
+**AC3 - Row Level Security:** ✅ IMPLEMENTED
+- RLS policies defined in `drizzle/0002_rls_policies.sql`
+- All tables enabled for RLS
+- Owner-based access control for agents, marketplace, academy
+- Public read for transparency tables (truth_chain, council_decisions)
+- Append-only policies for audit tables
+
+**AC4 - Foreign Key Relationships:** ✅ IMPLEMENTED
+- All relationships defined with proper CASCADE behavior
+- Drizzle `relations()` helper for type-safe joins
+- See schema files for complete relationship map
+
+**AC5 - Indexes Created:** ✅ IMPLEMENTED
+- Performance indexes on all major query patterns
+- owner_id, agent_id, created_at, status columns indexed
+- Composite indexes where beneficial
+
+**AC6 - Database Functions:** ✅ IMPLEMENTED
+- `get_trust_tier(score)` - Returns tier name (Untrusted → Elite)
+- `get_trust_tier_level(score)` - Returns numeric tier (0-5)
+- `calculate_truth_chain_hash()` - SHA-256 hash for chain integrity
+- `update_updated_at_column()` - Auto-timestamp trigger
+- `enforce_trust_score_bounds()` - Clamps scores to 0-1000
+- `verify_truth_chain_integrity()` - Chain verification function
+
+**AC7 - Drizzle ORM Configured:** ✅ IMPLEMENTED
+- `drizzle.config.ts` configured for Neon
+- `lib/db/index.ts` with lazy initialization
+- npm scripts: db:generate, db:migrate, db:push, db:studio
+
+**AC8 - Pusher Realtime Configured:** ✅ IMPLEMENTED
+- Server client: `lib/pusher/server.ts`
+- Browser client: `lib/pusher/client.ts`
+- Type-safe events: `lib/pusher/events.ts`
+- Broadcast helpers: `lib/pusher/broadcast.ts`
+- React hooks: `lib/pusher/hooks.ts`
+- Channels: observer-feed, council-feed, private-user-{id}, private-agent-{id}
+
+**Task 4 - Initial Migration:** ⏳ DEFERRED
+- Requires Neon project credentials
+- User needs to run `npm run db:push` after setting DATABASE_URL
+- SQL files ready in `drizzle/` folder
 
 ### File List
 
-<!-- To be filled after implementation -->
 | Action | File Path | Notes |
 |--------|-----------|-------|
-| | | |
+| CREATED | `drizzle.config.ts` | Drizzle Kit configuration |
+| CREATED | `lib/db/index.ts` | Database client with lazy init |
+| CREATED | `lib/db/schema/index.ts` | Schema exports |
+| CREATED | `lib/db/schema/users.ts` | profiles table |
+| CREATED | `lib/db/schema/agents.ts` | agents, trust_history tables |
+| CREATED | `lib/db/schema/council.ts` | council_decisions table |
+| CREATED | `lib/db/schema/truth-chain.ts` | truth_chain table |
+| CREATED | `lib/db/schema/observer.ts` | observer_events table |
+| CREATED | `lib/db/schema/marketplace.ts` | listings, acquisitions tables |
+| CREATED | `lib/db/schema/academy.ts` | academy_progress table |
+| CREATED | `drizzle/0001_functions.sql` | Database functions |
+| CREATED | `drizzle/0002_rls_policies.sql` | RLS policies |
+| CREATED | `lib/pusher/index.ts` | Pusher module exports |
+| CREATED | `lib/pusher/server.ts` | Server-side Pusher client |
+| CREATED | `lib/pusher/client.ts` | Browser Pusher client |
+| CREATED | `lib/pusher/events.ts` | Type-safe event definitions |
+| CREATED | `lib/pusher/broadcast.ts` | Broadcast helper functions |
+| CREATED | `lib/pusher/hooks.ts` | React hooks for Pusher |
+| MODIFIED | `lib/config.ts` | Added database + pusher config |
+| MODIFIED | `.env.example` | Added DATABASE_URL + Pusher vars |
+| MODIFIED | `package.json` | Added drizzle scripts + dependencies |
 
 ---
 
@@ -266,3 +338,4 @@ useEffect(() => {
 | 2025-11-28 | Bob (SM Agent) | Initial draft created |
 | 2025-11-28 | Bob (SM Agent) | Updated: Supabase → Neon + Drizzle ORM |
 | 2025-11-28 | Bob (SM Agent) | Added: Pusher for realtime (AC8, Task 8) |
+| 2025-11-28 | Dev Agent (Opus 4.5) | Implementation complete - AC1-AC8 implemented |

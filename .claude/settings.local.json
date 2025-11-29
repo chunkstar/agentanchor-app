@@ -25,7 +25,17 @@
       "Bash(git commit:*)",
       "Bash(npm run build:*)",
       "Bash(timeout 10 npm run dev:*)",
-      "SlashCommand(/bmad:bmm:agents:sm)"
+      "SlashCommand(/bmad:bmm:agents:sm)",
+      "SlashCommand(/bmad:bmm:agents:dev)",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run db:push:*)",
+      "Bash(npx drizzle-kit push:*)",
+      "Bash(npm init:*)",
+      "Bash(git remote:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(timeout 5 npm run dev)"
     ],
     "deny": [],
     "ask": []

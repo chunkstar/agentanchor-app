@@ -4,10 +4,12 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { PasswordStrengthMeter, validatePassword } from '@/components/auth/PasswordStrengthMeter'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [fullName, setFullName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -19,6 +21,21 @@ export default function SignupPage() {
     e.preventDefault()
     setLoading(true)
     setError(null)
+
+    // Validate password strength
+    const passwordValidation = validatePassword(password)
+    if (!passwordValidation.valid) {
+      setError(passwordValidation.errors[0])
+      setLoading(false)
+      return
+    }
+
+    // Check password confirmation
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      setLoading(false)
+      return
+    }
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -154,12 +171,27 @@ export default function SignupPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="input"
                 placeholder="••••••••"
-                minLength={6}
                 required
               />
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Must be at least 6 characters
-              </p>
+              <PasswordStrengthMeter password={password} />
+            </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="label">
+                Confirm Password
+              </label>
+              <input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="input"
+                placeholder="••••••••"
+                required
+              />
+              {confirmPassword && password !== confirmPassword && (
+                <p className="mt-1 text-xs text-red-500">Passwords do not match</p>
+              )}
             </div>
 
             <button
