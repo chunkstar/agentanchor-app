@@ -1,6 +1,6 @@
 # Story 1.3: User Registration & Authentication
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 

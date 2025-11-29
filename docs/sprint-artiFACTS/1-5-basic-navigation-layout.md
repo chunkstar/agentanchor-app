@@ -1,6 +1,6 @@
 # Story 1.5: Basic Navigation & Layout
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 

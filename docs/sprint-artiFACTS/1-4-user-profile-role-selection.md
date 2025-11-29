@@ -1,6 +1,6 @@
 # Story 1.4: User Profile & Role Selection
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
