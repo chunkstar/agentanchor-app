@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, GraduationCap, Loader2, Trophy, BookOpen } from 'lucide-react'
+import { ArrowLeft, GraduationCap, Loader2, Trophy, BookOpen, Scale, CheckCircle, XCircle, Clock } from 'lucide-react'
 import ModuleProgress from '@/components/academy/ModuleProgress'
 import ModuleContent from '@/components/academy/ModuleContent'
 
@@ -57,6 +57,8 @@ export default function AgentTrainingPage() {
   const [selectedModule, setSelectedModule] = useState<Module | null>(null)
   const [loading, setLoading] = useState(true)
   const [completing, setCompleting] = useState(false)
+  const [examining, setExamining] = useState(false)
+  const [examResult, setExamResult] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
@@ -184,6 +186,43 @@ export default function AgentTrainingPage() {
       setError(err.message)
     } finally {
       setCompleting(false)
+    }
+  }
+
+  const handleRequestExamination = async () => {
+    if (!activeEnrollment) return
+
+    try {
+      setExamining(true)
+      setError(null)
+      setExamResult(null)
+
+      const res = await fetch(`/api/agents/${agentId}/examine`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        if (res.status === 429) {
+          throw new Error(`${data.message} (Cooldown ends: ${new Date(data.cooldownEnds).toLocaleString()})`)
+        }
+        throw new Error(data.error || 'Failed to request examination')
+      }
+
+      setExamResult(data.examination)
+
+      if (data.ready_for_graduation) {
+        setSuccessMessage('Examination passed! Your agent is ready for graduation.')
+      }
+
+      // Reload data
+      await loadTrainingData()
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setExamining(false)
     }
   }
 
@@ -320,6 +359,97 @@ export default function AgentTrainingPage() {
                     </span>
                   </div>
                 </div>
+
+                {/* Examination Section */}
+                {activeEnrollment.progress_stats.ready_for_exam && (
+                  <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Scale className="h-5 w-5 text-purple-600" />
+                      <h4 className="font-semibold text-gray-900 dark:text-white">
+                        Council Examination
+                      </h4>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      All modules complete! Request examination by the Council to graduate.
+                    </p>
+                    <button
+                      onClick={handleRequestExamination}
+                      disabled={examining}
+                      className="btn-primary w-full flex items-center justify-center gap-2"
+                    >
+                      {examining ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Examining...
+                        </>
+                      ) : (
+                        <>
+                          <GraduationCap className="h-4 w-4" />
+                          Request Examination
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {/* Examination Result */}
+                {examResult && (
+                  <div className={`mt-4 p-4 rounded-lg ${
+                    examResult.outcome === 'passed'
+                      ? 'bg-green-100 dark:bg-green-900/30 border border-green-400'
+                      : 'bg-red-100 dark:bg-red-900/30 border border-red-400'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      {examResult.outcome === 'passed' ? (
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                      ) : (
+                        <XCircle className="h-5 w-5 text-red-600" />
+                      )}
+                      <span className={`font-semibold ${
+                        examResult.outcome === 'passed'
+                          ? 'text-green-700 dark:text-green-400'
+                          : 'text-red-700 dark:text-red-400'
+                      }`}>
+                        {examResult.outcome === 'passed' ? 'Examination Passed!' : 'Examination Failed'}
+                      </span>
+                    </div>
+                    <p className={`text-sm ${
+                      examResult.outcome === 'passed'
+                        ? 'text-green-600 dark:text-green-400'
+                        : 'text-red-600 dark:text-red-400'
+                    }`}>
+                      {examResult.reasoning}
+                    </p>
+                    {examResult.votes && examResult.votes.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                          Validator Votes:
+                        </p>
+                        {examResult.votes.map((vote: any) => (
+                          <div key={vote.validator} className="flex items-center gap-2 text-xs">
+                            {vote.decision === 'approve' ? (
+                              <CheckCircle className="h-3 w-3 text-green-500" />
+                            ) : vote.decision === 'deny' ? (
+                              <XCircle className="h-3 w-3 text-red-500" />
+                            ) : (
+                              <Clock className="h-3 w-3 text-gray-500" />
+                            )}
+                            <span className="capitalize">{vote.validator}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {examResult.outcome === 'passed' && (
+                      <Link
+                        href={`/agents/${agentId}`}
+                        className="mt-3 inline-flex items-center gap-1 text-sm text-green-700 dark:text-green-400 hover:underline"
+                      >
+                        <GraduationCap className="h-4 w-4" />
+                        Proceed to Graduation
+                      </Link>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 

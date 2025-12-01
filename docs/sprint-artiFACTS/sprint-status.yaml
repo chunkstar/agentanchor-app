@@ -56,7 +56,7 @@ development_status:
   2-1-create-new-agent: done
   2-2-academy-enrollment: done
   2-3-training-progress-curriculum: done
-  2-4-council-examination: backlog
+  2-4-council-examination: done
   2-5-agent-graduation: backlog
   2-6-agent-history-archive: backlog
   epic-2-retrospective: optional
@@ -67,7 +67,7 @@ development_status:
   # ═══════════════════════════════════════════════════════════════════
   epic-3: contexted
   3-1-council-validator-agents: done
-  3-2-risk-level-classification: in-progress
+  3-2-risk-level-classification: done
   3-3-upchain-decision-protocol: backlog
   3-4-precedent-library: backlog
   3-5-human-escalation-override: backlog
