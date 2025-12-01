@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Metadata } from 'next'
-import { Scale, Shield, BookOpen, Heart, Loader2, AlertTriangle, CheckCircle, XCircle, HelpCircle, Search, Tag, Clock, TrendingUp, ExternalLink } from 'lucide-react'
+import { Scale, Shield, BookOpen, Heart, Loader2, AlertTriangle, CheckCircle, XCircle, HelpCircle, Search, Tag, Clock, TrendingUp, ExternalLink, Bell, User, ArrowRight } from 'lucide-react'
 
 interface Validator {
   id: string
@@ -33,6 +33,27 @@ interface Precedent {
   created_at: string
 }
 
+interface Escalation {
+  id: string
+  action_type: string
+  action_details: string
+  risk_level: number
+  status: 'pending' | 'approved' | 'denied' | 'modified' | 'timeout' | 'cancelled'
+  priority: 'low' | 'normal' | 'high' | 'critical'
+  council_reasoning: string
+  timeout_at: string
+  created_at: string
+}
+
+interface EscalationStats {
+  pending: number
+  approved: number
+  denied: number
+  modified: number
+  timeout: number
+  avgResponseTimeMinutes: number
+}
+
 const VALIDATOR_ICONS: Record<string, any> = {
   guardian: Shield,
   arbiter: Scale,
@@ -51,15 +72,19 @@ export default function CouncilPage() {
   const [validators, setValidators] = useState<Validator[]>([])
   const [riskLevels, setRiskLevels] = useState<RiskLevel[]>([])
   const [precedents, setPrecedents] = useState<Precedent[]>([])
+  const [escalations, setEscalations] = useState<Escalation[]>([])
+  const [escalationStats, setEscalationStats] = useState<EscalationStats | null>(null)
   const [precedentSearch, setPrecedentSearch] = useState('')
   const [precedentSort, setPrecedentSort] = useState<'recent' | 'cited'>('recent')
   const [loading, setLoading] = useState(true)
   const [precedentsLoading, setPrecedentsLoading] = useState(false)
+  const [escalationsLoading, setEscalationsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     loadCouncilData()
     loadPrecedents()
+    loadEscalations()
   }, [])
 
   useEffect(() => {
@@ -111,12 +136,62 @@ export default function CouncilPage() {
     loadPrecedents()
   }
 
+  const loadEscalations = async () => {
+    try {
+      setEscalationsLoading(true)
+
+      // Load pending escalations and stats in parallel
+      const [escalationsRes, statsRes] = await Promise.all([
+        fetch('/api/council/escalations?view=pending&limit=5'),
+        fetch('/api/council/escalations?view=stats'),
+      ])
+
+      if (escalationsRes.ok) {
+        const data = await escalationsRes.json()
+        setEscalations(data.escalations || [])
+      }
+
+      if (statsRes.ok) {
+        const data = await statsRes.json()
+        setEscalationStats(data.stats)
+      }
+    } catch (err) {
+      console.error('Failed to load escalations:', err)
+    } finally {
+      setEscalationsLoading(false)
+    }
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
     })
+  }
+
+  const formatTimeRemaining = (timeoutAt: string) => {
+    const timeout = new Date(timeoutAt).getTime()
+    const now = Date.now()
+    const remaining = timeout - now
+
+    if (remaining <= 0) return 'Expired'
+
+    const hours = Math.floor(remaining / (1000 * 60 * 60))
+    const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60))
+
+    if (hours > 24) return `${Math.floor(hours / 24)}d ${hours % 24}h`
+    if (hours > 0) return `${hours}h ${minutes}m`
+    return `${minutes}m`
+  }
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'critical': return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+      case 'high': return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+      case 'normal': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+      default: return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
+    }
   }
 
   if (loading) {
@@ -277,6 +352,92 @@ export default function CouncilPage() {
           </div>
         </div>
 
+        {/* Human Escalation Queue */}
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                Human Escalation Queue
+              </h2>
+              {escalationStats && escalationStats.pending > 0 && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                  <Bell className="h-3 w-3" />
+                  {escalationStats.pending} pending
+                </span>
+              )}
+            </div>
+            {escalationStats && (
+              <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                <span>Avg response: {escalationStats.avgResponseTimeMinutes}m</span>
+                <span className="text-green-600 dark:text-green-400">{escalationStats.approved} approved</span>
+                <span className="text-red-600 dark:text-red-400">{escalationStats.denied} denied</span>
+              </div>
+            )}
+          </div>
+
+          {escalationsLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-purple-600" />
+            </div>
+          ) : escalations.length === 0 ? (
+            <div className="card text-center py-8">
+              <CheckCircle className="h-12 w-12 mx-auto text-green-400 mb-3" />
+              <p className="text-gray-600 dark:text-gray-400">
+                No pending escalations
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
+                Critical decisions (L4) that require human oversight will appear here.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {escalations.map((escalation) => (
+                <div
+                  key={escalation.id}
+                  className="card border-l-4 border-l-red-500 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded text-xs font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400`}>
+                          L{escalation.risk_level}
+                        </span>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(escalation.priority)}`}>
+                          {escalation.priority.toUpperCase()}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-500">
+                          {formatDate(escalation.created_at)}
+                        </span>
+                      </div>
+                      <h3 className="font-medium text-gray-900 dark:text-white">
+                        {escalation.action_type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                        {escalation.action_details}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-2 italic">
+                        Council: {escalation.council_reasoning.substring(0, 150)}...
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <div className="flex items-center gap-1 text-sm">
+                        <Clock className="h-4 w-4 text-orange-500" />
+                        <span className="text-orange-600 dark:text-orange-400 font-medium">
+                          {formatTimeRemaining(escalation.timeout_at)}
+                        </span>
+                      </div>
+                      <button className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors">
+                        Review
+                        <ArrowRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Precedent Library */}
         <div className="mb-12">
           <div className="flex items-center justify-between mb-4">
@@ -415,8 +576,8 @@ export default function CouncilPage() {
                 Coming Soon
               </h3>
               <ul className="text-sm text-purple-800 dark:text-purple-200 space-y-1">
-                <li>• Human escalation queue for critical decisions</li>
-                <li>• Decision analytics and validator performance</li>
+                <li>• Decision analytics and validator performance metrics</li>
+                <li>• Email/push notifications for urgent escalations</li>
               </ul>
             </div>
           </div>

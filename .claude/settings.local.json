@@ -1,7 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(GIT_COMMITTER_NAME=\"chunkstar\" GIT_COMMITTER_EMAIL=\"racason@gmail.com\" git commit -m \"$(cat <<''EOF''\nImplement Story 3-4: Precedent Library\n\n## Database\n- council_precedents table with full-text search (weighted tsvector)\n- precedent_citations table with auto-increment trigger\n- RLS policies (public read, authenticated insert)\n- Seeded 3 example precedents\n\n## Precedent Service\n- createPrecedent() / createPrecedentFromDecision()\n- searchPrecedents() with filters (action type, outcome, risk level, tags)\n- findRelevantPrecedents() for similar case lookup\n- citePrecedent() for tracking citations\n- getMostCitedPrecedents() / getRecentPrecedents()\n\n## API Endpoints\n- GET/POST /api/council/precedents - Search/create precedents\n- GET/POST /api/council/precedents/[id] - Get details/cite precedent\n\n## Council Dashboard\n- Precedent Library section with search bar\n- Recent/Most Cited sort toggle\n- Precedent cards with risk level, outcome, tags, citation count\n- Empty state for no precedents\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(GIT_COMMITTER_NAME=\"chunkstar\" GIT_COMMITTER_EMAIL=\"racason@gmail.com\" git commit:*)"
     ],
     "deny": [],
     "ask": []
