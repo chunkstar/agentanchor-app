@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 
+export const dynamic = 'force-dynamic'
+
 const completeModuleSchema = z.object({
   enrollmentId: z.string().uuid(),
   moduleId: z.string(),

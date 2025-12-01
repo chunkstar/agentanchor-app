@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 
+export const dynamic = 'force-dynamic'
+
 // GET /api/agents/[id]/training - Get training state for agent
 export async function GET(
   request: NextRequest,
