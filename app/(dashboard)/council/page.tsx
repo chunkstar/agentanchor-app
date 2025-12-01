@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Metadata } from 'next'
-import { Scale, Shield, BookOpen, Heart, Loader2, AlertTriangle, CheckCircle, XCircle, HelpCircle } from 'lucide-react'
+import { Scale, Shield, BookOpen, Heart, Loader2, AlertTriangle, CheckCircle, XCircle, HelpCircle, Search, Tag, Clock, TrendingUp, ExternalLink } from 'lucide-react'
 
 interface Validator {
   id: string
@@ -17,6 +17,20 @@ interface RiskLevel {
   name: string
   description: string
   approval: string
+}
+
+interface Precedent {
+  id: string
+  title: string
+  summary: string
+  action_type: string
+  risk_level: number
+  outcome: 'approved' | 'denied' | 'escalated'
+  reasoning: string
+  tags: string[]
+  category: string
+  times_cited: number
+  created_at: string
 }
 
 const VALIDATOR_ICONS: Record<string, any> = {
@@ -36,12 +50,21 @@ const VALIDATOR_COLORS: Record<string, string> = {
 export default function CouncilPage() {
   const [validators, setValidators] = useState<Validator[]>([])
   const [riskLevels, setRiskLevels] = useState<RiskLevel[]>([])
+  const [precedents, setPrecedents] = useState<Precedent[]>([])
+  const [precedentSearch, setPrecedentSearch] = useState('')
+  const [precedentSort, setPrecedentSort] = useState<'recent' | 'cited'>('recent')
   const [loading, setLoading] = useState(true)
+  const [precedentsLoading, setPrecedentsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     loadCouncilData()
+    loadPrecedents()
   }, [])
+
+  useEffect(() => {
+    loadPrecedents()
+  }, [precedentSort])
 
   const loadCouncilData = async () => {
     try {
@@ -60,6 +83,40 @@ export default function CouncilPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const loadPrecedents = async () => {
+    try {
+      setPrecedentsLoading(true)
+      const params = new URLSearchParams()
+      if (precedentSearch) params.set('q', precedentSearch)
+      params.set('sort', precedentSort)
+      params.set('limit', '10')
+
+      const res = await fetch(`/api/council/precedents?${params}`)
+      const data = await res.json()
+
+      if (res.ok) {
+        setPrecedents(data.precedents || [])
+      }
+    } catch (err) {
+      console.error('Failed to load precedents:', err)
+    } finally {
+      setPrecedentsLoading(false)
+    }
+  }
+
+  const handlePrecedentSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    loadPrecedents()
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })
   }
 
   if (loading) {
@@ -220,6 +277,135 @@ export default function CouncilPage() {
           </div>
         </div>
 
+        {/* Precedent Library */}
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Precedent Library
+            </h2>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPrecedentSort('recent')}
+                className={`px-3 py-1.5 text-sm rounded-lg flex items-center gap-1 ${
+                  precedentSort === 'recent'
+                    ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
+                }`}
+              >
+                <Clock className="h-4 w-4" />
+                Recent
+              </button>
+              <button
+                onClick={() => setPrecedentSort('cited')}
+                className={`px-3 py-1.5 text-sm rounded-lg flex items-center gap-1 ${
+                  precedentSort === 'cited'
+                    ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
+                }`}
+              >
+                <TrendingUp className="h-4 w-4" />
+                Most Cited
+              </button>
+            </div>
+          </div>
+
+          {/* Search Bar */}
+          <form onSubmit={handlePrecedentSearch} className="mb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                value={precedentSearch}
+                onChange={(e) => setPrecedentSearch(e.target.value)}
+                placeholder="Search precedents by action type, tags, or keywords..."
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400"
+              />
+            </div>
+          </form>
+
+          {/* Precedent List */}
+          {precedentsLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-purple-600" />
+            </div>
+          ) : precedents.length === 0 ? (
+            <div className="card text-center py-8">
+              <BookOpen className="h-12 w-12 mx-auto text-gray-400 mb-3" />
+              <p className="text-gray-600 dark:text-gray-400">
+                {precedentSearch ? 'No precedents found matching your search.' : 'No precedents recorded yet.'}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
+                Significant Council decisions (L3+) are automatically recorded as precedents.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {precedents.map((precedent) => (
+                <div
+                  key={precedent.id}
+                  className="card hover:shadow-md transition-shadow cursor-pointer"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded text-xs font-bold ${
+                          precedent.risk_level <= 1 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                          precedent.risk_level === 2 ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                          precedent.risk_level === 3 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
+                          'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                        }`}>
+                          L{precedent.risk_level}
+                        </span>
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+                          precedent.outcome === 'approved' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                          precedent.outcome === 'denied' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                          'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                        }`}>
+                          {precedent.outcome === 'approved' && <CheckCircle className="h-3 w-3" />}
+                          {precedent.outcome === 'denied' && <XCircle className="h-3 w-3" />}
+                          {precedent.outcome === 'escalated' && <AlertTriangle className="h-3 w-3" />}
+                          {precedent.outcome.charAt(0).toUpperCase() + precedent.outcome.slice(1)}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-500">
+                          {formatDate(precedent.created_at)}
+                        </span>
+                      </div>
+                      <h3 className="font-medium text-gray-900 dark:text-white truncate">
+                        {precedent.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                        {precedent.summary}
+                      </p>
+                      {precedent.tags && precedent.tags.length > 0 && (
+                        <div className="flex items-center gap-1 mt-2 flex-wrap">
+                          <Tag className="h-3 w-3 text-gray-400" />
+                          {precedent.tags.slice(0, 4).map((tag) => (
+                            <span
+                              key={tag}
+                              className="px-1.5 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                          {precedent.tags.length > 4 && (
+                            <span className="text-xs text-gray-500">+{precedent.tags.length - 4}</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+                        <TrendingUp className="h-4 w-4" />
+                        <span>{precedent.times_cited} cited</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Coming Soon Features */}
         <div className="card bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800">
           <div className="flex items-start gap-4">
@@ -229,8 +415,6 @@ export default function CouncilPage() {
                 Coming Soon
               </h3>
               <ul className="text-sm text-purple-800 dark:text-purple-200 space-y-1">
-                <li>• Recent Council decisions and activity feed</li>
-                <li>• Precedent library with searchable rulings</li>
                 <li>• Human escalation queue for critical decisions</li>
                 <li>• Decision analytics and validator performance</li>
               </ul>
