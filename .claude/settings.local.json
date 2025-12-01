@@ -72,7 +72,8 @@
       "Bash(git ls-tree:*)",
       "Bash(git checkout:*)",
       "Bash(dir \"C:\\scattered_aspirations\\agentanchorai\\app\\api\" /B)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(GIT_COMMITTER_NAME=\"chunkstar\" GIT_COMMITTER_EMAIL=\"racason@gmail.com\" git commit -m \"$(cat <<''EOF''\nImplement Story 2-5: Agent Graduation\n\n## Graduation API\n- POST /api/agents/[id]/graduate - Graduate agent from Academy\n- GET /api/agents/[id]/graduate - Check graduation status\n- Initial Trust Score: 200-399 based on exam confidence\n- Trust history and audit log records created\n\n## Agent Detail Page Updates\n- Status banner showing agent status, trust score, tier\n- Training link\n- Graduate Agent button (when ready)\n- Publish to Marketplace button (placeholder)\n- Graduation success message\n\n## Agent Lifecycle\n- draft → training → active\n- Trust Score assigned on graduation\n- Certification level set to 1\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []

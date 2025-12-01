@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useParams } from 'next/navigation'
-import { ArrowLeft, Loader2, Trash2 } from 'lucide-react'
+import { ArrowLeft, Loader2, Trash2, GraduationCap, BookOpen, Trophy, Award, Rocket } from 'lucide-react'
 import Link from 'next/link'
 
 const MODELS = [
@@ -77,6 +77,14 @@ export default function EditBotPage() {
     is_public: false,
     avatar_url: '🤖',
   })
+  const [agentStatus, setAgentStatus] = useState({
+    status: 'draft',
+    trust_score: 0,
+    trust_tier: 'untrusted',
+    certification_level: 0,
+  })
+  const [graduationStatus, setGraduationStatus] = useState<any>(null)
+  const [graduating, setGraduating] = useState(false)
 
   useEffect(() => {
     loadBot()
@@ -102,10 +110,55 @@ export default function EditBotPage() {
         is_public: data.is_public,
         avatar_url: data.avatar_url || '🤖',
       })
+      setAgentStatus({
+        status: data.status || 'draft',
+        trust_score: data.trust_score || 0,
+        trust_tier: data.trust_tier || 'untrusted',
+        certification_level: data.certification_level || 0,
+      })
       setLoading(false)
+
+      // Check graduation status
+      loadGraduationStatus()
     } catch (err: any) {
       setError(err.message || 'Failed to load bot')
       setLoading(false)
+    }
+  }
+
+  const loadGraduationStatus = async () => {
+    try {
+      const res = await fetch(`/api/agents/${params.id}/graduate`)
+      if (res.ok) {
+        const data = await res.json()
+        setGraduationStatus(data)
+      }
+    } catch (err) {
+      console.error('Error loading graduation status:', err)
+    }
+  }
+
+  const handleGraduate = async () => {
+    try {
+      setGraduating(true)
+      setError(null)
+
+      const res = await fetch(`/api/agents/${params.id}/graduate`, {
+        method: 'POST',
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to graduate agent')
+      }
+
+      // Reload bot and graduation status
+      await loadBot()
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setGraduating(false)
     }
   }
 
@@ -198,6 +251,108 @@ export default function EditBotPage() {
           {error}
         </div>
       )}
+
+      {/* Agent Status Banner */}
+      <div className="card">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="text-4xl">{formData.avatar_url}</div>
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                {formData.name}
+              </h2>
+              <div className="flex items-center gap-3 mt-1">
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  agentStatus.status === 'active'
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                    : agentStatus.status === 'training'
+                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                    : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                }`}>
+                  {agentStatus.status.charAt(0).toUpperCase() + agentStatus.status.slice(1)}
+                </span>
+                {agentStatus.trust_score > 0 && (
+                  <span className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                    <Trophy className="h-4 w-4 text-yellow-500" />
+                    {agentStatus.trust_score} Trust ({agentStatus.trust_tier})
+                  </span>
+                )}
+                {agentStatus.certification_level > 0 && (
+                  <span className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                    <Award className="h-4 w-4 text-purple-500" />
+                    Level {agentStatus.certification_level}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Training Link */}
+            <Link
+              href={`/agents/${params.id}/training`}
+              className="btn-secondary flex items-center gap-2"
+            >
+              <BookOpen className="h-4 w-4" />
+              Training
+            </Link>
+
+            {/* Graduation Button */}
+            {graduationStatus?.ready_to_graduate && (
+              <button
+                onClick={handleGraduate}
+                disabled={graduating}
+                className="btn-primary flex items-center gap-2"
+              >
+                {graduating ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <GraduationCap className="h-4 w-4" />
+                )}
+                {graduating ? 'Graduating...' : 'Graduate Agent'}
+              </button>
+            )}
+
+            {/* Graduated - Publish CTA */}
+            {graduationStatus?.is_graduated && (
+              <button
+                className="btn-primary flex items-center gap-2"
+                disabled
+                title="Coming soon"
+              >
+                <Rocket className="h-4 w-4" />
+                Publish to Marketplace
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Graduation Success Message */}
+        {graduationStatus?.is_graduated && agentStatus.status === 'active' && (
+          <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+            <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
+              <GraduationCap className="h-5 w-5" />
+              <span className="font-medium">Agent Graduated!</span>
+            </div>
+            <p className="mt-1 text-sm text-green-600 dark:text-green-400">
+              Your agent has completed Academy training and is now active with a Trust Score of {agentStatus.trust_score}.
+            </p>
+          </div>
+        )}
+
+        {/* Ready to Graduate Message */}
+        {graduationStatus?.ready_to_graduate && !graduationStatus?.is_graduated && (
+          <div className="mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+            <div className="flex items-center gap-2 text-purple-700 dark:text-purple-400">
+              <GraduationCap className="h-5 w-5" />
+              <span className="font-medium">Ready for Graduation!</span>
+            </div>
+            <p className="mt-1 text-sm text-purple-600 dark:text-purple-400">
+              Your agent has passed the Council examination. Click "Graduate Agent" to complete the process and receive your Trust Score.
+            </p>
+          </div>
+        )}
+      </div>
 
       <form onSubmit={handleSubmit} className="card space-y-6">
         <div>
