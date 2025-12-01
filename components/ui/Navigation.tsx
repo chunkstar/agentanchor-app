@@ -38,7 +38,7 @@ export default function Navigation() {
             <Link href="/dashboard" className="flex items-center">
               <Bot className="h-8 w-8 text-blue-600 dark:text-blue-400" />
               <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">
-                AI Bot Builder
+                AgentAnchor
               </span>
             </Link>
 

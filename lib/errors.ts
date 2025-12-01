@@ -1,7 +1,7 @@
 /**
  * Error Handling Framework
  *
- * Provides structured error classification and handling for the AI Bot Builder platform.
+ * Provides structured error classification and handling for the AgentAnchor platform.
  * All errors should extend ApiError for consistent error responses.
  */
 

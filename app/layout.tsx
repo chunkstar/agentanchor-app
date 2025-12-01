@@ -5,8 +5,8 @@ import { Inter } from 'next/font/google'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'AI Bot Builder - Create Custom AI Assistants',
-  description: 'Build, manage, and deploy custom AI bots with MCP team integration',
+  title: 'AgentAnchor - AI Agent Platform with Trust & Governance',
+  description: 'Build, deploy, and govern AI agents with trust-based autonomy and collaborative workflows',
 }
 
 export default function RootLayout({

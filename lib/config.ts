@@ -14,7 +14,7 @@ const configSchema = z.object({
 
   // Application
   app: z.object({
-    name: z.string().default('AI Bot Builder'),
+    name: z.string().default('AgentAnchor'),
     url: z.string().url().optional(),
     port: z.number().default(3000),
   }),
@@ -104,7 +104,7 @@ function parseConfig(): Config {
     nodeEnv: process.env.NODE_ENV || 'development',
 
     app: {
-      name: process.env.NEXT_PUBLIC_APP_NAME || 'AI Bot Builder',
+      name: process.env.NEXT_PUBLIC_APP_NAME || 'AgentAnchor',
       url: process.env.NEXT_PUBLIC_APP_URL,
       port: parseInt(process.env.PORT || '3000', 10),
     },

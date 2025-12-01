@@ -135,7 +135,7 @@ export default function OrchestratorPage() {
           {
             user_id: session.user.id,
             bot_id: botId,
-            title: 'Welcome to AI Bot Builder',
+            title: 'Welcome to AgentAnchor',
           },
         ])
         .select()

@@ -52,10 +52,10 @@ export default function LoginPage() {
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            AI Bot Builder
+            AgentAnchor
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Build and deploy custom AI assistants
+            AI agents with trust, governance, and collaborative workflows
           </p>
         </div>
 
