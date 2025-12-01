@@ -68,7 +68,7 @@ development_status:
   epic-3: contexted
   3-1-council-validator-agents: done
   3-2-risk-level-classification: done
-  3-3-upchain-decision-protocol: backlog
+  3-3-upchain-decision-protocol: done
   3-4-precedent-library: backlog
   3-5-human-escalation-override: backlog
   epic-3-retrospective: optional
