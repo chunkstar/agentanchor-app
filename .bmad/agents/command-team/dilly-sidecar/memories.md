@@ -29,6 +29,11 @@
 - **Note**: AgentAnchor is a Scattered Aspirations (S_A) production, NOT BAI
 - **All S_A repos should be under chunkstar account, not BanquetAI**
 - **Cleanup**: Delete duplicate repo at BanquetAI/agentanchor-website when convenient
+- **Git Issue Discovered**: Remote `main` branch was overwritten with landing page only
+  - Full app code preserved on `app-main` branch
+  - Remote `main` = minimal landing page (3 files in app/)
+  - Local `app-main` = full application (deployed to Vercel)
+  - Decision needed: merge app-main → main or keep branches separate
 
 #### 2025-11-30
 - Deployed AgentAnchor to Vercel (https://agentanchorai-3uhq80pdt-baiq.vercel.app)

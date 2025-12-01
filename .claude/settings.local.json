@@ -63,7 +63,16 @@
       "WebFetch(domain:agentanchorai-3uhq80pdt-baiq.vercel.app)",
       "SlashCommand(/bmad:bmb:workflows:create-agent)",
       "Bash(GIT_COMMITTER_NAME=\"chunkstar\" GIT_COMMITTER_EMAIL=\"racason@gmail.com\" git commit -m \"$(cat <<''EOF''\nInitial marketing site for AgentAnchor\n\n- Landing page with hero, features, trust system sections\n- Links to app.agentanchorai.com for the application\n- Ready for Cloudflare Pages deployment\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(gh repo delete:*)"
+      "Bash(gh repo delete:*)",
+      "Bash(GIT_COMMITTER_NAME=\"chunkstar\" GIT_COMMITTER_EMAIL=\"racason@gmail.com\" git commit -m \"$(cat <<''EOF''\nRebrand to AgentAnchor + add Command Team Pioneer Bots\n\n## Branding Updates\n- Replace all \"AI Bot Builder\" references with \"AgentAnchor\"\n- Update page titles, descriptions, and UI components\n- Fix NEXT_PUBLIC_APP_URL (was localhost, now Vercel)\n\n## Command Team (Pioneer Bots)\nAdd 4-agent team as first AgentAnchor AI citizens:\n- Barclay (Team Orchestrator + BMAD KB)\n- Dilly Bot (DevOps & Project Organization)\n- Cronos (Schedule Master)\n- Aria (Agent Liaison)\n\nIncludes:\n- Agent YAML definitions with commands\n- Sidecar folders (instructions.md, memories.md)\n- Shared team-state.yaml and comms-protocol.md\n- README documentation\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(gh repo view:*)",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)",
+      "Bash(git fetch:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(git checkout:*)",
+      "Bash(dir \"C:\\scattered_aspirations\\agentanchorai\\app\\api\" /B)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []
