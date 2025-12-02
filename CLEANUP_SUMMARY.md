@@ -99,7 +99,7 @@ The Firebase configuration in the archived files contains API keys for `aiq-stor
 
 1. ✅ **Continue with AI Bot Builder** - The primary app is clean and ready to use
 2. 📦 **Archive is reference only** - Banquet AIQ cannot run without recreating data files
-3. 🔍 **Check other directories** - If you need findFlight code, check other locations in `C:\bai\scattered_aspirations\`
+3. 🔍 **Check other directories** - If you need findFlight code, check other locations in `C:\S_A\`
 4. 🗑️ **Consider deleting .next** - Can be regenerated with `npm run dev`
 
 ---

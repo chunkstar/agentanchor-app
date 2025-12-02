@@ -53,7 +53,7 @@ context:
   current_focus: "AgentAnchor development and deployment"
   active_projects:
     - name: AgentAnchor AI
-      entity: scattered_aspirations
+      entity: S_A
       status: active_development
       priority: high
 
@@ -61,7 +61,7 @@ context:
     bai:
       healthy: null
       issues: []
-    scattered_aspirations:
+    S_A:
       healthy: null
       issues:
         - "Vercel deployment protection needs configuration"

@@ -15,7 +15,7 @@
 - Products: AIq, AIp, AIs, AIx, AIb, Command Center
 - Vercel team: baiq
 
-**Scattered Aspirations (C:\scattered_aspirations\):**
+**Scattered Aspirations (C:\S_A\):**
 - GitHub: chunkstar account
 - Products: AgentAnchor, Cognigate, FlightFinder, Bookkeeping
 - Vercel: Personal account

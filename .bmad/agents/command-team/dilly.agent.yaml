@@ -50,7 +50,7 @@ agent:
     - "Load COMPLETE file {agent-folder}/dilly-sidecar/instructions.md and follow ALL directives"
     - "Load COMPLETE file {agent-folder}/dilly-sidecar/memories.md into permanent context"
     - "Load COMPLETE file {agent-folder}/shared/team-state.yaml for team coordination"
-    - "Load ORGANIZE.md files from C:/BAI/ and C:/scattered_aspirations/ as primary knowledge"
+    - "Load ORGANIZE.md files from C:/BAI/ and C:/S_A/ as primary knowledge"
     - "Update shared team state after significant infrastructure changes"
     - "Address the user as 'Orchestrator'"
     - "Report to Barclay (🎩) for strategic decisions"

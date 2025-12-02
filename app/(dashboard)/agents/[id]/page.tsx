@@ -12,7 +12,7 @@ import {
   History,
   ShieldCheck,
 } from 'lucide-react'
-import TrustBadge, { CertificationBadge, TrustScoreIndicator } from '@/components/agents/TrustBadge'
+import TrustBadge, { CertificationBadge, TrustScoreIndicator, AutonomyIndicator, TrustTierCard } from '@/components/agents/TrustBadge'
 import { Agent, STATUS_LABELS, SPECIALIZATIONS } from '@/lib/agents/types'
 
 interface PageProps {
@@ -183,43 +183,48 @@ export default async function AgentDetailPage({ params }: PageProps) {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column - Trust & Training */}
         <div className="space-y-6 lg:col-span-2">
-          {/* Trust Score Card */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Trust Score
-              </h2>
-              <Link
-                href={`/agents/${agent.id}/trust`}
-                className="text-sm text-blue-600 hover:underline dark:text-blue-400"
-              >
-                View History
-              </Link>
-            </div>
-            <TrustScoreIndicator score={agent.trust_score} tier={agent.trust_tier} />
+          {/* Trust Score Card - Enhanced with tier details */}
+          <TrustTierCard score={agent.trust_score} tier={agent.trust_tier} />
 
-            {/* Recent Trust History */}
-            {trustHistory.length > 0 && (
-              <div className="mt-4 space-y-2">
-                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Recent Changes
-                </h3>
-                {trustHistory.slice(0, 3).map((entry: any) => (
+          {/* Autonomy Level Card (FR54) */}
+          <AutonomyIndicator tier={agent.trust_tier} />
+
+          {/* Recent Trust History */}
+          {trustHistory.length > 0 && (
+            <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Recent Trust Changes
+                </h2>
+                <Link
+                  href={`/agents/${agent.id}/trust`}
+                  className="text-sm text-blue-600 hover:underline dark:text-blue-400"
+                >
+                  View All
+                </Link>
+              </div>
+              <div className="space-y-2">
+                {trustHistory.slice(0, 5).map((entry: any) => (
                   <div
                     key={entry.id}
-                    className="flex items-center justify-between text-sm"
+                    className="flex items-center justify-between text-sm py-2 border-b border-gray-100 dark:border-gray-700 last:border-0"
                   >
-                    <span className="text-gray-700 dark:text-gray-300">
-                      {entry.reason}
-                    </span>
+                    <div>
+                      <span className="text-gray-700 dark:text-gray-300">
+                        {entry.reason}
+                      </span>
+                      <p className="text-xs text-gray-400">
+                        {new Date(entry.recorded_at).toLocaleDateString()}
+                      </p>
+                    </div>
                     <span
-                      className={
+                      className={`font-medium ${
                         entry.change_amount > 0
                           ? 'text-green-600 dark:text-green-400'
                           : entry.change_amount < 0
                           ? 'text-red-600 dark:text-red-400'
                           : 'text-gray-500'
-                      }
+                      }`}
                     >
                       {entry.change_amount > 0 ? '+' : ''}
                       {entry.change_amount || 0}
@@ -227,8 +232,8 @@ export default async function AgentDetailPage({ params }: PageProps) {
                   </div>
                 ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Academy Enrollments */}
           <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
