@@ -1,277 +1,411 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import {
+  Bell,
+  Mail,
+  Globe,
+  AlertTriangle,
+  GraduationCap,
+  AlertCircle,
+  UserCheck,
+  Trophy,
+  Scale,
+  ShoppingCart,
+  MessageSquare,
+  DollarSign,
+  Shield,
+  Info,
+  RefreshCw,
+  Send,
+  Check,
+} from 'lucide-react'
 
-interface NotificationPreferences {
-  email: boolean
-  in_app: boolean
-  webhook: boolean
-  webhook_url?: string
+type NotificationType =
+  | 'escalation'
+  | 'graduation'
+  | 'anomaly'
+  | 'ownership_change'
+  | 'earnings_milestone'
+  | 'council_decision'
+  | 'acquisition'
+  | 'feedback_received'
+  | 'payout_completed'
+  | 'trust_change'
+  | 'system'
+
+type NotificationChannel = 'in_app' | 'email' | 'webhook'
+
+interface NotificationPreference {
+  id: string
+  notification_type: NotificationType
+  channel: NotificationChannel
+  enabled: boolean
+}
+
+const NOTIFICATION_TYPES: Record<NotificationType, {
+  label: string
+  description: string
+  icon: React.ElementType
+  canDisableInApp: boolean
+}> = {
+  escalation: {
+    label: 'Escalations',
+    description: 'Urgent decisions requiring human intervention',
+    icon: AlertTriangle,
+    canDisableInApp: false,
+  },
+  graduation: {
+    label: 'Graduations',
+    description: 'Agent graduation and certification events',
+    icon: GraduationCap,
+    canDisableInApp: true,
+  },
+  anomaly: {
+    label: 'Anomalies',
+    description: 'Observer-detected behavioral anomalies',
+    icon: AlertCircle,
+    canDisableInApp: true,
+  },
+  ownership_change: {
+    label: 'Ownership Changes',
+    description: 'Agent ownership or listing status changes',
+    icon: UserCheck,
+    canDisableInApp: true,
+  },
+  earnings_milestone: {
+    label: 'Earnings Milestones',
+    description: 'Achievement of earnings thresholds',
+    icon: Trophy,
+    canDisableInApp: true,
+  },
+  council_decision: {
+    label: 'Council Decisions',
+    description: 'Council voting outcomes and decisions',
+    icon: Scale,
+    canDisableInApp: true,
+  },
+  acquisition: {
+    label: 'Acquisitions',
+    description: 'New agent acquisitions or terminations',
+    icon: ShoppingCart,
+    canDisableInApp: true,
+  },
+  feedback_received: {
+    label: 'Feedback',
+    description: 'Consumer feedback and reviews',
+    icon: MessageSquare,
+    canDisableInApp: true,
+  },
+  payout_completed: {
+    label: 'Payouts',
+    description: 'Payout processing and completion',
+    icon: DollarSign,
+    canDisableInApp: true,
+  },
+  trust_change: {
+    label: 'Trust Changes',
+    description: 'Significant trust score changes',
+    icon: Shield,
+    canDisableInApp: true,
+  },
+  system: {
+    label: 'System',
+    description: 'Platform updates and announcements',
+    icon: Info,
+    canDisableInApp: true,
+  },
 }
 
 export default function NotificationSettingsPage() {
-  const [preferences, setPreferences] = useState<NotificationPreferences>({
-    email: true,
-    in_app: true,
-    webhook: false,
-  })
-  const [webhookUrl, setWebhookUrl] = useState('')
-  const [isLoading, setIsLoading] = useState(true)
-  const [isSaving, setIsSaving] = useState(false)
+  const [preferences, setPreferences] = useState<NotificationPreference[]>([])
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
+  const [testSent, setTestSent] = useState<string | null>(null)
 
   useEffect(() => {
     fetchPreferences()
   }, [])
 
-  const fetchPreferences = async () => {
+  async function fetchPreferences() {
     try {
-      const response = await fetch('/api/profile')
-      if (!response.ok) throw new Error('Failed to fetch profile')
-      const data = await response.json()
-
-      if (data.profile.notification_preferences) {
-        setPreferences(data.profile.notification_preferences)
-        setWebhookUrl(data.profile.notification_preferences.webhook_url || '')
+      const res = await fetch('/api/notifications/preferences')
+      if (res.ok) {
+        const data = await res.json()
+        setPreferences(data.preferences || [])
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load preferences')
+      setError('Failed to load preferences')
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSaving(true)
-    setError(null)
-    setSuccess(null)
+  async function togglePreference(
+    type: NotificationType,
+    channel: NotificationChannel,
+    currentEnabled: boolean
+  ) {
+    // Prevent disabling in-app for escalations
+    if (type === 'escalation' && channel === 'in_app' && currentEnabled) {
+      setError('Escalation in-app notifications cannot be disabled')
+      setTimeout(() => setError(null), 3000)
+      return
+    }
+
+    const key = `${type}-${channel}`
+    setSaving(key)
 
     try {
-      const response = await fetch('/api/profile/notifications', {
+      const res = await fetch('/api/notifications/preferences', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: preferences.email,
-          in_app: preferences.in_app,
-          webhook: preferences.webhook,
-          webhook_url: preferences.webhook ? webhookUrl : null,
+          type,
+          channel,
+          enabled: !currentEnabled,
         }),
       })
 
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error?.message || 'Failed to save preferences')
+      if (res.ok) {
+        // Update local state
+        setPreferences(prev => {
+          const existing = prev.find(
+            p => p.notification_type === type && p.channel === channel
+          )
+          if (existing) {
+            return prev.map(p =>
+              p.notification_type === type && p.channel === channel
+                ? { ...p, enabled: !currentEnabled }
+                : p
+            )
+          }
+          return [
+            ...prev,
+            {
+              id: `new-${key}`,
+              notification_type: type,
+              channel,
+              enabled: !currentEnabled,
+            },
+          ]
+        })
+      } else {
+        const data = await res.json()
+        setError(data.error || 'Failed to update preference')
+        setTimeout(() => setError(null), 3000)
       }
-
-      setSuccess('Notification preferences saved!')
-      setTimeout(() => setSuccess(null), 3000)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save')
+      setError('Failed to update preference')
+      setTimeout(() => setError(null), 3000)
     } finally {
-      setIsSaving(false)
+      setSaving(null)
     }
   }
 
-  const togglePreference = (key: keyof NotificationPreferences) => {
-    setPreferences((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }))
+  function getPreferenceEnabled(type: NotificationType, channel: NotificationChannel): boolean {
+    const pref = preferences.find(
+      p => p.notification_type === type && p.channel === channel
+    )
+    // Default to true for in_app, false for others
+    return pref ? pref.enabled : channel === 'in_app'
   }
 
-  if (isLoading) {
+  async function sendTestNotification(channel: NotificationChannel) {
+    setTestSent(channel)
+
+    // Simulate sending test notification
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
+    setTimeout(() => setTestSent(null), 2000)
+  }
+
+  if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+      <div className="flex items-center justify-center py-24">
+        <RefreshCw className="w-8 h-8 animate-spin text-neutral-500" />
       </div>
     )
   }
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+      <div>
+        <h1 className="text-2xl font-bold text-neutral-100 flex items-center gap-3">
+          <Bell className="w-7 h-7 text-blue-400" />
           Notification Preferences
-        </h2>
-        <p className="mb-6 text-sm text-gray-600 dark:text-gray-400">
-          Choose how you want to be notified about agent activity, trust score changes, and platform updates.
+        </h1>
+        <p className="text-neutral-400 mt-1">
+          Choose how you want to be notified about different events
         </p>
-
-        {/* Alerts */}
-        {error && (
-          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">
-            {error}
-          </div>
-        )}
-        {success && (
-          <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/30 dark:text-green-400">
-            {success}
-          </div>
-        )}
-
-        <form onSubmit={handleSave} className="space-y-6">
-          {/* Email Notifications */}
-          <div className="flex items-start justify-between">
-            <div className="flex items-start gap-3">
-              <div className="mt-1 flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-medium text-gray-900 dark:text-white">Email Notifications</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Receive important updates and alerts via email
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => togglePreference('email')}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                preferences.email ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  preferences.email ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-          </div>
-
-          {/* In-App Notifications */}
-          <div className="flex items-start justify-between">
-            <div className="flex items-start gap-3">
-              <div className="mt-1 flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-medium text-gray-900 dark:text-white">In-App Notifications</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Show notifications within the AgentAnchor dashboard
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => togglePreference('in_app')}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                preferences.in_app ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  preferences.in_app ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-          </div>
-
-          {/* Webhook Notifications */}
-          <div className="space-y-3">
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-3">
-                <div className="mt-1 flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900 dark:text-white">Webhook Notifications</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Send notifications to your own webhook endpoint
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => togglePreference('webhook')}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  preferences.webhook ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
-                }`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    preferences.webhook ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
-              </button>
-            </div>
-
-            {/* Webhook URL Input */}
-            {preferences.webhook && (
-              <div className="ml-11 space-y-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Webhook URL
-                </label>
-                <input
-                  type="url"
-                  value={webhookUrl}
-                  onChange={(e) => setWebhookUrl(e.target.value)}
-                  placeholder="https://your-server.com/webhook"
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                />
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  We&apos;ll send POST requests with notification data to this URL
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Notification Types Info */}
-          <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-700/50">
-            <h3 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-              You will be notified about:
-            </h3>
-            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-              <li className="flex items-center gap-2">
-                <svg className="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                Agent trust score changes
-              </li>
-              <li className="flex items-center gap-2">
-                <svg className="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                Council decisions requiring attention
-              </li>
-              <li className="flex items-center gap-2">
-                <svg className="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                Human escalation requests
-              </li>
-              <li className="flex items-center gap-2">
-                <svg className="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                Marketplace activity (for trainers)
-              </li>
-              <li className="flex items-center gap-2">
-                <svg className="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                System updates and announcements
-              </li>
-            </ul>
-          </div>
-
-          {/* Save Button */}
-          <button
-            type="submit"
-            disabled={isSaving}
-            className="rounded-md bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isSaving ? 'Saving...' : 'Save Preferences'}
-          </button>
-        </form>
       </div>
+
+      {error && (
+        <div className="bg-red-900/30 border border-red-800 text-red-400 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
+
+      {/* Channel Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <ChannelCard
+          title="In-App"
+          description="Notifications in your dashboard"
+          icon={Bell}
+          color="green"
+          onTest={() => sendTestNotification('in_app')}
+          testing={testSent === 'in_app'}
+        />
+        <ChannelCard
+          title="Email"
+          description="Sent to your registered email"
+          icon={Mail}
+          color="blue"
+          onTest={() => sendTestNotification('email')}
+          testing={testSent === 'email'}
+        />
+        <ChannelCard
+          title="Webhook"
+          description="POST to your endpoint"
+          icon={Globe}
+          color="purple"
+          onTest={() => sendTestNotification('webhook')}
+          testing={testSent === 'webhook'}
+        />
+      </div>
+
+      {/* Notification Types */}
+      <div className="bg-neutral-900 rounded-lg border border-neutral-800">
+        <div className="p-4 border-b border-neutral-800">
+          <h2 className="font-semibold text-neutral-100">Notification Types</h2>
+          <p className="text-sm text-neutral-500 mt-1">
+            Configure which notifications you receive on each channel
+          </p>
+        </div>
+
+        <div className="divide-y divide-neutral-800">
+          {(Object.keys(NOTIFICATION_TYPES) as NotificationType[]).map((type) => {
+            const config = NOTIFICATION_TYPES[type]
+            const Icon = config.icon
+
+            return (
+              <div key={type} className="p-4">
+                <div className="flex items-start gap-4">
+                  <div className="p-2 rounded-lg bg-neutral-800">
+                    <Icon className="w-5 h-5 text-neutral-400" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium text-neutral-100">{config.label}</h3>
+                      {!config.canDisableInApp && (
+                        <span className="px-2 py-0.5 text-xs bg-yellow-900/30 text-yellow-400 rounded">
+                          Required
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-neutral-500 mt-1">{config.description}</p>
+
+                    {/* Channel toggles */}
+                    <div className="flex gap-4 mt-3">
+                      {(['in_app', 'email', 'webhook'] as NotificationChannel[]).map((channel) => {
+                        const enabled = getPreferenceEnabled(type, channel)
+                        const isDisabled = !config.canDisableInApp && channel === 'in_app'
+                        const isSaving = saving === `${type}-${channel}`
+
+                        return (
+                          <button
+                            key={channel}
+                            onClick={() => togglePreference(type, channel, enabled)}
+                            disabled={isSaving}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                              enabled
+                                ? 'bg-blue-600/20 text-blue-400 border border-blue-600'
+                                : 'bg-neutral-800 text-neutral-500 border border-neutral-700 hover:border-neutral-600'
+                            } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          >
+                            {isSaving ? (
+                              <RefreshCw className="w-3 h-3 animate-spin" />
+                            ) : enabled ? (
+                              <Check className="w-3 h-3" />
+                            ) : null}
+                            {channel === 'in_app' ? 'In-App' : channel === 'email' ? 'Email' : 'Webhook'}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Important Notes */}
+      <div className="bg-neutral-800/50 rounded-lg p-4 text-sm text-neutral-400">
+        <h3 className="font-medium text-neutral-300 mb-2">Important Notes</h3>
+        <ul className="space-y-1 list-disc list-inside">
+          <li>Escalation notifications cannot be fully disabled - you will always receive them in-app</li>
+          <li>Email notifications are sent to your registered email address</li>
+          <li>Configure webhook endpoints in the Integrations settings</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+function ChannelCard({
+  title,
+  description,
+  icon: Icon,
+  color,
+  onTest,
+  testing,
+}: {
+  title: string
+  description: string
+  icon: React.ElementType
+  color: 'green' | 'blue' | 'purple'
+  onTest: () => void
+  testing: boolean
+}) {
+  const colorClasses = {
+    green: 'text-green-400 bg-green-900/30',
+    blue: 'text-blue-400 bg-blue-900/30',
+    purple: 'text-purple-400 bg-purple-900/30',
+  }
+
+  return (
+    <div className="bg-neutral-900 rounded-lg border border-neutral-800 p-4">
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <div className={`p-2 rounded-lg ${colorClasses[color]}`}>
+            <Icon className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="font-medium text-neutral-100">{title}</h3>
+            <p className="text-sm text-neutral-500">{description}</p>
+          </div>
+        </div>
+      </div>
+      <button
+        onClick={onTest}
+        disabled={testing}
+        className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-1.5 text-sm bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded-lg transition-colors disabled:opacity-50"
+      >
+        {testing ? (
+          <>
+            <Check className="w-4 h-4 text-green-400" />
+            Sent!
+          </>
+        ) : (
+          <>
+            <Send className="w-4 h-4" />
+            Send Test
+          </>
+        )}
+      </button>
     </div>
   )
 }
