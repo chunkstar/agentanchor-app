@@ -77,57 +77,57 @@ development_status:
   # EPIC 4: Trust Score System
   # Goal: Trust earned through behavior
   # ═══════════════════════════════════════════════════════════════════
-  epic-4: backlog
-  4-1-trust-score-display-tiers: backlog
-  4-2-trust-score-changes: backlog
-  4-3-trust-score-history-trends: backlog
-  4-4-trust-decay-autonomy-limits: backlog
+  epic-4: contexted
+  4-1-trust-score-display-tiers: done  # TrustBadge, TrustTierCard, ProbationIndicator
+  4-2-trust-score-changes: done         # applyTrustChange service, API
+  4-3-trust-score-history-trends: done  # TrustHistoryChart, timeline, API
+  4-4-trust-decay-autonomy-limits: done # decay-service, cron job, UI
   epic-4-retrospective: optional
 
   # ═══════════════════════════════════════════════════════════════════
   # EPIC 5: Observer & Truth Chain
   # Goal: Complete audit trail and verification
   # ═══════════════════════════════════════════════════════════════════
-  epic-5: backlog
-  5-1-observer-event-logging: backlog
-  5-2-observer-dashboard-feed: backlog
-  5-3-anomaly-detection: backlog
-  5-4-truth-chain-records: backlog
-  5-5-public-verification: backlog
+  epic-5: contexted
+  5-1-observer-event-logging: done      # observer-service with hash chain
+  5-2-observer-dashboard-feed: done     # /observer page with live feed
+  5-3-anomaly-detection: done           # anomaly-service, AnomalyList
+  5-4-truth-chain-records: done         # truth-chain-service
+  5-5-public-verification: done         # /verify/[hash] page, API
   epic-5-retrospective: optional
 
   # ═══════════════════════════════════════════════════════════════════
   # EPIC 6: Marketplace & Acquisition
   # Goal: Consumers browse and acquire agents
   # ═══════════════════════════════════════════════════════════════════
-  epic-6: backlog
-  6-1-agent-publishing: backlog
-  6-2-marketplace-browse-search: backlog
-  6-3-agent-profile-observer-reports: backlog
-  6-4-agent-acquisition-commission: backlog
-  6-5-consumer-feedback: backlog
-  6-6-earnings-dashboard-payouts: backlog
+  epic-6: contexted
+  6-1-agent-publishing: done            # marketplace-service createListing
+  6-2-marketplace-browse-search: done   # /marketplace page, search API
+  6-3-agent-profile-observer-reports: done # /marketplace/[id] page
+  6-4-agent-acquisition-commission: done   # acquisition service
+  6-5-consumer-feedback: done           # feedback-service
+  6-6-earnings-dashboard-payouts: done  # /earnings page
   epic-6-retrospective: optional
 
   # ═══════════════════════════════════════════════════════════════════
   # EPIC 7: Dashboard & Notifications
   # Goal: Unified management interface
   # ═══════════════════════════════════════════════════════════════════
-  epic-7: backlog
-  7-1-role-based-dashboard: backlog
-  7-2-dashboard-tabs: backlog
-  7-3-escalation-notifications: backlog
-  7-4-event-notifications: backlog
-  7-5-notification-preferences: backlog
+  epic-7: contexted
+  7-1-role-based-dashboard: done        # /dashboard with role routing
+  7-2-dashboard-tabs: done              # tab navigation implemented
+  7-3-escalation-notifications: done    # notification-service
+  7-4-event-notifications: done         # in-app notifications
+  7-5-notification-preferences: done    # /settings/notifications
   epic-7-retrospective: optional
 
   # ═══════════════════════════════════════════════════════════════════
   # EPIC 8: API & Integration
   # Goal: External system integration
   # ═══════════════════════════════════════════════════════════════════
-  epic-8: backlog
-  8-1-restful-api: backlog
-  8-2-api-authentication: backlog
-  8-3-webhooks: backlog
-  8-4-openapi-documentation: backlog
+  epic-8: contexted
+  8-1-restful-api: done                 # /api/v1/ routes exist
+  8-2-api-authentication: done          # auth middleware
+  8-3-webhooks: done                    # webhook service exists
+  8-4-openapi-documentation: done       # /docs/api with Scalar UI, /openapi.json spec
   epic-8-retrospective: optional

@@ -13,7 +13,9 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import TrustBadge, { CertificationBadge, TrustScoreIndicator, AutonomyIndicator, TrustTierCard } from '@/components/agents/TrustBadge'
+import ProbationIndicator, { ProbationCard } from '@/components/agents/ProbationIndicator'
 import { Agent, STATUS_LABELS, SPECIALIZATIONS } from '@/lib/agents/types'
+import { checkProbationStatus } from '@/lib/agents/decay-service'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -87,9 +89,10 @@ export default async function AgentDetailPage({ params }: PageProps) {
     notFound()
   }
 
-  const [enrollments, trustHistory] = await Promise.all([
+  const [enrollments, trustHistory, probationStatus] = await Promise.all([
     getEnrollments(id),
     getTrustHistory(id),
+    checkProbationStatus(id),
   ])
 
   const statusInfo = STATUS_LABELS[agent.status]
@@ -176,6 +179,9 @@ export default async function AgentDetailPage({ params }: PageProps) {
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <TrustBadge score={agent.trust_score} tier={agent.trust_tier} showScore />
           <CertificationBadge level={agent.certification_level} />
+          {probationStatus.onProbation && (
+            <ProbationIndicator daysRemaining={probationStatus.daysRemaining} showDetails />
+          )}
         </div>
       </div>
 
@@ -183,6 +189,11 @@ export default async function AgentDetailPage({ params }: PageProps) {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column - Trust & Training */}
         <div className="space-y-6 lg:col-span-2">
+          {/* Probation Warning Card */}
+          {probationStatus.onProbation && (
+            <ProbationCard daysRemaining={probationStatus.daysRemaining} />
+          )}
+
           {/* Trust Score Card - Enhanced with tier details */}
           <TrustTierCard score={agent.trust_score} tier={agent.trust_tier} />
 
