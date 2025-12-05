@@ -1,7 +1,7 @@
 # AgentAnchor - Epic Breakdown
 
 **Author:** frank the tank
-**Date:** 2025-11-28
+**Date:** 2025-12-05
 **Project Level:** Enterprise SaaS
 **Target Scale:** 100 Trainers, 500 Consumers, 1000 Agents (MVP)
 
@@ -11,7 +11,11 @@
 
 This document provides the complete epic and story breakdown for AgentAnchor, decomposing the 149 functional requirements from the [PRD](./prd.md) into implementable stories.
 
-**Living Document Notice:** This is the initial version incorporating PRD + UX Design + Architecture context.
+**Key Architecture Changes (v3.0):**
+- **Council of Nine** - 9 specialized validators (not 4) + 3 Elder Wisdom advisors
+- **Unified Marketplace** - Single marketplace with Live Ticker, prebuilt agents, and custom requests
+- **Founding Agents** - 150+ seed agents imported from AI Workforce and BAI CC
+- **LangGraph.js** - Agent orchestration framework for stateful governance workflows
 
 ### Epic Summary
 
@@ -19,14 +23,14 @@ This document provides the complete epic and story breakdown for AgentAnchor, de
 |------|-------|---------|-----------|
 | 1 | Foundation & Infrastructure | 5 | Platform deployable, users can register |
 | 2 | Agent Creation & Academy | 6 | Trainers create and train agents |
-| 3 | Council Governance | 5 | Agents governed by validator tribunal |
+| 3 | Council of Nine Governance | 5 | 9-validator tribunal with precedent |
 | 4 | Trust Score System | 4 | Trust earned through behavior |
 | 5 | Observer & Truth Chain | 5 | Complete audit trail and verification |
-| 6 | Marketplace & Acquisition | 6 | Consumers browse and acquire agents |
+| 6 | Unified Marketplace | 7 | Live Ticker, prebuilt, custom requests |
 | 7 | Dashboard & Notifications | 5 | Unified management interface |
 | 8 | API & Integration | 4 | External system integration |
 
-**Total:** 8 Epics, 40 Stories
+**Total:** 8 Epics, 41 Stories
 
 ---
 
@@ -94,15 +98,16 @@ This document provides the complete epic and story breakdown for AgentAnchor, de
 - FR56: Inactive agents decay
 - FR57: Recovery through probation
 
-### The Council (FR58-FR67)
+### The Council (FR58-FR67) - UPDATED FOR COUNCIL OF NINE
 - FR58: Council has specialized validators
-- FR59: Core validators: Guardian, Arbiter, Scholar, Advocate
+- FR59: **9 Core Validators:** Guardian, Arbiter, Scholar, Advocate, Economist, Sentinel, Adversary, Oracle, Orchestrator
+- FR59b: **3 Elder Wisdom Advisors:** Steward, Conscience, Witness (advisory only)
 - FR60: Council evaluates by Risk Level
 - FR61: Level 0-1: Auto-execute (logged)
-- FR62: Level 2: Single validator approval
-- FR63: Level 3: Majority approval
-- FR64: Level 4: Unanimous + human
-- FR65: Decisions include reasoning
+- FR62: Level 2: 3-Bot Review approval
+- FR63: Level 3: Full Council (5/9) majority
+- FR64: Level 4: Supermajority (7/9) + human
+- FR65: Decisions include reasoning from all 9 validators
 - FR66: Precedent library built
 - FR67: Decisions reference precedent
 
@@ -147,14 +152,15 @@ This document provides the complete epic and story breakdown for AgentAnchor, de
 - FR99: Public verification URLs
 - FR100: Records exportable
 
-### Marketplace (FR101-FR108)
+### Marketplace (FR101-FR108) - UPDATED FOR UNIFIED MARKETPLACE
 - FR101: Trainers list agents
 - FR102: Listing includes description, pricing
 - FR103: Shows Trust Score and tier
 - FR104: Shows consumer ratings
 - FR105: Shows Observer summary
 - FR106: Search by category, score, price
-- FR107: Featured listings (Growth)
+- FR107: **Live Ticker** shows real-time activity
+- FR107b: **Custom Agent Requests** with Trainer bidding
 - FR108: Trainer storefront pages
 
 ### Commission & Payments (FR109-FR115)
@@ -212,14 +218,14 @@ This document provides the complete epic and story breakdown for AgentAnchor, de
 |------|-------------|
 | Epic 1 | FR1-FR8 (User Account) |
 | Epic 2 | FR9-FR11, FR35-FR49 (Agent + Academy) |
-| Epic 3 | FR58-FR75, FR76-FR81 (Council + HITL) |
+| Epic 3 | FR58-FR75, FR76-FR81 (Council of Nine + HITL) |
 | Epic 4 | FR50-FR57 (Trust Score) |
 | Epic 5 | FR82-FR100 (Observer + Truth Chain) |
-| Epic 6 | FR12-FR13, FR23-FR31, FR101-FR115 (Marketplace) |
+| Epic 6 | FR12-FR13, FR23-FR31, FR101-FR115 (Unified Marketplace) |
 | Epic 7 | FR129-FR143 (Dashboard + Notifications) |
 | Epic 8 | FR144-FR149 (API) |
 
-**Deferred to Growth:** FR14-FR22, FR28-FR29, FR32-FR34, FR47-FR48, FR107, FR116-FR128
+**Deferred to Growth:** FR14-FR22, FR28-FR29, FR32-FR34, FR47-FR48, FR116-FR128
 
 ---
 
@@ -251,12 +257,12 @@ So that code changes automatically deploy to staging/production.
 
 **And** given a merge to `production` branch
 **When** deployment completes
-**Then** the app is live at agentanchor.com
+**Then** the app is live at app.agentanchorai.com
 
 **Prerequisites:** None (first story)
 
 **Technical Notes:**
-- Next.js 14 with App Router (per Architecture section 2.1)
+- Next.js 14 with App Router (per Architecture v3.0)
 - TypeScript 5.x strict mode
 - Tailwind CSS + shadcn/ui components
 - Supabase for auth and database
@@ -277,7 +283,7 @@ So that all features have proper data persistence.
 
 **Given** Supabase project is configured
 **When** migrations run
-**Then** all core tables exist: users, agents, trust_history, council_decisions, truth_chain, observer_events, marketplace_listings, acquisitions
+**Then** all core tables exist: users, agents, trust_history, council_decisions, truth_chain, observer_events, marketplace_listings, acquisitions, custom_requests, request_bids
 
 **And** given Row Level Security policies
 **When** a user queries agents
@@ -285,16 +291,17 @@ So that all features have proper data persistence.
 
 **And** given the schema
 **When** I inspect foreign key relationships
-**Then** all entities are properly linked per Architecture section 4
+**Then** all entities are properly linked per Architecture v3.0 section 8
 
 **Prerequisites:** Story 1.1
 
 **Technical Notes:**
-- Use Supabase migrations for schema management
-- Implement RLS policies per Architecture section 4.3
+- Use Drizzle ORM for schema management
+- Implement RLS policies per Architecture section 12
 - Create indexes for common queries
 - Set up database functions for trust tier calculation
-- Configure realtime subscriptions for Observer feed
+- Configure realtime subscriptions for Observer feed and Live Ticker
+- Include tables for Council of Nine: council_decisions with 9-vote structure
 
 ---
 
@@ -427,7 +434,7 @@ So that I can start building my bot's capabilities.
 
 **And** given the agent is created
 **When** I view its profile
-**Then** Trust Score shows 0 (Untrusted) with ⚠️ badge (FR35)
+**Then** Trust Score shows 0 (Untrusted) with red badge (FR35)
 
 **And** given I specify capabilities
 **When** I save the agent
@@ -445,6 +452,7 @@ So that I can start building my bot's capabilities.
 - System prompt builder with templates
 - Capability tags for categorization
 - Auto-save draft functionality
+- LangGraph.js agent definition structure
 
 ---
 
@@ -475,7 +483,6 @@ So that it can begin structured training.
 - Core Curriculum is mandatory for all agents
 - Curriculum modules are sequential
 - Progress tracked in academy_progress table
-- Estimated completion: 3 modules
 
 ---
 
@@ -499,10 +506,6 @@ So that I know when it's ready for examination.
 **When** I view the agent
 **Then** "Request Examination" button is enabled
 
-**And** given I view progress
-**When** module has sub-lessons
-**Then** I see breakdown: 3/5 lessons complete
-
 **Prerequisites:** Story 2.2
 
 **Technical Notes:**
@@ -510,42 +513,41 @@ So that I know when it's ready for examination.
 - Module completion triggers next module unlock
 - Training content stored as markdown
 - Simulated training for MVP (actual AI training is future)
-- Completion certificate preview
 
 ---
 
 ### Story 2.4: Council Examination
 
 As a **Trainer**,
-I want my agent to be examined by the Council,
+I want my agent to be examined by the Council of Nine,
 So that it can graduate and be published.
 
 **Acceptance Criteria:**
 
 **Given** my agent completed all curriculum
 **When** I click "Request Examination"
-**Then** examination request is sent to Council (FR45)
+**Then** examination request is sent to Council of Nine (FR45)
 
 **And** given Council examines the agent
-**When** all 4 validators (Guardian, Arbiter, Scholar, Advocate) approve
+**When** 5 of 9 validators approve (majority)
 **Then** agent passes examination
 
 **And** given examination passes
 **When** I view results
-**Then** I see each validator's vote and reasoning (FR65)
+**Then** I see all 9 validators' votes and reasoning (FR65)
 
 **And** given examination fails
 **When** I view results
-**Then** I see which validator(s) denied and why
+**Then** I see which validator(s) denied and why, with Orchestrator synthesis
 
 **Prerequisites:** Story 2.3, Epic 3 (Council) must be started
 
 **Technical Notes:**
 - Examination is Council decision with risk_level = 2
-- Requires majority (3/4) validators to pass
-- Examination results stored in council_decisions
+- Requires majority (5/9) validators to pass
+- All 9 votes recorded with individual rationales
+- Orchestrator provides synthesis
 - Failed exams can be retried after 24 hours
-- Council validators are AI agents with specific prompts
 
 ---
 
@@ -563,7 +565,7 @@ So that it receives Trust Score and can be published.
 
 **And** given graduation completes
 **When** I view agent profile
-**Then** Trust Tier shows "Novice" with 🌱 badge
+**Then** Trust Tier shows "Probation" (200-249) or "Developing" (250-399)
 
 **And** given graduation occurs
 **When** I check Truth Chain
@@ -576,7 +578,7 @@ So that it receives Trust Score and can be published.
 **Prerequisites:** Story 2.4
 
 **Technical Notes:**
-- Initial Trust Score: random 200-399 based on exam performance
+- Initial Trust Score: 200-399 based on exam performance
 - Graduation ceremony UI with animation
 - Truth Chain record created immediately
 - Status changes from "Training" to "Active"
@@ -604,10 +606,6 @@ So that I can track progress and manage my portfolio.
 **When** I look for delete option
 **Then** there is none - agents cannot be deleted (FR40)
 
-**And** given I view archived agents
-**When** I filter by "Archived"
-**Then** I see all my archived agents with preserved history
-
 **Prerequisites:** Story 2.5
 
 **Technical Notes:**
@@ -615,56 +613,57 @@ So that I can track progress and manage my portfolio.
 - Archive sets status = 'archived'
 - Archived agents excluded from marketplace
 - Truth Chain records immutable
-- Search includes archived agents with filter
 
 ---
 
-## Epic 3: Council Governance
+## Epic 3: Council of Nine Governance
 
-**Goal:** Implement the Council governance layer that validates and approves agent actions.
+**Goal:** Implement the Council of Nine governance layer that validates and approves agent actions.
 
-**User Value:** All significant agent actions are reviewed by specialized validators, creating trust through oversight.
+**User Value:** All significant agent actions are reviewed by 9 specialized validators, creating unprecedented trust through oversight.
 
 **FRs Covered:** FR58-FR75, FR76-FR81
 
 ---
 
-### Story 3.1: Council Validator Agents
+### Story 3.1: Council of Nine Validator Agents
 
 As the **platform**,
-I want specialized Council validator agents,
-So that governance decisions have domain expertise.
+I want 9 specialized Council validator agents plus 3 Elder Wisdom advisors,
+So that governance decisions have comprehensive domain expertise.
 
 **Acceptance Criteria:**
 
 **Given** the platform initializes
 **When** Council is set up
-**Then** 4 core validators exist: Guardian, Arbiter, Scholar, Advocate (FR58, FR59)
+**Then** 9 core validators exist (FR58, FR59):
+1. Guardian (Safety & Risk)
+2. Arbiter (Justice & Precedent)
+3. Scholar (Knowledge & Analysis)
+4. Advocate (User Champion)
+5. Economist (Value & Sustainability)
+6. Sentinel (Compliance & Regulation)
+7. Adversary (Red Team)
+8. Oracle (Long-term Consequences)
+9. Orchestrator (Synthesis & Tie-breaker)
 
-**And** given Guardian validator
-**When** evaluating a request
-**Then** it assesses safety and security threats
+**And** given Elder Wisdom Council
+**When** I view advisors
+**Then** 3 advisory bots exist: Steward, Conscience, Witness (non-voting)
 
-**And** given Arbiter validator
+**And** given any validator
 **When** evaluating a request
-**Then** it assesses ethics and fairness
-
-**And** given Scholar validator
-**When** evaluating a request
-**Then** it checks compliance with standards
-
-**And** given Advocate validator
-**When** evaluating a request
-**Then** it assesses user impact
+**Then** it provides vote, rationale, and confidence score
 
 **Prerequisites:** Epic 1 complete
 
 **Technical Notes:**
 - Each validator is a Claude instance with specific system prompt
-- Validator prompts defined per Architecture section 3.4
-- Validators return: decision, reasoning, confidence
+- Validators defined per Architecture v3.0 section 3
+- Validators return: decision, reasoning, confidence (0-100)
 - Temperature = 0 for deterministic governance
-- Validators stored as system agents (not user-created)
+- LangGraph.js for parallel validator execution
+- Elder Wisdom advisors inform but don't vote
 
 ---
 
@@ -686,15 +685,15 @@ So that appropriate approval is required.
 
 **And** given Level 2 (Elevated)
 **When** action is requested
-**Then** single Council member must approve (FR62)
+**Then** 3-Bot Review must approve (FR62)
 
 **And** given Level 3 (Significant)
 **When** action is requested
-**Then** majority (3/4) Council must approve (FR63)
+**Then** Full Council majority (5/9) must approve (FR63)
 
 **And** given Level 4 (Critical)
 **When** action is requested
-**Then** unanimous Council + human confirmation required (FR64)
+**Then** Supermajority (7/9) + human confirmation required (FR64)
 
 **Prerequisites:** Story 3.1
 
@@ -705,7 +704,6 @@ So that appropriate approval is required.
 - Level 2: External API call, create file
 - Level 3: Modify system, send email
 - Level 4: Delete data, financial action
-- Risk classifier is separate Claude call
 
 ---
 
@@ -722,15 +720,15 @@ So that high-risk actions are properly governed.
 **Then** request is submitted with action, justification, risk assessment (FR68, FR69)
 
 **And** given request is submitted
-**When** Council validators evaluate
-**Then** each votes: approve, deny, or abstain (FR70)
+**When** all 9 Council validators evaluate in parallel
+**Then** each votes: approve, deny, or abstain with rationale (FR70)
 
 **And** given voting completes per risk level rules
-**When** majority/unanimous threshold met
-**Then** decision is returned with reasoning (FR71, FR72, FR73)
+**When** threshold met (3-bot, 5/9, or 7/9)
+**Then** Orchestrator synthesizes final decision with reasoning (FR71, FR72, FR73)
 
-**And** given a deadlock occurs
-**When** no clear decision
+**And** given a deadlock occurs (4-4-1)
+**When** no clear majority
 **Then** request escalates to human (FR74)
 
 **Prerequisites:** Story 3.2
@@ -738,9 +736,10 @@ So that high-risk actions are properly governed.
 **Technical Notes:**
 - POST /api/council/request endpoint
 - Request includes: agentId, action, details, justification
-- Voting is parallel (all validators evaluate simultaneously)
+- LangGraph.js parallel evaluation of all 9 validators
+- Orchestrator synthesizes, resolves ties
 - Decision timeout: 30 seconds
-- Deadlock = equal approve/deny with no abstains
+- All decisions recorded to Truth Chain (FR75)
 
 ---
 
@@ -758,10 +757,10 @@ So that future decisions are consistent.
 
 **And** given a new request comes in
 **When** Council evaluates
-**Then** relevant precedents are retrieved and referenced (FR67)
+**Then** Arbiter retrieves relevant precedents and references them (FR67)
 
 **And** given precedent exists for similar action
-**When** validator reasons
+**When** validators reason
 **Then** reasoning includes: "Per precedent #123: [reasoning]"
 
 **And** given I view Council tab
@@ -773,9 +772,8 @@ So that future decisions are consistent.
 **Technical Notes:**
 - Precedents stored in council_decisions with creates_precedent = true
 - Vector similarity search for relevant precedents
-- Precedent matching uses action_type + context similarity
+- Arbiter validator specifically handles precedent matching
 - Manual precedent flagging by human reviewers
-- Precedent IDs are sequential for easy reference
 
 ---
 
@@ -813,7 +811,6 @@ So that human judgment remains supreme.
 - Escalation notifications via email and in-app
 - Override requires MFA confirmation
 - Human decisions have special flag in Truth Chain
-- Role levels affect default notification frequency
 - Escalation queue in dashboard
 
 ---
@@ -840,37 +837,23 @@ So that I can assess its trustworthiness.
 **When** page loads
 **Then** I see Trust Score (0-1000) prominently displayed (FR50)
 
-**And** given Trust Score is 0-199
-**When** I view tier badge
-**Then** I see ⚠️ Untrusted
+**And** given Trust Score tiers per Architecture v3.0:
+- 0-99: Untrusted (red)
+- 100-249: Probation (orange)
+- 250-499: Developing (yellow)
+- 500-749: Established (blue)
+- 750-899: Trusted (emerald)
+- 900-1000: Legendary (gold)
 
-**And** given Trust Score is 200-399
-**When** I view tier badge
-**Then** I see 🌱 Novice
-
-**And** given Trust Score is 400-599
-**When** I view tier badge
-**Then** I see ✅ Proven
-
-**And** given Trust Score is 600-799
-**When** I view tier badge
-**Then** I see 🛡️ Trusted
-
-**And** given Trust Score is 800-899
-**When** I view tier badge
-**Then** I see 👑 Elite
-
-**And** given Trust Score is 900-1000
-**When** I view tier badge
-**Then** I see 🌟 Legendary
+**And** given I view tier badge
+**Then** I see appropriate color and label (FR53)
 
 **Prerequisites:** Epic 2 complete
 
 **Technical Notes:**
 - TrustBadge component with score and tier
 - Tier calculated via database function get_trust_tier()
-- Badge colors: red, green, blue, purple, gold, rainbow
-- Tooltip shows tier benefits
+- Tooltip shows tier benefits and autonomy level
 - Score displayed as "742 / 1000" format
 
 ---
@@ -905,7 +888,6 @@ So that trust is earned through demonstrated reliability.
 - Score changes logged to trust_history table
 - Increase amounts: +1 (task), +5 (commendation), +10 (milestone)
 - Decrease amounts: -5 (denial), -20 (complaint), -50 (violation)
-- Changes capped at tier boundaries initially
 - Event-driven updates via database triggers
 
 ---
@@ -930,18 +912,13 @@ So that I can see how trust has evolved over time.
 **When** I view details
 **Then** I see: timestamp, previous score, new score, reason, source
 
-**And** given I view tier milestones
-**When** agent crossed tier boundary
-**Then** entry is highlighted with celebration
-
 **Prerequisites:** Story 4.2
 
 **Technical Notes:**
 - Recharts line chart for trend visualization
 - Trust history stored with full audit trail
-- Milestone markers at 200, 400, 600, 800, 900
+- Milestone markers at tier boundaries
 - Export as CSV for compliance
-- Date range filter
 
 ---
 
@@ -974,9 +951,9 @@ So that trust requires ongoing demonstration.
 **Technical Notes:**
 - Decay runs via scheduled function (daily)
 - Minimum decay floor at tier boundary - 10
-- Tier autonomy limits defined per Architecture section 3.3
+- Autonomy levels per Architecture v3.0 section 13.3
 - Probation = 30 days of supervised operation
-- Activity resets decay timer
+- ProbationIndicator component for UI
 
 ---
 
@@ -1017,7 +994,7 @@ So that complete audit trail exists.
 **Prerequisites:** Epic 1 complete
 
 **Technical Notes:**
-- Observer logs to separate TimescaleDB
+- Observer logs to separate database/schema
 - Append-only enforced via RLS policies
 - Signature uses platform signing key
 - Event schema: id, sequence, source, type, data, timestamp, hash
@@ -1052,8 +1029,7 @@ So that I can monitor agent activity.
 **Prerequisites:** Story 5.1
 
 **Technical Notes:**
-- WebSocket connection for real-time updates
-- Supabase Realtime subscriptions
+- Pusher for real-time updates
 - Pagination with infinite scroll
 - Filter state persisted in URL
 - Export limited to 10,000 events per request
@@ -1080,10 +1056,6 @@ So that problems are flagged early.
 **When** anomalies exist
 **Then** I see anomaly section with details
 
-**And** given I click an anomaly
-**When** detail view opens
-**Then** I see: type, affected agent, timeline, recommended action
-
 **Prerequisites:** Story 5.2
 
 **Technical Notes:**
@@ -1091,7 +1063,6 @@ So that problems are flagged early.
 - Types: spike (>3x normal), error_cluster, timing_anomaly
 - Severity: low (log), medium (alert), high (pause agent)
 - Anomaly stored in observer_anomalies table
-- ML-based detection is Growth feature
 
 ---
 
@@ -1129,8 +1100,7 @@ So that governance is verifiable forever.
 - Hash chain: SHA-256(previous_hash + payload + timestamp)
 - Records stored in truth_chain table
 - Sequence number for ordering
-- Blockchain anchoring is Growth feature (use internal hash chain for MVP)
-- Records include type, subject_id, payload, hash, previous_hash
+- Future: Trillian integration for verifiable logs
 
 ---
 
@@ -1142,9 +1112,9 @@ So that trust can be externally validated.
 
 **Acceptance Criteria:**
 
-**Given** I have a record ID
-**When** I call GET /api/verify/[recordId]
-**Then** I receive verification result without needing login (FR98)
+**Given** I have a record hash
+**When** I visit /verify/[hash]
+**Then** I see verification result without needing login (FR98)
 
 **And** given a certification
 **When** I access its public URL
@@ -1154,32 +1124,58 @@ So that trust can be externally validated.
 **When** I request export
 **Then** I receive cryptographically signed record package (FR100)
 
-**And** given verification page
-**When** I view it
-**Then** I see: record type, timestamp, subject, hash, chain integrity status
-
 **Prerequisites:** Story 5.4
 
 **Technical Notes:**
 - Public API requires no authentication
-- Verification URL format: /verify/[recordId]
+- Verification URL format: /verify/[hash]
 - Verification checks: hash integrity, chain continuity
 - Certificate displays agent name, graduation date, initial score
-- Export includes Merkle proof (Growth feature)
 
 ---
 
-## Epic 6: Marketplace & Acquisition
+## Epic 6: Unified Marketplace
 
-**Goal:** Enable Trainers to publish agents and Consumers to acquire them.
+**Goal:** Enable a single marketplace experience with Live Ticker, prebuilt agents, and custom requests.
 
-**User Value:** Trainers earn from their work; Consumers access quality, governed agents.
+**User Value:** Trainers publish and earn from agents; Consumers discover, acquire, and request custom agents - all with real-time activity visibility.
 
 **FRs Covered:** FR12-FR13, FR23-FR31, FR101-FR115
 
 ---
 
-### Story 6.1: Agent Publishing
+### Story 6.1: Founding Agents Import
+
+As the **platform**,
+I want to import 150+ founding agents from AI Workforce and BAI CC,
+So that the marketplace has activity from day 1.
+
+**Acceptance Criteria:**
+
+**Given** I have agent definitions from AI Workforce and BAI CC
+**When** I run the import script
+**Then** agents are created with appropriate metadata
+
+**And** given imported agents
+**When** they appear in marketplace
+**Then** they have initial Trust Scores (200-400 based on source quality)
+
+**And** given the Live Ticker
+**When** marketplace launches
+**Then** founding agents provide immediate activity
+
+**Prerequisites:** Epic 2 complete
+
+**Technical Notes:**
+- Import script reads agent definitions (JSON/YAML)
+- Agents assigned to platform Trainer account initially
+- Founding agents marked with "Founding Collection" badge
+- Trust Scores assigned based on complexity/quality assessment
+- Categories auto-assigned based on capabilities
+
+---
+
+### Story 6.2: Agent Publishing
 
 As a **Trainer**,
 I want to publish my graduated agent to the marketplace,
@@ -1203,18 +1199,61 @@ So that Consumers can discover and use it.
 **When** I publish
 **Then** agent appears in marketplace with Trust Score and tier (FR103)
 
-**Prerequisites:** Epic 2 complete, Story 4.1
+**And** given publication completes
+**When** I check Live Ticker
+**Then** ticker shows: "🟢 [AgentName] listed (Trust: XXX)"
+
+**Prerequisites:** Story 6.1, Epic 4
 
 **Technical Notes:**
 - Publishing creates marketplace_listings record
-- Categories: General, Customer Service, Data Analysis, Creative, Development, etc.
+- Categories: General, Customer Service, Data Analysis, Creative, Development
 - Tags are searchable
 - Commission rate: 0.01-1.00 per task unit
-- Listing status: draft, active, paused, archived
+- Pusher broadcasts to marketplace-activity channel
 
 ---
 
-### Story 6.2: Marketplace Browse & Search
+### Story 6.3: Live Ticker
+
+As a **user**,
+I want to see real-time marketplace activity,
+So that I can see the platform is active and discover opportunities.
+
+**Acceptance Criteria:**
+
+**Given** I am on /marketplace
+**When** page loads
+**Then** I see Live Ticker at top with scrolling activity (FR107)
+
+**And** given ticker is active
+**When** agent is listed
+**Then** ticker shows: "🟢 [AgentName] listed (Trust: XXX)"
+
+**And** given ticker is active
+**When** agent is acquired
+**Then** ticker shows: "🔵 [AgentName] acquired by [Consumer]"
+
+**And** given ticker is active
+**When** custom request is posted
+**Then** ticker shows: "🟡 Custom: [Title] - X bids"
+
+**And** given ticker is active
+**When** bid is placed
+**Then** ticker shows: "🟠 New bid on [RequestTitle]"
+
+**Prerequisites:** Story 6.2
+
+**Technical Notes:**
+- Pusher channel: marketplace-activity
+- Event types: LISTING_CREATED, ACQUISITION_COMPLETE, REQUEST_CREATED, BID_PLACED
+- Ticker holds last 50 events
+- Auto-scrolling with pause on hover
+- Mobile: condensed single-line format
+
+---
+
+### Story 6.4: Marketplace Browse & Search
 
 As a **Consumer**,
 I want to browse and search the marketplace,
@@ -1224,9 +1263,9 @@ So that I can find agents that meet my needs.
 
 **Given** I am on /marketplace
 **When** page loads
-**Then** I see grid of agent listings (FR23)
+**Then** I see tabs: Prebuilt Agents | Custom Requests | My Agents (FR23)
 
-**And** given I want to filter
+**And** given I am on Prebuilt Agents tab
 **When** I use search/filters
 **Then** I can filter by category, Trust Score range, price range, rating (FR24, FR106)
 
@@ -1238,7 +1277,7 @@ So that I can find agents that meet my needs.
 **When** I click a listing
 **Then** I go to full agent profile with Observer summary stats (FR25, FR105)
 
-**Prerequisites:** Story 6.1
+**Prerequisites:** Story 6.3
 
 **Technical Notes:**
 - Grid/List view toggle
@@ -1249,41 +1288,46 @@ So that I can find agents that meet my needs.
 
 ---
 
-### Story 6.3: Agent Profile & Observer Reports
+### Story 6.5: Custom Agent Requests
 
 As a **Consumer**,
-I want to view detailed agent profiles and public Observer reports,
-So that I can make informed acquisition decisions.
+I want to post a request for a custom agent,
+So that Trainers can bid to build what I need.
 
 **Acceptance Criteria:**
 
-**Given** I am viewing an agent profile
-**When** page loads
-**Then** I see: description, capabilities, Trust Score history, Trainer info (FR25)
+**Given** I am on Custom Requests tab
+**When** I click "Post Request"
+**Then** I can describe my needs with title, description, requirements, budget range
 
-**And** given I click "Observer Reports"
-**When** section expands
-**Then** I see public summary: total actions, success rate, anomalies (FR26)
+**And** given my request is posted
+**When** Trainers view it
+**Then** they see my requirements and can submit bids
 
-**And** given I view ratings
-**When** reviews exist
-**Then** I see consumer ratings and comments (FR104)
+**And** given bids are submitted
+**When** I view my request
+**Then** I see all bids with Trainer Trust Score, proposed price, timeline
 
-**And** given I want to see Trainer
-**When** I click Trainer name
-**Then** I go to Trainer storefront page (FR108)
+**And** given I select a bid
+**When** I confirm
+**Then** Trainer is notified and work begins
 
-**Prerequisites:** Story 6.2
+**And** given request is posted
+**When** I check Live Ticker
+**Then** ticker shows: "🟡 Custom: [Title] posted"
+
+**Prerequisites:** Story 6.4
 
 **Technical Notes:**
-- Observer reports show aggregated public stats only
-- No sensitive action details exposed publicly
-- Rating: 1-5 stars with optional comment
-- Storefront shows all Trainer's agents and profile
+- custom_requests table with status tracking
+- request_bids table links Trainers to requests
+- Bid includes: proposed_price, timeline, proposal text
+- Consumer can message Trainers for clarification
+- Status: open, bidding, selected, in_progress, completed, cancelled
 
 ---
 
-### Story 6.4: Agent Acquisition (Commission Model)
+### Story 6.6: Agent Acquisition (Commission Model)
 
 As a **Consumer**,
 I want to acquire an agent using the commission model,
@@ -1307,53 +1351,21 @@ So that I can use it for my work.
 **When** tasks complete
 **Then** usage is tracked and I see costs (FR30)
 
-**Prerequisites:** Story 6.3
+**And** given acquisition completes
+**When** I check Live Ticker
+**Then** ticker shows: "🔵 [AgentName] acquired"
+
+**Prerequisites:** Story 6.5
 
 **Technical Notes:**
 - Acquisition creates acquisitions record
 - acquisition_type = 'commission' for MVP
-- Clone and Enterprise Lock deferred to Growth
 - Usage tracked per task with complexity multiplier (FR110)
 - No upfront payment required for commission model
 
 ---
 
-### Story 6.5: Consumer Feedback
-
-As a **Consumer**,
-I want to provide feedback on agents I've acquired,
-So that other Consumers can make informed decisions.
-
-**Acceptance Criteria:**
-
-**Given** I have acquired an agent
-**When** I've used it for significant tasks
-**Then** I can submit a rating and review (FR31)
-
-**And** given I submit feedback
-**When** I rate 1-5 stars
-**Then** rating is recorded and visible on agent profile
-
-**And** given I have concerns
-**When** I submit complaint
-**Then** it triggers Trust Score review process (FR52)
-
-**And** given Trainer views feedback
-**When** they see my review
-**Then** they can respond publicly (FR22)
-
-**Prerequisites:** Story 6.4
-
-**Technical Notes:**
-- Feedback requires minimum usage threshold
-- One review per Consumer per agent
-- Reviews can be updated
-- Complaints flag agent for Council review
-- Response appears threaded below review
-
----
-
-### Story 6.6: Earnings Dashboard & Payouts
+### Story 6.7: Earnings Dashboard & Payouts
 
 As a **Trainer**,
 I want to view my earnings and receive payouts,
@@ -1381,14 +1393,14 @@ So that I'm compensated for my agents' work.
 **When** I click "History"
 **Then** I see all earnings and payouts with reports (FR115)
 
-**Prerequisites:** Story 6.4
+**Prerequisites:** Story 6.6
 
 **Technical Notes:**
 - Earnings calculated: (task_value × complexity) × (1 - platform_fee)
 - Dashboard shows: today, this week, this month, all time
 - Payout threshold: $100 minimum
 - Stripe Connect for bank payouts
-- Earnings history exportable
+- FR17: Withdraw button triggers payout
 
 ---
 
@@ -1455,7 +1467,7 @@ So that I can navigate to detailed views easily.
 
 **And** given I click Council tab
 **When** tab loads
-**Then** I see recent decisions, pending votes, precedents (FR133)
+**Then** I see recent decisions (all 9 votes), pending, precedents (FR133)
 
 **And** given I click Observer tab
 **When** tab loads
@@ -1463,7 +1475,7 @@ So that I can navigate to detailed views easily.
 
 **And** given I click Marketplace tab
 **When** tab loads
-**Then** I see listings (Trainer) or browse (Consumer) (FR135)
+**Then** I see listings/browse + Live Ticker (FR135)
 
 **And** given I click Truth Chain tab
 **When** tab loads
@@ -1476,7 +1488,6 @@ So that I can navigate to detailed views easily.
 - Each tab has sub-navigation
 - Tab content lazy-loaded
 - Breadcrumbs show current location
-- Back button works correctly
 
 ---
 
@@ -1494,7 +1505,7 @@ So that I can respond to urgent decisions.
 
 **And** given notification arrives
 **When** I view it
-**Then** I see: agent, action, risk level, Council votes, urgency
+**Then** I see: agent, action, risk level, all 9 Council votes, urgency
 
 **And** given I am configured for email
 **When** escalation occurs
@@ -1510,7 +1521,7 @@ So that I can respond to urgent decisions.
 - Escalation notifications are highest priority
 - Channels: email, in-app, webhook (FR143)
 - Email uses SendGrid or similar
-- In-app uses real-time subscriptions
+- In-app uses Pusher real-time
 - Notification includes direct link to escalation
 
 ---
@@ -1545,7 +1556,6 @@ So that I stay informed without constant checking.
 - Notification types: graduation, anomaly, ownership, milestone, council_decision
 - Each type has configurable urgency
 - Milestones: first earning, $100, $1000, etc.
-- Ownership notifications include opt-out link
 
 ---
 
@@ -1580,7 +1590,6 @@ So that I receive only what matters to me.
 - Webhook includes retry logic (3 attempts)
 - Email has unsubscribe link
 - Escalations cannot be fully disabled (minimum: in-app)
-- Test notification button for each channel
 
 ---
 
@@ -1612,7 +1621,7 @@ So that I can integrate AgentAnchor with my systems.
 
 **And** given I call POST /api/council/request
 **When** I provide valid payload
-**Then** Upchain request is submitted
+**Then** Upchain request is submitted to Council of Nine
 
 **And** given any API call
 **When** I check headers
@@ -1623,9 +1632,8 @@ So that I can integrate AgentAnchor with my systems.
 **Technical Notes:**
 - All endpoints under /api/v1/
 - Consistent error format: {error: string, code: string, details?: object}
-- Pagination via cursor or offset
+- Pagination via cursor
 - Rate limits per tier: Free (100/hr), Pro (1000/hr), Enterprise (10000/hr)
-- CORS configured for allowed origins
 
 ---
 
@@ -1659,7 +1667,6 @@ So that my integrations are protected.
 - API keys stored hashed (bcrypt)
 - Key format: aa_live_xxx or aa_test_xxx
 - Scopes limit available endpoints
-- Key shows last used timestamp
 - Maximum 10 keys per user
 
 ---
@@ -1678,7 +1685,7 @@ So that my system reacts to AgentAnchor events.
 
 **And** given I select events
 **When** I choose from list
-**Then** I can subscribe to: agent.graduated, council.decision, acquisition.created, etc.
+**Then** I can subscribe to: agent.graduated, council.decision, acquisition.created, ticker.event, etc.
 
 **And** given subscribed event occurs
 **When** webhook fires
@@ -1693,7 +1700,6 @@ So that my system reacts to AgentAnchor events.
 **Technical Notes:**
 - Webhook payload includes signature for verification
 - Signature: HMAC-SHA256 of payload with webhook secret
-- Events include timestamp, type, data
 - Webhook logs show delivery status
 - Test webhook button for debugging
 
@@ -1707,7 +1713,7 @@ So that I can integrate quickly and correctly.
 
 **Acceptance Criteria:**
 
-**Given** I visit /api/docs
+**Given** I visit /docs/api
 **When** page loads
 **Then** I see interactive OpenAPI documentation (FR149)
 
@@ -1721,124 +1727,160 @@ So that I can integrate quickly and correctly.
 
 **And** given I need OpenAPI spec
 **When** I download openapi.json
-**Then** I receive valid OpenAPI 3.0 specification
+**Then** I receive valid OpenAPI 3.1 specification
 
 **Prerequisites:** Story 8.3
 
 **Technical Notes:**
-- Swagger UI for documentation
-- OpenAPI spec auto-generated from route handlers
+- Scalar for interactive documentation
+- OpenAPI spec maintained manually or generated
 - Examples for all endpoints
 - Authentication section explains API key usage
-- Changelog section for API versioning
-
----
-
-## FR Coverage Matrix
-
-| FR | Description | Epic | Story |
-|----|-------------|------|-------|
-| FR1 | User registration | 1 | 1.3 |
-| FR2 | MFA authentication | 1 | 1.3 |
-| FR3 | Password reset | 1 | 1.3 |
-| FR4 | Profile management | 1 | 1.4 |
-| FR5 | Role selection | 1 | 1.4 |
-| FR6 | Trainer storefront | 1 | 1.4 |
-| FR7 | Consumer portfolio | 1 | 1.4 |
-| FR8 | Subscription tier | 1 | 1.4 |
-| FR9 | Create agents | 2 | 2.1 |
-| FR10 | Agent capabilities | 2 | 2.1 |
-| FR11 | Academy enrollment | 2 | 2.2 |
-| FR12 | Publish to marketplace | 6 | 6.1 |
-| FR13 | Set commission rates | 6 | 6.1 |
-| FR14-FR22 | Advanced trainer features | — | Growth |
-| FR23 | Browse marketplace | 6 | 6.2 |
-| FR24 | Search/filter | 6 | 6.2 |
-| FR25 | Agent profiles | 6 | 6.3 |
-| FR26 | Observer reports | 6 | 6.3 |
-| FR27 | Acquire (commission) | 6 | 6.4 |
-| FR28-FR29 | Clone/Enterprise | — | Growth |
-| FR30 | Usage tracking | 6 | 6.4 |
-| FR31 | Consumer feedback | 6 | 6.5 |
-| FR32-FR34 | Client protection | — | Growth |
-| FR35 | Initial Trust Score 0 | 2 | 2.1 |
-| FR36 | Academy required | 2 | 2.1 |
-| FR37 | Graduation Trust Score | 2 | 2.5 |
-| FR38 | Agent history | 2 | 2.6 |
-| FR39 | Agent archive | 2 | 2.6 |
-| FR40 | No deletion | 2 | 2.6 |
-| FR41 | Core curriculum | 2 | 2.2 |
-| FR42 | Training modules | 2 | 2.3 |
-| FR43 | Progress tracking | 2 | 2.3 |
-| FR44 | Trainer observation | 2 | 2.3 |
-| FR45 | Council examination | 2 | 2.4 |
-| FR46 | Graduation score | 2 | 2.5 |
-| FR47-FR48 | Specialization/Mentorship | — | Growth |
-| FR49 | Graduation on Truth Chain | 2 | 2.5 |
-| FR50-FR57 | Trust Score system | 4 | 4.1-4.4 |
-| FR58-FR67 | Council governance | 3 | 3.1-3.4 |
-| FR68-FR75 | Upchain protocol | 3 | 3.3 |
-| FR76-FR81 | Human-in-the-loop | 3 | 3.5 |
-| FR82-FR91 | Observer layer | 5 | 5.1-5.3 |
-| FR92-FR100 | Truth Chain | 5 | 5.4-5.5 |
-| FR101-FR108 | Marketplace | 6 | 6.1-6.3 |
-| FR109-FR115 | Commission/payments | 6 | 6.6 |
-| FR116-FR128 | MIA/Client protection | — | Growth |
-| FR129-FR136 | Dashboard | 7 | 7.1-7.2 |
-| FR137-FR143 | Notifications | 7 | 7.3-7.5 |
-| FR144-FR149 | API | 8 | 8.1-8.4 |
 
 ---
 
 ## Summary
 
-### Epic Breakdown Complete
+### Epic & Story Count
 
-**AgentAnchor MVP Epic Structure:**
-- **8 Epics** delivering incremental user value
-- **40 Stories** sized for single dev agent sessions
-- **149 FRs** mapped (95 in MVP, 54 deferred to Growth)
+| Epic | Title | Stories |
+|------|-------|---------|
+| 1 | Foundation & Infrastructure | 5 |
+| 2 | Agent Creation & Academy | 6 |
+| 3 | Council of Nine Governance | 5 |
+| 4 | Trust Score System | 4 |
+| 5 | Observer & Truth Chain | 5 |
+| 6 | Unified Marketplace | 7 |
+| 7 | Dashboard & Notifications | 5 |
+| 8 | API & Integration | 4 |
+| **Total** | | **41 Stories** |
 
-### Context Incorporated
+### FR Coverage Summary
 
-- ✅ PRD requirements (149 FRs)
-- ✅ UX interaction patterns
-- ✅ Architecture technical decisions
+**MVP FRs Covered:** 95 of 149 (64%)
+**Growth FRs Deferred:** 54 (36%)
 
-### MVP Coverage
+| Category | Total | MVP | Growth |
+|----------|-------|-----|--------|
+| User Account (FR1-8) | 8 | 8 | 0 |
+| Trainer Features (FR9-22) | 14 | 5 | 9 |
+| Consumer Features (FR23-34) | 12 | 9 | 3 |
+| Agent Lifecycle (FR35-40) | 6 | 6 | 0 |
+| Academy (FR41-49) | 9 | 7 | 2 |
+| Trust Score (FR50-57) | 8 | 8 | 0 |
+| Council (FR58-67) | 10 | 10 | 0 |
+| Upchain (FR68-75) | 8 | 8 | 0 |
+| HITL (FR76-81) | 6 | 6 | 0 |
+| Observer (FR82-91) | 10 | 10 | 0 |
+| Truth Chain (FR92-100) | 9 | 9 | 0 |
+| Marketplace (FR101-108) | 8 | 8 | 0 |
+| Payments (FR109-115) | 7 | 7 | 0 |
+| MIA Protocol (FR116-122) | 7 | 0 | 7 |
+| Client Protection (FR123-128) | 6 | 0 | 6 |
+| Dashboard (FR129-136) | 8 | 8 | 0 |
+| Notifications (FR137-143) | 7 | 7 | 0 |
+| API (FR144-149) | 6 | 6 | 0 |
 
-| Category | FRs | MVP Stories | Growth Deferred |
-|----------|-----|-------------|-----------------|
-| User Account | 8 | 8 | 0 |
-| Trainer | 14 | 5 | 9 |
-| Consumer | 12 | 7 | 5 |
-| Agent Lifecycle | 6 | 6 | 0 |
-| Academy | 9 | 7 | 2 |
-| Trust Score | 8 | 8 | 0 |
-| Council | 10 | 10 | 0 |
-| Upchain | 8 | 8 | 0 |
-| HITL | 6 | 6 | 0 |
-| Observer | 10 | 10 | 0 |
-| Truth Chain | 9 | 9 | 0 |
-| Marketplace | 8 | 8 | 0 |
-| Commission | 7 | 7 | 0 |
-| MIA/Maintenance | 7 | 0 | 7 |
-| Client Protection | 6 | 0 | 6 |
-| Dashboard | 8 | 8 | 0 |
-| Notifications | 7 | 7 | 0 |
-| API | 6 | 6 | 0 |
-| **Total** | **149** | **95** | **54** |
+### Deferred to Growth Phase
 
-### Next Steps
+| FR Range | Feature | Rationale |
+|----------|---------|-----------|
+| FR14-15 | Clone/Enterprise Lock pricing | Commission-only for MVP |
+| FR18-22 | Maintenance delegation | Core value must be proven first |
+| FR28-29 | Clone/Enterprise acquisition | Commission-only for MVP |
+| FR32-34 | Advanced client protection | Basic protection in MVP |
+| FR47-48 | Specializations, Mentorship | Core Academy must work first |
+| FR116-122 | MIA detection & protocol | Requires mature marketplace |
+| FR123-128 | Full client protection flow | 30-day notice, walk away |
 
-1. Run `sprint-planning` workflow to generate sprint status
-2. Begin Phase 4 Implementation with Epic 1
-3. Use `create-story` workflow for detailed story implementation plans
+### Key Architecture Alignments
+
+| Decision | Implementation |
+|----------|----------------|
+| **Council of Nine** | Story 3.1 defines all 9 validators + Elder Wisdom |
+| **LangGraph.js** | Stories 2.1, 3.1, 3.3 use for agent orchestration |
+| **Unified Marketplace** | Epic 6 with Live Ticker (6.3), Custom Requests (6.5) |
+| **Founding Agents** | Story 6.1 imports 150+ agents from AI Workforce/BAI CC |
+| **Trust Tiers** | Story 4.1 uses Architecture v3.0 tier definitions |
+| **Hash Chain** | Story 5.4 implements per Architecture v3.0 section 6 |
+
+### Implementation Order Recommendation
+
+1. **Epic 1** - Foundation (required for all others)
+2. **Epic 2** - Agent Creation (depends on Epic 1)
+3. **Epic 3** - Council of Nine (depends on Epic 1, needed for Epic 2.4)
+4. **Epic 4** - Trust Score (depends on Epic 2)
+5. **Epic 5** - Observer & Truth Chain (can parallel with Epic 4)
+6. **Epic 6** - Marketplace (depends on Epics 2, 4)
+7. **Epic 7** - Dashboard & Notifications (depends on Epics 2-6)
+8. **Epic 8** - API & Integration (depends on Epics 2-7)
 
 ---
 
-_This document will be updated as implementation progresses and new context emerges._
+## Appendix: Story Quick Reference
 
-_For implementation: Use the `create-story` workflow to generate individual story implementation plans from this epic breakdown._
+### Epic 1: Foundation & Infrastructure
+- 1.1: Project Setup & Deployment Pipeline
+- 1.2: Database Schema & Supabase Setup
+- 1.3: User Registration & Authentication
+- 1.4: User Profile & Role Selection
+- 1.5: Basic Navigation & Layout
 
-_"Agents you can anchor to."_
+### Epic 2: Agent Creation & Academy
+- 2.1: Create New Agent
+- 2.2: Academy Enrollment
+- 2.3: Training Progress & Curriculum
+- 2.4: Council Examination
+- 2.5: Agent Graduation
+- 2.6: Agent History & Archive
+
+### Epic 3: Council of Nine Governance
+- 3.1: Council of Nine Validator Agents
+- 3.2: Risk Level Classification
+- 3.3: Upchain Decision Protocol
+- 3.4: Precedent Library
+- 3.5: Human Escalation & Override
+
+### Epic 4: Trust Score System
+- 4.1: Trust Score Display & Tiers
+- 4.2: Trust Score Changes
+- 4.3: Trust Score History & Trends
+- 4.4: Trust Decay & Autonomy Limits
+
+### Epic 5: Observer & Truth Chain
+- 5.1: Observer Event Logging
+- 5.2: Observer Dashboard Feed
+- 5.3: Anomaly Detection
+- 5.4: Truth Chain Records
+- 5.5: Public Verification
+
+### Epic 6: Unified Marketplace
+- 6.1: Founding Agents Import
+- 6.2: Agent Publishing
+- 6.3: Live Ticker
+- 6.4: Marketplace Browse & Search
+- 6.5: Custom Agent Requests
+- 6.6: Agent Acquisition (Commission Model)
+- 6.7: Earnings Dashboard & Payouts
+
+### Epic 7: Dashboard & Notifications
+- 7.1: Role-Based Dashboard
+- 7.2: Dashboard Tabs
+- 7.3: Escalation Notifications
+- 7.4: Event Notifications
+- 7.5: Notification Preferences
+
+### Epic 8: API & Integration
+- 8.1: RESTful API
+- 8.2: API Authentication
+- 8.3: Webhooks
+- 8.4: OpenAPI Documentation
+
+---
+
+**Document Generated:** 2025-12-05
+**Workflow:** create-epics-and-stories (BMad Method)
+**Source:** PRD v2.0 + Architecture v3.0
+
+*"Agents you can anchor to."*
+

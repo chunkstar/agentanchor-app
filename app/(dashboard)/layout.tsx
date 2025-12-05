@@ -4,6 +4,9 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import AppShell from '@/components/navigation/AppShell'
 import { type UserRole } from '@/lib/navigation/menu-items'
 
+// Dashboard routes require auth cookies - force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'AgentAnchor - AI Governance Platform',
   description: 'Govern, train, and deploy trusted AI agents',

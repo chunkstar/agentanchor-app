@@ -25,8 +25,8 @@ workflow_path: ".bmad/bmm/workflows/workflow-status/paths/method-greenfield.yaml
 workflow_status:
   # Phase 0: Discovery (Optional)
   brainstorm-project: "completed-in-party-mode"
-  research: "skipped"
-  product-brief: "skipped"
+  research: "docs/research-market-2025-12-04.md"
+  product-brief: "docs/product-brief-agentanchor-2025-12-04.md"
 
   # Phase 1: Planning
   prd: "docs/prd.md"
@@ -36,11 +36,11 @@ workflow_status:
   create-epics-and-stories-after-ux: "optional"
 
   # Phase 2: Solutioning
-  create-architecture: "required"
-  create-epics-and-stories-final: "required"
+  create-architecture: "docs/architecture.md"  # v3.0 - Council of Nine, LangGraph.js, Unified Marketplace
+  create-epics-and-stories-final: "docs/epics.md"  # 8 Epics, 41 Stories, 95 FRs (MVP)
   test-design: "recommended"
   validate-architecture: "optional"
-  implementation-readiness: "required"
+  implementation-readiness: "docs/implementation-readiness-report-2025-12-05.md"  # READY - GO decision
 
   # Phase 3: Implementation
   sprint-planning: "required"

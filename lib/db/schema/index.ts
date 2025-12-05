@@ -25,3 +25,12 @@ export * from './marketplace'
 
 // Academy (Training)
 export * from './academy'
+
+// Curriculum (Training Modules)
+export * from './curriculum'
+
+// Escalations (Human-in-the-Loop)
+export * from './escalations'
+
+// Payments (Stripe, Payouts)
+export * from './payments'

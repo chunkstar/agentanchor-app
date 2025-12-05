@@ -18,11 +18,11 @@ import { Agent, STATUS_LABELS, SPECIALIZATIONS } from '@/lib/agents/types'
 import { checkProbationStatus } from '@/lib/agents/decay-service'
 
 interface PageProps {
-  params: Promise<{ id: string }>
+  params: { id: string }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { id } = await params
+  const { id } = params
   const supabase = createServerComponentClient({ cookies })
 
   const { data: agent } = await supabase
@@ -82,7 +82,7 @@ async function getTrustHistory(agentId: string) {
 }
 
 export default async function AgentDetailPage({ params }: PageProps) {
-  const { id } = await params
+  const { id } = params
   const agent = await getAgent(id)
 
   if (!agent) {
