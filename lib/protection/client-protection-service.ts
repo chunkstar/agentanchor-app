@@ -115,12 +115,11 @@ export async function notifyOwnershipChange(
 
   // Record on Truth Chain
   await recordOwnershipChange({
-    agentId,
-    previousOwnerId,
-    newOwnerId,
-    changeType,
-    effectiveDate: effectiveDate.toISOString(),
-    affectedConsumers: consumerIds.length,
+    agent_id: agentId,
+    agent_name: agent?.name || 'Unknown Agent',
+    previous_owner_id: previousOwnerId,
+    new_owner_id: newOwnerId,
+    change_type: changeType,
   })
 
   return {

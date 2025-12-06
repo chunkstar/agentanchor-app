@@ -495,3 +495,45 @@ export async function notifyTrustChange(
     action_url: `/agents/${data.agent_id}`,
   })
 }
+
+/**
+ * Generic consumer notification helper
+ */
+export async function notifyConsumer(input: {
+  userId: string
+  type: string
+  title: string
+  message: string
+  data?: Record<string, unknown>
+  priority?: NotificationPriority
+}): Promise<Notification> {
+  return createNotification({
+    user_id: input.userId,
+    type: input.type as NotificationType,
+    title: input.title,
+    message: input.message,
+    data: input.data,
+    priority: input.priority,
+  })
+}
+
+/**
+ * Generic trainer notification helper
+ */
+export async function notifyTrainer(input: {
+  userId: string
+  type: string
+  title: string
+  message: string
+  data?: Record<string, unknown>
+  priority?: NotificationPriority
+}): Promise<Notification> {
+  return createNotification({
+    user_id: input.userId,
+    type: input.type as NotificationType,
+    title: input.title,
+    message: input.message,
+    data: input.data,
+    priority: input.priority,
+  })
+}
