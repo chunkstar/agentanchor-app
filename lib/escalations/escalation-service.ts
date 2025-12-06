@@ -5,7 +5,8 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { recordHumanOverride } from '@/lib/truth-chain'
-import { notifyEscalation } from '@/lib/notifications'
+// TODO: Re-enable when notifications service is complete
+// import { notifyEscalation } from '@/lib/notifications'
 
 export type EscalationStatus = 'pending' | 'assigned' | 'in_review' | 'approved' | 'rejected' | 'expired'
 export type EscalationPriority = 'low' | 'medium' | 'high' | 'critical'
@@ -98,13 +99,13 @@ export async function createEscalation(
     throw new Error(`Failed to create escalation: ${error.message}`)
   }
 
-  // Notify relevant humans
-  await notifyEscalation({
-    escalationId: data.id,
-    priority,
-    reason: input.reason,
-    agentId: input.agentId,
-  })
+  // TODO: Re-enable when notifications service is complete
+  // await notifyEscalation({
+  //   escalationId: data.id,
+  //   priority,
+  //   reason: input.reason,
+  //   agentId: input.agentId,
+  // })
 
   return mapEscalation(data)
 }
