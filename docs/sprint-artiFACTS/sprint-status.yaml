@@ -1,4 +1,4 @@
-# generated: 2025-11-28
+# generated: 2025-12-06
 # project: AgentAnchor
 # project_key: agentanchor-mvp
 # tracking_system: file-system
@@ -29,7 +29,7 @@
 # - SM typically drafts next story after previous one is 'done' to incorporate learnings
 # - Dev moves story to 'review', SM reviews, then Dev moves to 'done'
 
-generated: 2025-11-28
+generated: 2025-12-06
 project: AgentAnchor
 project_key: agentanchor-mvp
 tracking_system: file-system
@@ -37,8 +37,9 @@ story_location: docs/sprint-artiFACTS
 
 development_status:
   # ═══════════════════════════════════════════════════════════════════
-  # EPIC 1: Foundation & Infrastructure
+  # EPIC 1: Foundation & Infrastructure (5 stories)
   # Goal: Platform deployable, users can register
+  # FRs: FR1-FR8
   # ═══════════════════════════════════════════════════════════════════
   epic-1: contexted
   1-1-project-setup-deployment-pipeline: done
@@ -46,11 +47,12 @@ development_status:
   1-3-user-registration-authentication: done
   1-4-user-profile-role-selection: done
   1-5-basic-navigation-layout: done
-  epic-1-retrospective: optional
+  epic-1-retrospective: completed
 
   # ═══════════════════════════════════════════════════════════════════
-  # EPIC 2: Agent Creation & Academy
+  # EPIC 2: Agent Creation & Academy (6 stories)
   # Goal: Trainers create and train agents
+  # FRs: FR9-FR11, FR35-FR49
   # ═══════════════════════════════════════════════════════════════════
   epic-2: contexted
   2-1-create-new-agent: done
@@ -59,75 +61,191 @@ development_status:
   2-4-council-examination: done
   2-5-agent-graduation: done
   2-6-agent-history-archive: done
-  epic-2-retrospective: optional
+  epic-2-retrospective: completed
 
   # ═══════════════════════════════════════════════════════════════════
-  # EPIC 3: Council Governance
-  # Goal: Agents governed by validator tribunal
+  # EPIC 3: Council of Nine Governance (5 stories)
+  # Goal: 9-validator tribunal with precedent library
+  # FRs: FR58-FR75, FR76-FR81
   # ═══════════════════════════════════════════════════════════════════
   epic-3: contexted
-  3-1-council-validator-agents: done
+  3-1-council-of-nine-validator-agents: done
   3-2-risk-level-classification: done
   3-3-upchain-decision-protocol: done
   3-4-precedent-library: done
   3-5-human-escalation-override: done
-  epic-3-retrospective: optional
+  epic-3-retrospective: completed
 
   # ═══════════════════════════════════════════════════════════════════
-  # EPIC 4: Trust Score System
+  # EPIC 4: Trust Score System (4 stories)
   # Goal: Trust earned through behavior
+  # FRs: FR50-FR57
   # ═══════════════════════════════════════════════════════════════════
   epic-4: contexted
-  4-1-trust-score-display-tiers: done  # TrustBadge, TrustTierCard, ProbationIndicator
-  4-2-trust-score-changes: done         # applyTrustChange service, API
-  4-3-trust-score-history-trends: done  # TrustHistoryChart, timeline, API
-  4-4-trust-decay-autonomy-limits: done # decay-service, cron job, UI
-  epic-4-retrospective: optional
+  4-1-trust-score-display-tiers: done       # TrustBadge, TrustTierCard, ProbationIndicator
+  4-2-trust-score-changes: done             # applyTrustChange service, API
+  4-3-trust-score-history-trends: done      # TrustHistoryChart, timeline, API
+  4-4-trust-decay-autonomy-limits: done     # decay-service, cron job, UI
+  epic-4-retrospective: completed
 
   # ═══════════════════════════════════════════════════════════════════
-  # EPIC 5: Observer & Truth Chain
+  # EPIC 5: Observer & Truth Chain (5 stories)
   # Goal: Complete audit trail and verification
+  # FRs: FR82-FR100
   # ═══════════════════════════════════════════════════════════════════
   epic-5: contexted
-  5-1-observer-event-logging: done      # observer-service with hash chain
-  5-2-observer-dashboard-feed: done     # /observer page with live feed
-  5-3-anomaly-detection: done           # anomaly-service, AnomalyList
-  5-4-truth-chain-records: done         # truth-chain-service
-  5-5-public-verification: done         # /verify/[hash] page, API
-  epic-5-retrospective: optional
+  5-1-observer-event-logging: done          # observer-service with hash chain
+  5-2-observer-dashboard-feed: done         # /observer page with live feed
+  5-3-anomaly-detection: done               # anomaly-service, AnomalyList
+  5-4-truth-chain-records: done             # truth-chain-service
+  5-5-public-verification: done             # /verify/[hash] page, API
+  epic-5-retrospective: completed
 
   # ═══════════════════════════════════════════════════════════════════
-  # EPIC 6: Marketplace & Acquisition
-  # Goal: Consumers browse and acquire agents
+  # EPIC 6: Unified Marketplace (7 stories)
+  # Goal: Live Ticker, prebuilt agents, custom requests
+  # FRs: FR12-FR13, FR23-FR31, FR101-FR115
   # ═══════════════════════════════════════════════════════════════════
   epic-6: contexted
-  6-1-agent-publishing: done            # marketplace-service createListing
-  6-2-marketplace-browse-search: done   # /marketplace page, search API
-  6-3-agent-profile-observer-reports: done # /marketplace/[id] page
-  6-4-agent-acquisition-commission: done   # acquisition service
-  6-5-consumer-feedback: done           # feedback-service
-  6-6-earnings-dashboard-payouts: done  # /earnings page
-  epic-6-retrospective: optional
+  6-1-founding-agents-import: done          # 189 agents imported from AI Workforce + BAI CC
+  6-2-agent-publishing: done                # marketplace-service createListing
+  6-3-live-ticker: done                     # Real-time marketplace activity
+  6-4-marketplace-browse-search: done       # /marketplace page, search API
+  6-5-custom-agent-requests: done           # request_bids table, bidding flow
+  6-6-agent-acquisition-commission: done    # acquisition service
+  6-7-earnings-dashboard-payouts: done      # /earnings page, stripe-service
+  epic-6-retrospective: completed
 
   # ═══════════════════════════════════════════════════════════════════
-  # EPIC 7: Dashboard & Notifications
+  # EPIC 7: Dashboard & Notifications (5 stories)
   # Goal: Unified management interface
+  # FRs: FR129-FR143
   # ═══════════════════════════════════════════════════════════════════
   epic-7: contexted
-  7-1-role-based-dashboard: done        # /dashboard with role routing
-  7-2-dashboard-tabs: done              # tab navigation implemented
-  7-3-escalation-notifications: done    # notification-service
-  7-4-event-notifications: done         # in-app notifications
-  7-5-notification-preferences: done    # /settings/notifications
-  epic-7-retrospective: optional
+  7-1-role-based-dashboard: done            # /dashboard with role routing
+  7-2-dashboard-tabs: done                  # tab navigation implemented
+  7-3-escalation-notifications: done        # notification-service escalations
+  7-4-event-notifications: done             # in-app notifications
+  7-5-notification-preferences: done        # /settings/notifications
+  epic-7-retrospective: completed
 
   # ═══════════════════════════════════════════════════════════════════
-  # EPIC 8: API & Integration
+  # EPIC 8: API & Integration (4 stories)
   # Goal: External system integration
+  # FRs: FR144-FR149
   # ═══════════════════════════════════════════════════════════════════
   epic-8: contexted
-  8-1-restful-api: done                 # /api/v1/ routes exist
-  8-2-api-authentication: done          # auth middleware
-  8-3-webhooks: done                    # webhook service exists
-  8-4-openapi-documentation: done       # /docs/api with Scalar UI, /openapi.json spec
-  epic-8-retrospective: optional
+  8-1-restful-api: done                     # /api/v1/ routes exist
+  8-2-api-authentication: done              # API key auth, /settings/api-keys
+  8-3-webhooks: done                        # webhook service, management UI
+  8-4-openapi-documentation: done           # /docs/api with Scalar, /openapi.json
+
+  epic-8-retrospective: completed
+
+  # ═══════════════════════════════════════════════════════════════════
+  # ██████╗ ██████╗  ██████╗ ██╗    ██╗████████╗██╗  ██╗
+  # ██╔════╝ ██╔══██╗██╔═══██╗██║    ██║╚══██╔══╝██║  ██║
+  # ██║  ███╗██████╔╝██║   ██║██║ █╗ ██║   ██║   ███████║
+  # ██║   ██║██╔══██╗██║   ██║██║███╗██║   ██║   ██╔══██║
+  # ╚██████╔╝██║  ██║╚██████╔╝╚███╔███╔╝   ██║   ██║  ██║
+  #  ╚═════╝ ╚═╝  ╚═╝ ╚═════╝  ╚══╝╚══╝    ╚═╝   ╚═╝  ╚═╝
+  # GROWTH PHASE - Advanced Features & Moat Builders
+  # PRD: docs/prd-growth-phase.md
+  # ═══════════════════════════════════════════════════════════════════
+
+  # ═══════════════════════════════════════════════════════════════════
+  # EPIC 9: Clone & Enterprise Acquisition (5 stories)
+  # Goal: Revenue diversification beyond commission
+  # FRs: FR14-15, FR28-29
+  # Moat: Revenue
+  # ═══════════════════════════════════════════════════════════════════
+  epic-9: backlog
+  9-1-clone-pricing-settings: backlog
+  9-2-enterprise-lock-configuration: backlog
+  9-3-clone-package-generation: backlog
+  9-4-clone-acquisition-flow: backlog
+  9-5-enterprise-lock-acquisition: backlog
+  epic-9-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════
+  # EPIC 10: MIA Protocol (5 stories)
+  # Goal: Detect and handle missing-in-action trainers
+  # FRs: FR116-122
+  # Moat: Trust
+  # ═══════════════════════════════════════════════════════════════════
+  epic-10: backlog
+  10-1-trainer-activity-tracking: backlog
+  10-2-mia-detection-engine: backlog
+  10-3-graduated-warning-system: backlog
+  10-4-consumer-mia-notifications: backlog
+  10-5-platform-takeover-flow: backlog
+  epic-10-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════
+  # EPIC 11: Client Bill of Rights (5 stories)
+  # Goal: Full consumer protection with 30-day notice
+  # FRs: FR123-128
+  # Moat: Trust
+  # ═══════════════════════════════════════════════════════════════════
+  epic-11: backlog
+  11-1-ownership-change-detection: backlog
+  11-2-thirty-day-notice-system: backlog
+  11-3-consumer-opt-out-flow: backlog
+  11-4-walk-away-termination: backlog
+  11-5-protection-truth-chain-records: backlog
+  epic-11-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════
+  # EPIC 12: Maintenance Delegation (4 stories)
+  # Goal: Allow trainers to delegate agent maintenance
+  # FRs: FR18-22
+  # Moat: Trainer UX
+  # ═══════════════════════════════════════════════════════════════════
+  epic-12: backlog
+  12-1-delegate-designation: backlog
+  12-2-delegate-permissions: backlog
+  12-3-delegation-revocation: backlog
+  12-4-delegation-truth-chain: backlog
+  epic-12-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════
+  # EPIC 13: Academy Specializations & Mentorship (4 stories)
+  # Goal: Specialized tracks and elite mentorship
+  # FRs: FR47-48
+  # Moat: Depth
+  # ═══════════════════════════════════════════════════════════════════
+  epic-13: backlog
+  13-1-specialization-tracks: backlog
+  13-2-specialization-enrollment: backlog
+  13-3-mentor-certification: backlog
+  13-4-mentorship-program: backlog
+  epic-13-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════
+  # EPIC 14: Precedent Flywheel [MOAT BUILDER] (5 stories)
+  # Goal: AI-powered governance that learns from decisions
+  # FRs: FR150-156
+  # Moat: DATA - Cannot be replicated
+  # ═══════════════════════════════════════════════════════════════════
+  epic-14: backlog
+  14-1-decision-indexing: backlog
+  14-2-precedent-similarity-search: backlog
+  14-3-validator-precedent-context: backlog
+  14-4-consistency-tracking: backlog
+  14-5-validator-fine-tuning-pipeline: backlog
+  epic-14-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════
+  # EPIC 15: Portable Trust Credentials [MOAT BUILDER] (5 stories)
+  # Goal: Trust reputation portable outside platform
+  # FRs: FR157-162
+  # Moat: NETWORK - Extends beyond platform
+  # Design: docs/designs/portable-trust-credential.md
+  # ═══════════════════════════════════════════════════════════════════
+  epic-15: contexted
+  15-1-credential-issuance: done              # Credential service, JWT issuing, API
+  15-2-credential-signing: done               # ES256 signing, key rotation support
+  15-3-verification-api: done                 # /api/v1/verify/credential, rate limiting
+  15-4-credential-refresh: backlog
+  15-5-revocation-system: backlog
+  epic-15-retrospective: optional

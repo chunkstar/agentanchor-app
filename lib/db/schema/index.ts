@@ -34,3 +34,6 @@ export * from './escalations'
 
 // Payments (Stripe, Payouts)
 export * from './payments'
+
+// Portable Trust Credentials (Growth Phase)
+export * from './credentials'
