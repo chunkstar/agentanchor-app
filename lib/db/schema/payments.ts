@@ -5,7 +5,7 @@
 
 import { pgTable, uuid, text, timestamp, decimal, jsonb, pgEnum, index, integer } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
-import { users } from './users'
+import { profiles } from './users'
 import { agents } from './agents'
 
 // Enums
@@ -34,7 +34,7 @@ export const payoutAccounts = pgTable(
   'payout_accounts',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id').notNull().references(() => profiles.id, { onDelete: 'cascade' }),
     // Stripe Connect
     stripeAccountId: text('stripe_account_id'),
     stripeAccountStatus: text('stripe_account_status').default('pending'),
@@ -64,7 +64,7 @@ export const payouts = pgTable(
   'payouts',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    trainerId: uuid('trainer_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    trainerId: uuid('trainer_id').notNull().references(() => profiles.id, { onDelete: 'cascade' }),
     accountId: uuid('account_id').notNull().references(() => payoutAccounts.id),
     // Amount
     amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
@@ -107,10 +107,10 @@ export const usageBilling = pgTable(
   {
     id: uuid('id').primaryKey().defaultRandom(),
     // Who owes
-    consumerId: uuid('consumer_id').notNull().references(() => users.id),
+    consumerId: uuid('consumer_id').notNull().references(() => profiles.id),
     // For which agent
     agentId: uuid('agent_id').notNull().references(() => agents.id),
-    trainerId: uuid('trainer_id').notNull().references(() => users.id),
+    trainerId: uuid('trainer_id').notNull().references(() => profiles.id),
     // Usage details
     taskCount: integer('task_count').default(1).notNull(),
     complexityMultiplier: decimal('complexity_multiplier', { precision: 3, scale: 1 }).default('1.0'),
@@ -139,17 +139,17 @@ export const usageBilling = pgTable(
 
 // Relations
 export const payoutAccountsRelations = relations(payoutAccounts, ({ one, many }) => ({
-  user: one(users, {
+  user: one(profiles, {
     fields: [payoutAccounts.userId],
-    references: [users.id],
+    references: [profiles.id],
   }),
   payouts: many(payouts),
 }))
 
 export const payoutsRelations = relations(payouts, ({ one }) => ({
-  trainer: one(users, {
+  trainer: one(profiles, {
     fields: [payouts.trainerId],
-    references: [users.id],
+    references: [profiles.id],
   }),
   account: one(payoutAccounts, {
     fields: [payouts.accountId],
@@ -158,17 +158,17 @@ export const payoutsRelations = relations(payouts, ({ one }) => ({
 }))
 
 export const usageBillingRelations = relations(usageBilling, ({ one }) => ({
-  consumer: one(users, {
+  consumer: one(profiles, {
     fields: [usageBilling.consumerId],
-    references: [users.id],
+    references: [profiles.id],
   }),
   agent: one(agents, {
     fields: [usageBilling.agentId],
     references: [agents.id],
   }),
-  trainer: one(users, {
+  trainer: one(profiles, {
     fields: [usageBilling.trainerId],
-    references: [users.id],
+    references: [profiles.id],
   }),
   payout: one(payouts, {
     fields: [usageBilling.payoutId],

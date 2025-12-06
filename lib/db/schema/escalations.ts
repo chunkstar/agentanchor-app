@@ -7,7 +7,7 @@ import { pgTable, uuid, text, timestamp, jsonb, pgEnum, index } from 'drizzle-or
 import { relations } from 'drizzle-orm'
 import { agents } from './agents'
 import { councilDecisions } from './council'
-import { users } from './users'
+import { profiles } from './users'
 
 // Enums
 export const escalationStatusEnum = pgEnum('escalation_status', [
@@ -46,12 +46,12 @@ export const escalations = pgTable(
       precedentConflicts?: string[]
     }>().notNull(),
     // Assignment
-    assignedTo: uuid('assigned_to').references(() => users.id),
+    assignedTo: uuid('assigned_to').references(() => profiles.id),
     assignedAt: timestamp('assigned_at', { withTimezone: true }),
     // Resolution
     resolution: text('resolution'),
     resolutionReason: text('resolution_reason'),
-    resolvedBy: uuid('resolved_by').references(() => users.id),
+    resolvedBy: uuid('resolved_by').references(() => profiles.id),
     resolvedAt: timestamp('resolved_at', { withTimezone: true }),
     // Override creates precedent
     createsPrecedent: jsonb('creates_precedent').$type<boolean>().default(false),
@@ -84,11 +84,11 @@ export const escalationsRelations = relations(escalations, ({ one }) => ({
   }),
   assignee: one(users, {
     fields: [escalations.assignedTo],
-    references: [users.id],
+    references: [profiles.id],
   }),
   resolver: one(users, {
     fields: [escalations.resolvedBy],
-    references: [users.id],
+    references: [profiles.id],
   }),
 }))
 
