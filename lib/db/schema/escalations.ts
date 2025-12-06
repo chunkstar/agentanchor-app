@@ -82,11 +82,11 @@ export const escalationsRelations = relations(escalations, ({ one }) => ({
     fields: [escalations.agentId],
     references: [agents.id],
   }),
-  assignee: one(users, {
+  assignee: one(profiles, {
     fields: [escalations.assignedTo],
     references: [profiles.id],
   }),
-  resolver: one(users, {
+  resolver: one(profiles, {
     fields: [escalations.resolvedBy],
     references: [profiles.id],
   }),
