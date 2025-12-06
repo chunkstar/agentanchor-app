@@ -281,7 +281,7 @@ async function importCollection(client, ownerId, agents, collectionName) {
         continue;
       }
 
-      // Insert agent
+      // Insert agent (agents view maps to bots table)
       await client.query(`
         INSERT INTO agents (
           owner_id, name, description, system_prompt, model,
