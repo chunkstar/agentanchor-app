@@ -5,7 +5,7 @@
 
 import { pgTable, uuid, text, timestamp, decimal, jsonb, pgEnum, index, integer } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
-import { profiles } from './users'
+import { profiles, subscriptionTierEnum } from './users'
 import { agents } from './agents'
 
 // Enums
@@ -21,12 +21,6 @@ export const payoutMethodEnum = pgEnum('payout_method', [
   'bank_transfer',
   'stripe',
   'crypto',
-])
-
-export const subscriptionTierEnum = pgEnum('subscription_tier', [
-  'free',
-  'pro',
-  'enterprise',
 ])
 
 // Trainer payout accounts (Stripe Connect)
