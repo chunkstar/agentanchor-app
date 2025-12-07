@@ -16,35 +16,33 @@ import {
   ShoppingCart,
   RefreshCw,
   ArrowRight,
-  ToggleLeft,
-  ToggleRight,
+  Scale,
+  Link2,
+  Sparkles,
 } from 'lucide-react'
 
-interface TrainerStats {
-  total_agents: number
-  active_agents: number
-  training_agents: number
-  published_agents: number
+interface DashboardStats {
+  // Your agents (created/trained)
+  my_agents: number
+  agents_in_training: number
+  agents_published: number
+  average_trust_score: number
+  // Acquired agents
+  acquired_agents: number
+  active_acquisitions: number
+  // Earnings & spending
   total_earnings: number
   available_earnings: number
   this_month_earnings: number
-  average_trust_score: number
-  total_acquisitions: number
-  pending_escalations: number
-  pending_complaints: number
-}
-
-interface ConsumerStats {
-  acquired_agents: number
-  active_acquisitions: number
-  total_tasks: number
-  this_month_tasks: number
   total_spent: number
   this_month_spent: number
-  active_agents_count: number
+  // Activity
+  total_tasks: number
+  this_month_tasks: number
+  pending_escalations: number
 }
 
-interface Activity {
+interface ActivityItem {
   id: string
   type: string
   title: string
@@ -55,47 +53,27 @@ interface Activity {
 }
 
 export default function DashboardPage() {
-  const [role, setRole] = useState<'trainer' | 'consumer'>('trainer')
-  const [stats, setStats] = useState<TrainerStats | ConsumerStats | null>(null)
-  const [activity, setActivity] = useState<Activity[]>([])
+  const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [activity, setActivity] = useState<ActivityItem[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchDashboard()
-  }, [role])
+  }, [])
 
   async function fetchDashboard() {
     setLoading(true)
     try {
-      const res = await fetch(`/api/dashboard?role=${role}`)
+      const res = await fetch('/api/dashboard')
       if (res.ok) {
         const data = await res.json()
         setStats(data.stats)
         setActivity(data.activity || [])
-        if (data.preferences?.active_role && !role) {
-          setRole(data.preferences.active_role)
-        }
       }
     } catch (err) {
       console.error('Failed to fetch dashboard:', err)
     } finally {
       setLoading(false)
-    }
-  }
-
-  async function toggleRole() {
-    const newRole = role === 'trainer' ? 'consumer' : 'trainer'
-    setRole(newRole)
-
-    // Persist preference
-    try {
-      await fetch('/api/dashboard', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ active_role: newRole }),
-      })
-    } catch (err) {
-      console.error('Failed to save role preference:', err)
     }
   }
 
@@ -108,238 +86,225 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header with Role Toggle */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-neutral-100 flex items-center gap-3">
-            <LayoutDashboard className="w-7 h-7 text-blue-400" />
-            Dashboard
-          </h1>
-          <p className="text-neutral-400 mt-1">
-            Your AI governance command center
-          </p>
-        </div>
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-neutral-100 flex items-center gap-3">
+          <LayoutDashboard className="w-7 h-7 text-blue-400" />
+          Dashboard
+        </h1>
+        <p className="text-neutral-400 mt-1">
+          Your AI governance command center
+        </p>
+      </div>
 
-        {/* Role Toggle (FR129) */}
-        <button
-          onClick={toggleRole}
-          className="flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors"
-        >
-          {role === 'trainer' ? (
-            <ToggleRight className="w-5 h-5 text-blue-400" />
+      {/* User Journey Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <JourneyCard
+          step={1}
+          title="Discover"
+          description="Find trusted AI agents"
+          href="/marketplace"
+          icon={Sparkles}
+          color="green"
+        />
+        <JourneyCard
+          step={2}
+          title="Create"
+          description="Build & train your agents"
+          href="/agents/new"
+          icon={Bot}
+          color="blue"
+        />
+        <JourneyCard
+          step={3}
+          title="Govern"
+          description="Oversight & verification"
+          href="/council"
+          icon={Scale}
+          color="purple"
+        />
+        <JourneyCard
+          step={4}
+          title="Grow"
+          description="Track earnings & usage"
+          href="/earnings"
+          icon={TrendingUp}
+          color="yellow"
+        />
+      </div>
+
+      {/* Stats Overview */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard
+          title="My Agents"
+          value={stats?.my_agents?.toString() || '0'}
+          subtitle={`${stats?.agents_published || 0} published`}
+          icon={Bot}
+          color="blue"
+          href="/agents"
+        />
+        <StatCard
+          title="Acquired"
+          value={stats?.acquired_agents?.toString() || '0'}
+          subtitle={`${stats?.active_acquisitions || 0} active`}
+          icon={ShoppingCart}
+          color="green"
+          href="/portfolio"
+        />
+        <StatCard
+          title="Trust Score"
+          value={stats?.average_trust_score?.toString() || '—'}
+          subtitle="Average across agents"
+          icon={TrendingUp}
+          color="purple"
+        />
+        <StatCard
+          title="This Month"
+          value={`$${(stats?.this_month_earnings || 0).toFixed(0)}`}
+          subtitle={stats?.pending_escalations ? `${stats.pending_escalations} pending` : 'No issues'}
+          icon={DollarSign}
+          color="yellow"
+          alert={stats?.pending_escalations ? stats.pending_escalations > 0 : false}
+          href="/earnings"
+        />
+      </div>
+
+      {/* Two Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Activity */}
+        <div className="bg-neutral-900 rounded-lg border border-neutral-800 p-6">
+          <h2 className="text-lg font-semibold text-neutral-100 mb-4 flex items-center gap-2">
+            <Activity className="w-5 h-5 text-blue-400" />
+            Recent Activity
+          </h2>
+
+          {activity.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <Activity className="w-10 h-10 text-neutral-600 mb-3" />
+              <p className="text-sm text-neutral-500">
+                Your activity will appear here
+              </p>
+            </div>
           ) : (
-            <ToggleLeft className="w-5 h-5 text-green-400" />
-          )}
-          <span className="text-neutral-100">
-            {role === 'trainer' ? 'Trainer View' : 'Consumer View'}
-          </span>
-        </button>
-      </div>
-
-      {/* Stats Grid */}
-      {role === 'trainer' ? (
-        <TrainerDashboard stats={stats as TrainerStats} />
-      ) : (
-        <ConsumerDashboard stats={stats as ConsumerStats} />
-      )}
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {role === 'trainer' ? (
-          <>
-            <QuickActionCard
-              title="Create Agent"
-              description="Start training a new AI agent"
-              href="/agents/new"
-              icon={Bot}
-              color="blue"
-            />
-            <QuickActionCard
-              title="Academy"
-              description="Manage agent training"
-              href="/academy"
-              icon={GraduationCap}
-              color="purple"
-            />
-            <QuickActionCard
-              title="Marketplace"
-              description="Manage your listings"
-              href="/marketplace"
-              icon={ShoppingCart}
-              color="green"
-            />
-            <QuickActionCard
-              title="Earnings"
-              description="View your earnings"
-              href="/earnings"
-              icon={DollarSign}
-              color="yellow"
-            />
-          </>
-        ) : (
-          <>
-            <QuickActionCard
-              title="Browse Agents"
-              description="Find new agents to use"
-              href="/marketplace"
-              icon={ShoppingCart}
-              color="green"
-            />
-            <QuickActionCard
-              title="My Agents"
-              description="View acquired agents"
-              href="/agents"
-              icon={Bot}
-              color="blue"
-            />
-            <QuickActionCard
-              title="Usage"
-              description="Track your usage"
-              href="/usage"
-              icon={Activity}
-              color="purple"
-            />
-            <QuickActionCard
-              title="Feedback"
-              description="Leave reviews"
-              href="/feedback"
-              icon={MessageSquare}
-              color="yellow"
-            />
-          </>
-        )}
-      </div>
-
-      {/* Recent Activity */}
-      <div className="bg-neutral-900 rounded-lg border border-neutral-800 p-6">
-        <h2 className="text-lg font-semibold text-neutral-100 mb-4 flex items-center gap-2">
-          <Activity className="w-5 h-5 text-blue-400" />
-          Recent Activity
-        </h2>
-
-        {activity.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <LayoutDashboard className="w-12 h-12 text-neutral-600 mb-4" />
-            <h3 className="text-lg font-medium text-neutral-300">
-              No recent activity
-            </h3>
-            <p className="text-sm text-neutral-500 mt-1">
-              Your agent activity and governance events will appear here
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {activity.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center justify-between p-3 bg-neutral-800/50 rounded-lg"
-              >
-                <div className="flex items-center gap-3">
-                  <ActivityIcon type={item.type} />
-                  <div>
-                    <p className="text-neutral-200 font-medium">{item.title}</p>
-                    <p className="text-sm text-neutral-500">{item.description}</p>
+            <div className="space-y-3">
+              {activity.slice(0, 5).map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between p-3 bg-neutral-800/50 rounded-lg"
+                >
+                  <div className="flex items-center gap-3">
+                    <ActivityIcon type={item.type} />
+                    <div>
+                      <p className="text-neutral-200 font-medium text-sm">{item.title}</p>
+                      <p className="text-xs text-neutral-500">{item.description}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-neutral-500">
+                      {new Date(item.created_at).toLocaleDateString()}
+                    </span>
+                    {item.agent_id && (
+                      <Link
+                        href={`/agents/${item.agent_id}`}
+                        className="text-blue-400 hover:text-blue-300"
+                      >
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-neutral-500">
-                    {new Date(item.created_at).toLocaleDateString()}
-                  </span>
-                  {item.agent_id && (
-                    <Link
-                      href={`/agents/${item.agent_id}`}
-                      className="text-blue-400 hover:text-blue-300"
-                    >
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  )}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Governance Health */}
+        <div className="bg-neutral-900 rounded-lg border border-neutral-800 p-6">
+          <h2 className="text-lg font-semibold text-neutral-100 mb-4 flex items-center gap-2">
+            <Scale className="w-5 h-5 text-purple-400" />
+            Governance Health
+          </h2>
+
+          <div className="space-y-4">
+            <GovernanceItem
+              title="Council"
+              description="Democratic oversight of AI agents"
+              href="/council"
+              icon={Scale}
+              status="active"
+            />
+            <GovernanceItem
+              title="Observer"
+              description="Real-time behavior monitoring"
+              href="/observer"
+              icon={Eye}
+              status="active"
+            />
+            <GovernanceItem
+              title="Truth Chain"
+              description="Immutable audit trail"
+              href="/truth-chain"
+              icon={Link2}
+              status="active"
+            />
+            <GovernanceItem
+              title="Academy"
+              description="Agent training & certification"
+              href="/academy"
+              icon={GraduationCap}
+              status="active"
+            />
           </div>
-        )}
+        </div>
       </div>
     </div>
   )
 }
 
-function TrainerDashboard({ stats }: { stats: TrainerStats | null }) {
-  if (!stats) return null
+function JourneyCard({
+  step,
+  title,
+  description,
+  href,
+  icon: Icon,
+  color,
+}: {
+  step: number
+  title: string
+  description: string
+  href: string
+  icon: React.ElementType
+  color: 'blue' | 'green' | 'purple' | 'yellow'
+}) {
+  const colorClasses = {
+    blue: 'border-blue-800 hover:border-blue-600 hover:bg-blue-900/20 text-blue-400',
+    green: 'border-green-800 hover:border-green-600 hover:bg-green-900/20 text-green-400',
+    purple: 'border-purple-800 hover:border-purple-600 hover:bg-purple-900/20 text-purple-400',
+    yellow: 'border-yellow-800 hover:border-yellow-600 hover:bg-yellow-900/20 text-yellow-400',
+  }
+
+  const badgeColors = {
+    blue: 'bg-blue-900/50 text-blue-400',
+    green: 'bg-green-900/50 text-green-400',
+    purple: 'bg-purple-900/50 text-purple-400',
+    yellow: 'bg-yellow-900/50 text-yellow-400',
+  }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <StatCard
-        title="My Agents"
-        value={stats.total_agents.toString()}
-        subtitle={`${stats.active_agents} active`}
-        icon={Bot}
-        color="blue"
-      />
-      <StatCard
-        title="This Month"
-        value={`$${stats.this_month_earnings.toFixed(2)}`}
-        subtitle={`$${stats.available_earnings.toFixed(2)} available`}
-        icon={DollarSign}
-        color="green"
-      />
-      <StatCard
-        title="Avg Trust Score"
-        value={stats.average_trust_score.toString()}
-        subtitle={`${stats.published_agents} published`}
-        icon={TrendingUp}
-        color="purple"
-      />
-      <StatCard
-        title="Acquisitions"
-        value={stats.total_acquisitions.toString()}
-        subtitle={
-          stats.pending_escalations > 0
-            ? `${stats.pending_escalations} escalations`
-            : 'No pending issues'
-        }
-        icon={Users}
-        color="yellow"
-        alert={stats.pending_escalations > 0 || stats.pending_complaints > 0}
-      />
-    </div>
-  )
-}
-
-function ConsumerDashboard({ stats }: { stats: ConsumerStats | null }) {
-  if (!stats) return null
-
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <StatCard
-        title="Acquired Agents"
-        value={stats.acquired_agents.toString()}
-        subtitle={`${stats.active_acquisitions} active`}
-        icon={Bot}
-        color="blue"
-      />
-      <StatCard
-        title="Tasks This Month"
-        value={stats.this_month_tasks.toLocaleString()}
-        subtitle={`${stats.total_tasks.toLocaleString()} total`}
-        icon={Activity}
-        color="purple"
-      />
-      <StatCard
-        title="Spent This Month"
-        value={`$${stats.this_month_spent.toFixed(2)}`}
-        subtitle={`$${stats.total_spent.toFixed(2)} total`}
-        icon={DollarSign}
-        color="green"
-      />
-      <StatCard
-        title="Active Agents"
-        value={stats.active_agents_count.toString()}
-        subtitle="Ready to use"
-        icon={Users}
-        color="yellow"
-      />
-    </div>
+    <Link
+      href={href}
+      className={`block p-4 rounded-lg border-2 border-dashed transition-colors ${colorClasses[color]}`}
+    >
+      <div className="flex items-center gap-3 mb-2">
+        <span className={`text-xs font-bold px-2 py-0.5 rounded ${badgeColors[color]}`}>
+          {step}
+        </span>
+        <Icon className="w-5 h-5" />
+      </div>
+      <h3 className="font-semibold text-neutral-100">{title}</h3>
+      <p className="text-sm text-neutral-500 mt-1">{description}</p>
+    </Link>
   )
 }
 
@@ -350,6 +315,7 @@ function StatCard({
   icon: Icon,
   color,
   alert,
+  href,
 }: {
   title: string
   value: string
@@ -357,6 +323,7 @@ function StatCard({
   icon: React.ElementType
   color: 'blue' | 'green' | 'purple' | 'yellow'
   alert?: boolean
+  href?: string
 }) {
   const colorClasses = {
     blue: 'text-blue-400',
@@ -365,8 +332,8 @@ function StatCard({
     yellow: 'text-yellow-400',
   }
 
-  return (
-    <div className="bg-neutral-900 rounded-lg border border-neutral-800 p-4">
+  const content = (
+    <div className={`bg-neutral-900 rounded-lg border border-neutral-800 p-4 ${href ? 'hover:border-neutral-700 transition-colors' : ''}`}>
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm text-neutral-500">{title}</span>
         <Icon className={`w-5 h-5 ${colorClasses[color]}`} />
@@ -378,43 +345,48 @@ function StatCard({
       </p>
     </div>
   )
+
+  if (href) {
+    return <Link href={href}>{content}</Link>
+  }
+  return content
 }
 
-function QuickActionCard({
+function GovernanceItem({
   title,
   description,
   href,
   icon: Icon,
-  color,
+  status,
 }: {
   title: string
   description: string
   href: string
   icon: React.ElementType
-  color: 'blue' | 'green' | 'purple' | 'yellow'
+  status: 'active' | 'warning' | 'inactive'
 }) {
-  const colorClasses = {
-    blue: 'border-blue-800 hover:border-blue-600 hover:bg-blue-900/20',
-    green: 'border-green-800 hover:border-green-600 hover:bg-green-900/20',
-    purple: 'border-purple-800 hover:border-purple-600 hover:bg-purple-900/20',
-    yellow: 'border-yellow-800 hover:border-yellow-600 hover:bg-yellow-900/20',
-  }
-
-  const iconColors = {
-    blue: 'text-blue-400',
-    green: 'text-green-400',
-    purple: 'text-purple-400',
-    yellow: 'text-yellow-400',
+  const statusColors = {
+    active: 'bg-green-500',
+    warning: 'bg-yellow-500',
+    inactive: 'bg-neutral-500',
   }
 
   return (
     <Link
       href={href}
-      className={`block p-4 rounded-lg border-2 border-dashed transition-colors ${colorClasses[color]}`}
+      className="flex items-center justify-between p-3 bg-neutral-800/50 rounded-lg hover:bg-neutral-800 transition-colors"
     >
-      <Icon className={`w-6 h-6 ${iconColors[color]} mb-2`} />
-      <h3 className="font-medium text-neutral-100">{title}</h3>
-      <p className="text-sm text-neutral-500 mt-1">{description}</p>
+      <div className="flex items-center gap-3">
+        <Icon className="w-5 h-5 text-neutral-400" />
+        <div>
+          <p className="text-neutral-200 font-medium">{title}</p>
+          <p className="text-xs text-neutral-500">{description}</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className={`w-2 h-2 rounded-full ${statusColors[status]}`} />
+        <ArrowRight className="w-4 h-4 text-neutral-500" />
+      </div>
     </Link>
   )
 }
@@ -432,11 +404,11 @@ function ActivityIcon({ type }: { type: string }) {
   }
 
   const config = icons[type] || { icon: Activity, color: 'text-neutral-400' }
-  const Icon = config.icon
+  const IconComponent = config.icon
 
   return (
     <div className={`p-2 rounded-lg bg-neutral-800 ${config.color}`}>
-      <Icon className="w-4 h-4" />
+      <IconComponent className="w-4 h-4" />
     </div>
   )
 }

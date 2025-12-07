@@ -12,6 +12,8 @@ import {
   Settings,
   HelpCircle,
   LucideIcon,
+  Sparkles,
+  Shield,
 } from 'lucide-react'
 
 export type UserRole = 'trainer' | 'consumer' | 'both'
@@ -23,7 +25,7 @@ export interface MenuItem {
   icon: LucideIcon
   roles?: UserRole[] // If undefined, shown to all roles
   badge?: string | number
-  section: 'main' | 'management' | 'consumer' | 'system'
+  section: 'home' | 'discover' | 'create' | 'govern' | 'grow' | 'system'
 }
 
 export interface MenuSection {
@@ -32,95 +34,105 @@ export interface MenuSection {
   items: MenuItem[]
 }
 
+// User Journey Navigation:
+// 1. HOME - Your command center
+// 2. DISCOVER - Find trusted agents
+// 3. CREATE - Build & train your agents
+// 4. GOVERN - Oversight & verification
+// 5. GROW - Earnings, usage, business
+// 6. SYSTEM - Settings & help
+
 export const menuItems: MenuItem[] = [
-  // Main Section - All users
+  // === HOME ===
   {
     id: 'dashboard',
     label: 'Dashboard',
     href: '/dashboard',
     icon: LayoutDashboard,
-    section: 'main',
+    section: 'home',
+  },
+
+  // === DISCOVER - Find agents ===
+  {
+    id: 'marketplace',
+    label: 'Marketplace',
+    href: '/marketplace',
+    icon: Sparkles,
+    section: 'discover',
   },
   {
-    id: 'agents',
-    label: 'Agents',
+    id: 'portfolio',
+    label: 'My Portfolio',
+    href: '/portfolio',
+    icon: Briefcase,
+    section: 'discover',
+  },
+
+  // === CREATE - Build & train ===
+  {
+    id: 'my-agents',
+    label: 'My Agents',
     href: '/agents',
     icon: Bot,
-    section: 'main',
+    section: 'create',
   },
   {
     id: 'academy',
     label: 'Academy',
     href: '/academy',
     icon: GraduationCap,
-    section: 'main',
+    section: 'create',
   },
+  {
+    id: 'storefront',
+    label: 'Storefront',
+    href: '/storefront',
+    icon: Store,
+    roles: ['trainer', 'both'],
+    section: 'create',
+  },
+
+  // === GOVERN - Oversight & verification ===
   {
     id: 'council',
     label: 'Council',
     href: '/council',
     icon: Scale,
-    section: 'main',
+    section: 'govern',
   },
   {
     id: 'observer',
     label: 'Observer',
     href: '/observer',
     icon: Eye,
-    section: 'main',
-  },
-  {
-    id: 'marketplace',
-    label: 'Marketplace',
-    href: '/marketplace',
-    icon: Store,
-    section: 'main',
+    section: 'govern',
   },
   {
     id: 'truth-chain',
     label: 'Truth Chain',
     href: '/truth-chain',
     icon: Link2,
-    section: 'main',
+    section: 'govern',
   },
 
-  // Management Section - Trainers only
+  // === GROW - Business & analytics ===
   {
     id: 'earnings',
     label: 'Earnings',
     href: '/earnings',
     icon: Wallet,
     roles: ['trainer', 'both'],
-    section: 'management',
-  },
-  {
-    id: 'storefront',
-    label: 'Storefront',
-    href: '/storefront',
-    icon: Briefcase,
-    roles: ['trainer', 'both'],
-    section: 'management',
-  },
-
-  // Consumer Section - Consumers only
-  {
-    id: 'portfolio',
-    label: 'Portfolio',
-    href: '/portfolio',
-    icon: Briefcase,
-    roles: ['consumer', 'both'],
-    section: 'consumer',
+    section: 'grow',
   },
   {
     id: 'usage',
     label: 'Usage',
     href: '/usage',
     icon: BarChart3,
-    roles: ['consumer', 'both'],
-    section: 'consumer',
+    section: 'grow',
   },
 
-  // System Section - All users
+  // === SYSTEM ===
   {
     id: 'settings',
     label: 'Settings',
@@ -148,45 +160,72 @@ export function getMenuItemsForRole(role: UserRole): MenuItem[] {
 }
 
 /**
- * Group menu items by section
+ * Group menu items by section - User Journey based
  */
 export function getMenuSections(role: UserRole): MenuSection[] {
   const items = getMenuItemsForRole(role)
 
-  const sections: MenuSection[] = [
-    {
-      id: 'main',
-      label: 'Main',
-      items: items.filter((i) => i.section === 'main'),
-    },
-  ]
+  const sections: MenuSection[] = []
 
-  // Add management section for trainers
-  const managementItems = items.filter((i) => i.section === 'management')
-  if (managementItems.length > 0) {
+  // Home - always first, no label needed
+  const homeItems = items.filter((i) => i.section === 'home')
+  if (homeItems.length > 0) {
     sections.push({
-      id: 'management',
-      label: 'Management',
-      items: managementItems,
+      id: 'home',
+      label: '',
+      items: homeItems,
     })
   }
 
-  // Add consumer section for consumers
-  const consumerItems = items.filter((i) => i.section === 'consumer')
-  if (consumerItems.length > 0) {
+  // Discover
+  const discoverItems = items.filter((i) => i.section === 'discover')
+  if (discoverItems.length > 0) {
     sections.push({
-      id: 'consumer',
-      label: 'My Account',
-      items: consumerItems,
+      id: 'discover',
+      label: 'Discover',
+      items: discoverItems,
     })
   }
 
-  // Add system section
-  sections.push({
-    id: 'system',
-    label: 'System',
-    items: items.filter((i) => i.section === 'system'),
-  })
+  // Create
+  const createItems = items.filter((i) => i.section === 'create')
+  if (createItems.length > 0) {
+    sections.push({
+      id: 'create',
+      label: 'Create',
+      items: createItems,
+    })
+  }
+
+  // Govern
+  const governItems = items.filter((i) => i.section === 'govern')
+  if (governItems.length > 0) {
+    sections.push({
+      id: 'govern',
+      label: 'Govern',
+      items: governItems,
+    })
+  }
+
+  // Grow
+  const growItems = items.filter((i) => i.section === 'grow')
+  if (growItems.length > 0) {
+    sections.push({
+      id: 'grow',
+      label: 'Grow',
+      items: growItems,
+    })
+  }
+
+  // System - always last
+  const systemItems = items.filter((i) => i.section === 'system')
+  if (systemItems.length > 0) {
+    sections.push({
+      id: 'system',
+      label: 'System',
+      items: systemItems,
+    })
+  }
 
   return sections
 }

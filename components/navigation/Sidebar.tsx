@@ -39,12 +39,12 @@ export default function Sidebar({ isCollapsed, onToggleCollapse, userRole }: Sid
           {sections.map((section) => (
             <div key={section.id} className="mb-6">
               {/* Section Label */}
-              {!isCollapsed && (
+              {!isCollapsed && section.label && (
                 <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   {section.label}
                 </h3>
               )}
-              {isCollapsed && section.id !== 'main' && (
+              {isCollapsed && section.id !== 'home' && (
                 <div className="mb-2 border-t border-gray-200 dark:border-gray-700" />
               )}
 

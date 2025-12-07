@@ -50,9 +50,11 @@ export default function MobileSidebar({ isOpen, onClose, userRole }: MobileSideb
           <nav className="flex-1 overflow-y-auto p-4">
             {sections.map((section) => (
               <div key={section.id} className="mb-6">
-                <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  {section.label}
-                </h3>
+                {section.label && (
+                  <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    {section.label}
+                  </h3>
+                )}
 
                 <ul className="space-y-1">
                   {section.items.map((item) => {
