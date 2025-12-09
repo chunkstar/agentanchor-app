@@ -29,11 +29,11 @@ export async function GET(request: NextRequest) {
       throw new AuthError('Unauthorized')
     }
 
-    // Get profile from database
+    // Get profile from database (user.id = profile.id in Supabase)
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('*')
-      .eq('auth_user_id', user.id)
+      .eq('id', user.id)
       .single()
 
     if (profileError) {
@@ -42,10 +42,9 @@ export async function GET(request: NextRequest) {
         const { data: newProfile, error: createError } = await supabase
           .from('profiles')
           .insert({
-            auth_user_id: user.id,
+            id: user.id,
             email: user.email!,
             full_name: user.user_metadata?.full_name || null,
-            role: 'consumer',
           })
           .select()
           .single()
@@ -107,11 +106,11 @@ export async function PATCH(request: NextRequest) {
       updateData.storefront_bio = validatedData.storefrontBio
     }
 
-    // Update or create profile
+    // Update or create profile (user.id = profile.id in Supabase)
     const { data: existingProfile } = await supabase
       .from('profiles')
       .select('id')
-      .eq('auth_user_id', user.id)
+      .eq('id', user.id)
       .single()
 
     let profile
@@ -121,7 +120,7 @@ export async function PATCH(request: NextRequest) {
       const { data: updatedProfile, error: updateError } = await supabase
         .from('profiles')
         .update(updateData)
-        .eq('auth_user_id', user.id)
+        .eq('id', user.id)
         .select()
         .single()
 
@@ -136,10 +135,9 @@ export async function PATCH(request: NextRequest) {
       const { data: newProfile, error: createError } = await supabase
         .from('profiles')
         .insert({
-          auth_user_id: user.id,
+          id: user.id,
           email: user.email!,
           full_name: validatedData.fullName || user.user_metadata?.full_name || null,
-          role: validatedData.role || 'consumer',
           ...updateData,
         })
         .select()

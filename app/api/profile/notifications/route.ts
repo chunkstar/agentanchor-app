@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('notification_preferences')
-      .eq('auth_user_id', user.id)
+      .eq('id', user.id)
       .single()
 
     if (profileError) {
@@ -81,7 +81,7 @@ export async function PATCH(request: NextRequest) {
         notification_preferences: notificationPreferences,
         updated_at: new Date().toISOString(),
       })
-      .eq('auth_user_id', user.id)
+      .eq('id', user.id)
       .select('notification_preferences')
       .single()
 

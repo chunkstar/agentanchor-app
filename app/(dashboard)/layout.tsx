@@ -21,13 +21,16 @@ async function getUserRole(): Promise<UserRole> {
     return 'consumer'
   }
 
+  // Query full profile - role column may not exist in all deployments
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role')
-    .eq('auth_user_id', user.id)
+    .select('*')
+    .eq('id', user.id)
     .single()
 
-  return (profile?.role as UserRole) || 'consumer'
+  // Safely extract role, defaulting to 'consumer' if column doesn't exist
+  const role = profile?.role as UserRole | undefined
+  return role || 'consumer'
 }
 
 export default async function DashboardLayout({

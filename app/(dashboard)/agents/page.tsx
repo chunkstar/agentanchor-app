@@ -21,20 +21,11 @@ async function getAgents() {
 
   if (!user) return { agents: [], total: 0 }
 
-  // Get profile ID for this auth user
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('auth_user_id', user.id)
-    .single()
-
-  if (!profile) return { agents: [], total: 0 }
-
-  // Query agents by owner_id (profile ID)
+  // Query agents by owner_id (user.id is the profile ID in Supabase)
   const { data: agents, count } = await supabase
     .from('agents')
     .select('*', { count: 'exact' })
-    .eq('owner_id', profile.id)
+    .eq('owner_id', user.id)
     .neq('status', 'archived')
     .order('created_at', { ascending: false })
 

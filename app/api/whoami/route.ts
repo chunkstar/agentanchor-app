@@ -18,11 +18,11 @@ export async function GET() {
     })
   }
 
-  // Get profile info
+  // Get profile info (user.id = profile.id in Supabase)
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('auth_user_id', user.id)
+    .eq('id', user.id)
     .single()
 
   return NextResponse.json({
