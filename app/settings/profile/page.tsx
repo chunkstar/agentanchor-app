@@ -52,9 +52,15 @@ export default function ProfileSettingsPage() {
         throw new Error('Failed to fetch profile')
       }
       const data = await response.json()
-      setProfile(data.profile)
-      setFullName(data.profile.full_name || '')
-      setRole(data.profile.role)
+      const profileData = {
+        ...data.profile,
+        role: data.profile.role || 'consumer',
+        subscription_tier: data.profile.subscription_tier || 'free',
+        notification_preferences: data.profile.notification_preferences || { email: true, in_app: true, webhook: false }
+      }
+      setProfile(profileData)
+      setFullName(profileData.full_name || '')
+      setRole(profileData.role)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load profile')
     } finally {
