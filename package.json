@@ -23,7 +23,8 @@
     "db:reset": "node scripts/reset-db.js",
     "test:trust": "vitest run tests/unit/bot-trust",
     "test:integration": "vitest run tests/integration",
-    "generate:types": "npx supabase gen types typescript --local > lib/database.types.ts"
+    "generate:types": "npx supabase gen types typescript --local > lib/database.types.ts",
+    "watch:agents": "node scripts/watch-agents.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.17.1",

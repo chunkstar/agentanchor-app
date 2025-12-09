@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Metadata } from 'next'
+import Link from 'next/link'
 import { Scale, Shield, BookOpen, Heart, Loader2, AlertTriangle, CheckCircle, XCircle, HelpCircle, Search, Tag, Clock, TrendingUp, ExternalLink, Bell, User, ArrowRight } from 'lucide-react'
 
 interface Validator {
@@ -237,14 +238,15 @@ export default function CouncilPage() {
               const colorClass = VALIDATOR_COLORS[validator.id] || 'text-gray-500 bg-gray-100'
 
               return (
-                <div
+                <Link
                   key={validator.id}
-                  className="card hover:shadow-lg transition-shadow"
+                  href={`/council/${validator.id}`}
+                  className="card hover:shadow-lg transition-shadow group cursor-pointer"
                 >
                   <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 ${colorClass}`}>
                     <IconComponent className="h-6 w-6" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                     {validator.name}
                   </h3>
                   <p className="text-sm font-medium text-purple-600 dark:text-purple-400 mb-2">
@@ -253,7 +255,11 @@ export default function CouncilPage() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     {validator.description}
                   </p>
-                </div>
+                  <div className="mt-3 flex items-center text-sm text-purple-600 dark:text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                    View Details
+                    <ArrowRight className="h-4 w-4 ml-1" />
+                  </div>
+                </Link>
               )
             })}
           </div>
