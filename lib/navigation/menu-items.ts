@@ -14,6 +14,8 @@ import {
   LucideIcon,
   Sparkles,
   Shield,
+  FlaskConical,
+  GitCompare,
 } from 'lucide-react'
 
 export type UserRole = 'trainer' | 'consumer' | 'both'
@@ -74,6 +76,20 @@ export const menuItems: MenuItem[] = [
     label: 'My Agents',
     href: '/agents',
     icon: Bot,
+    section: 'create',
+  },
+  {
+    id: 'sandbox',
+    label: 'Sandbox',
+    href: '/sandbox',
+    icon: FlaskConical,
+    section: 'create',
+  },
+  {
+    id: 'shadow-training',
+    label: 'Shadow Training',
+    href: '/shadow-training',
+    icon: GitCompare,
     section: 'create',
   },
   {
