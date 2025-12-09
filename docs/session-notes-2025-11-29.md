@@ -44,7 +44,7 @@ Key features:
 **Pricing Changes:**
 - Removed free tier
 - **Starter $29/mo**: 1 agent, 500 calls, basic audit (no Shadow Mode, no blockchain)
-- **Pro $149/mo**: 10 agents, 25k calls, full governance stack, Shadow Mode, Polygon anchoring, 500 ANCHOR/mo
+- **Pro $149/mo**: 10 agents, 25k calls, full governance stack, Shadow Mode, blockchain anchoring
 - **Enterprise Custom**: Unlimited everything, SSO, on-premise, SLA
 
 **Navigation:**
@@ -82,13 +82,6 @@ Descriptions now reflect optimistic governance:
 2. **Test Shadow Mode** - Verify training mode works with parallel execution
 3. **Deploy to Vercel** - Get app running live
 4. **Database migrations** - Ensure Supabase schema is up to date
-
----
-
-## Token Architecture
-- **AGENT Token**: Non-transferable reputation, decays with inactivity (90-day grace, 50% floor)
-- **ANCHOR Token**: Transferable utility, no decay, trade freely
-- Both on Polygon (native, not ERC-20)
 
 ---
 

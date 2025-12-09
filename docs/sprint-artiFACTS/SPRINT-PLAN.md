@@ -1,182 +1,183 @@
-# AgentAnchor MVP Sprint Plan
+# AgentAnchor Sprint Plan
 
 **Project:** AgentAnchor - AI Governance Operating System
 **Created:** 2025-12-03
-**Status:** Active Development
+**Updated:** 2025-12-07
+**Phase:** Growth Phase - Council Priority Implementation
 
 ---
 
-## Sprint Overview
+## Phase Summary
 
-| Sprint | Epic | Focus | Stories | Status |
-|--------|------|-------|---------|--------|
-| Sprint 1 | Epic 1 | Foundation & Infrastructure | 5 | ✅ Complete |
-| Sprint 2 | Epic 2 | Agent Creation & Academy | 6 | ✅ Complete |
-| Sprint 3 | Epic 3 | Council Governance | 5 | ✅ Complete |
-| **Sprint 4** | **Epic 4** | **Trust Score System** | **4** | **🔄 Drafted** |
-| **Sprint 5** | **Epic 5** | **Observer & Truth Chain** | **5** | **🔄 Drafted** |
-| **Sprint 6** | **Epic 6** | **Marketplace & Acquisition** | **6** | **🔄 Drafted** |
-| **Sprint 7** | **Epic 7** | **Dashboard & Notifications** | **5** | **🔄 Drafted** |
-| **Sprint 8** | **Epic 8** | **API & Integration** | **4** | **🔄 Drafted** |
+| Phase | Epics | Stories | Status |
+|-------|-------|---------|--------|
+| **MVP** | Epic 1-8 | 41/41 | ✅ COMPLETE |
+| **Growth** | Epic 9-16 | 6/38 | 🔄 In Progress |
 
 ---
 
-## Completed Sprints
+## MVP PHASE COMPLETE ✅
 
-### Sprint 1: Foundation (Epic 1) ✅
+### All 8 Epics Delivered (41 Stories)
 
-| Story | Title | Status |
-|-------|-------|--------|
-| 1-1 | Project Setup & Deployment Pipeline | ✅ Done |
-| 1-2 | Database Schema & Supabase Setup | ✅ Done |
-| 1-3 | User Registration & Authentication | ✅ Done |
-| 1-4 | User Profile & Role Selection | ✅ Done |
-| 1-5 | Basic Navigation & Layout | ✅ Done |
+| Epic | Title | Stories | Status |
+|------|-------|---------|--------|
+| 1 | Foundation & Infrastructure | 5/5 | ✅ Complete |
+| 2 | Agent Creation & Academy | 6/6 | ✅ Complete |
+| 3 | Council of Nine Governance | 5/5 | ✅ Complete |
+| 4 | Trust Score System | 4/4 | ✅ Complete |
+| 5 | Observer & Truth Chain | 5/5 | ✅ Complete |
+| 6 | Unified Marketplace | 7/7 | ✅ Complete |
+| 7 | Dashboard & Notifications | 5/5 | ✅ Complete |
+| 8 | API & Integration | 4/4 | ✅ Complete |
 
-### Sprint 2: Agent & Academy (Epic 2) ✅
-
-| Story | Title | Status |
-|-------|-------|--------|
-| 2-1 | Create New Agent | ✅ Done |
-| 2-2 | Academy Enrollment | ✅ Done |
-| 2-3 | Training Progress & Curriculum | ✅ Done |
-| 2-4 | Council Examination | ✅ Done |
-| 2-5 | Agent Graduation | ✅ Done |
-| 2-6 | Agent History & Archive | ✅ Done |
-
-### Sprint 3: Council Governance (Epic 3) ✅
-
-| Story | Title | Status |
-|-------|-------|--------|
-| 3-1 | Council Validator Agents | ✅ Done |
-| 3-2 | Risk Level Classification | ✅ Done |
-| 3-3 | Upchain Decision Protocol | ✅ Done |
-| 3-4 | Precedent Library | ✅ Done |
-| 3-5 | Human Escalation Override | ✅ Done |
+```
+MVP Progress: ████████████████████ 100%
+```
 
 ---
 
-## Drafted Sprints (Ready for Dev)
+## GROWTH PHASE - Council Priority Sprint 🚀
 
-### Sprint 4: Trust Score System (Epic 4) 🔄
+### Council Vote Results (2025-12-07)
 
-**Goal:** Trust earned through behavior - visual display and decay mechanics
+The 16-advisor council voted on implementation priorities:
 
-**Backend Status:** ✅ **MOSTLY COMPLETE** - Services already implemented
+| Rank | Feature | Score | Epic | Status |
+|------|---------|-------|------|--------|
+| 1 | Risk×Trust Matrix | 80 | Epic 3 | ✅ DONE |
+| 2 | HITL Overlay | 42 | Epic 3 | ✅ DONE |
+| 3 | **Circuit Breaker** | 39 | **Epic 16** | 🆕 NEW |
+| 4 | Trust Scoring | 36 | Epic 4 | ✅ DONE |
+| 5 | Observer Layer | 33 | Epic 5 | ✅ DONE |
+| 6 | Reporting | 22 | Epic 7 | ✅ DONE |
 
-| Story | Title | Backend | UI | Status |
-|-------|-------|---------|-----|--------|
-| 4-1 | Trust Score Display & Tiers | ✅ | 🔲 | Drafted |
-| 4-2 | Trust Score Changes | ✅ | 🔲 | Drafted |
-| 4-3 | Trust History & Trends | ✅ | 🔲 | Drafted |
-| 4-4 | Trust Decay & Autonomy | ✅ | 🔲 | Drafted |
-
-**Sprint 4 Focus:** UI Components
-- TrustBadge, TrustScoreSection, ProbationIndicator
-- TrustHistoryTimeline, TrustTrendChart
-- DecayWarning, AutonomyLimitsDisplay
-- Cron job for daily decay processing
-- Toast notifications for trust changes
+**Key Insight:** Top MVP priorities already built! Growth focus on #3 Circuit Breaker.
 
 ---
 
-### Sprint 5: Observer & Truth Chain (Epic 5) 🔄
+### Current Sprint Focus
 
-**Goal:** Complete audit trail and public verification
+#### 1. Epic 16: Circuit Breaker & Kill Switch 🆕
+
+**Priority:** Council #3 (39 points)
+**Rationale:** Jocko - "Safety is #1. Know where the off switch is before you start."
 
 | Story | Title | Status |
 |-------|-------|--------|
-| 5-1 | Observer Event Logging | Drafted |
-| 5-2 | Observer Dashboard Feed | Drafted |
-| 5-3 | Anomaly Detection | Drafted |
-| 5-4 | Truth Chain Records | Drafted |
-| 5-5 | Public Verification | Drafted |
+| 16-1 | Agent Pause/Resume | Backlog |
+| 16-2 | Global Kill Switch | Backlog |
+| 16-3 | Cascade Halt Protocol | Backlog |
+| 16-4 | Kill Switch Truth Chain | Backlog |
 
-**Sprint 5 Deliverables:**
-- observer_events table (append-only)
-- truth_chain table with hash linking
-- Real-time event feed UI
-- Public verification API (/api/verify/:id)
-- Verification page with certificate
+**Deliverables:**
+- Per-agent pause/resume with reason tracking
+- Platform-wide emergency stop (admin only)
+- Automatic halt of dependent agents
+- All halts recorded immutably on Truth Chain
 
 ---
 
-### Sprint 6: Marketplace & Acquisition (Epic 6) 🔄
+#### 2. Epic 15: Portable Trust Credentials 🔄
 
-**Goal:** Consumers browse and acquire agents
+**Priority:** MOAT BUILDER - Network Effect
+**Status:** 3/5 stories complete
 
 | Story | Title | Status |
 |-------|-------|--------|
-| 6-1 | Agent Publishing | Drafted |
-| 6-2 | Marketplace Browse & Search | Drafted |
-| 6-3 | Agent Profile & Observer Reports | Drafted |
-| 6-4 | Agent Acquisition (Commission) | Drafted |
-| 6-5 | Consumer Feedback | Drafted |
-| 6-6 | Earnings Dashboard & Payouts | Drafted |
+| 15-1 | Credential Issuance | ✅ Done |
+| 15-2 | Credential Signing (ES256) | ✅ Done |
+| 15-3 | Verification API | ✅ Done |
+| 15-4 | Credential Refresh | 🔄 In Progress |
+| 15-5 | Revocation System | Backlog |
 
-**Sprint 6 Deliverables:**
-- marketplace_listings, acquisitions, reviews tables
-- Public marketplace browse UI
-- Agent profile with trust & observer data
-- Commission-based acquisition flow
-- Trainer earnings dashboard
+**Remaining Work:**
+- Auto-refresh credentials before expiry
+- Revocation list with instant invalidation
+- External platform verification flow
 
 ---
 
-### Sprint 7: Dashboard & Notifications (Epic 7) 🔄
+#### 3. Epic 14: Precedent Flywheel 📊
 
-**Goal:** Unified management interface
+**Priority:** MOAT BUILDER - Data Network Effect
+**Status:** Backlog
 
 | Story | Title | Status |
 |-------|-------|--------|
-| 7-1 | Role-Based Dashboard | Drafted |
-| 7-2 | Dashboard Tabs | Drafted |
-| 7-3 | Escalation Notifications | Drafted |
-| 7-4 | Event Notifications | Drafted |
-| 7-5 | Notification Preferences | Drafted |
+| 14-1 | Decision Indexing | Backlog |
+| 14-2 | Precedent Similarity Search | Backlog |
+| 14-3 | Validator Precedent Context | Backlog |
+| 14-4 | Consistency Tracking | Backlog |
+| 14-5 | Validator Fine-Tuning Pipeline | Backlog |
 
-**Sprint 7 Deliverables:**
-- Trainer/Consumer role-specific dashboards
-- Tab navigation system
-- notifications, notification_preferences tables
-- Real-time notification bell
-- Email + in-app notification channels
+**Why This Matters:**
+- Every Council decision improves future decisions
+- Data asset grows with usage (defensible moat)
+- AI governance that learns (unique capability)
 
 ---
 
-### Sprint 8: API & Integration (Epic 8) 🔄
+## Growth Phase Epic Overview
 
-**Goal:** External system integration
+| Epic | Title | Stories | Priority | Status |
+|------|-------|---------|----------|--------|
+| **16** | **Circuit Breaker** | 4 | Council #3 | 🆕 Backlog |
+| **15** | **Portable Trust Credentials** | 5 | Moat Builder | 🔄 60% |
+| **14** | **Precedent Flywheel** | 5 | Moat Builder | Backlog |
+| 13 | Academy Specializations | 4 | Depth | Backlog |
+| 12 | Maintenance Delegation | 4 | Trainer UX | Backlog |
+| 11 | Client Bill of Rights | 5 | Trust | Backlog |
+| 10 | MIA Protocol | 5 | Trust | Backlog |
+| 9 | Clone & Enterprise | 5 | Revenue | Backlog |
 
-| Story | Title | Status |
-|-------|-------|--------|
-| 8-1 | RESTful API | Drafted |
-| 8-2 | API Authentication | Drafted |
-| 8-3 | Webhooks | Drafted |
-| 8-4 | OpenAPI Documentation | Done |
+**Growth Total:** 37 stories (6 done/in-progress, 31 backlog)
 
-**Sprint 8 Deliverables:**
-- /api/v1/ REST endpoints
-- api_keys table with scoped permissions
-- webhook_subscriptions with retry logic
-- Interactive API documentation at /docs/api
+```
+Growth Progress: ██░░░░░░░░░░░░░░░░░░ 16%
+```
+
+---
+
+## Sprint Execution Order
+
+Based on Council vote and strategic priorities:
+
+### Sprint 9 (Current): Safety & Credentials
+- [ ] Epic 16: Circuit Breaker (4 stories)
+- [ ] Epic 15: Complete credentials (2 stories)
+
+### Sprint 10: Governance Moat
+- [ ] Epic 14: Precedent Flywheel (5 stories)
+
+### Sprint 11: Consumer Protection
+- [ ] Epic 11: Client Bill of Rights (5 stories)
+- [ ] Epic 10: MIA Protocol (5 stories)
+
+### Sprint 12: Advanced Features
+- [ ] Epic 13: Academy Specializations (4 stories)
+- [ ] Epic 12: Maintenance Delegation (4 stories)
+
+### Sprint 13: Revenue Expansion
+- [ ] Epic 9: Clone & Enterprise (5 stories)
 
 ---
 
 ## Progress Summary
 
-| Metric | Count |
-|--------|-------|
-| **Total Stories** | 40 |
-| **Completed** | 40 (100%) |
-| **Drafted** | 0 (0%) |
-| **Backlog** | 0 (0%) |
+| Metric | MVP | Growth | Total |
+|--------|-----|--------|-------|
+| Epics | 8 | 8 | 16 |
+| Stories | 41 | 37 | 78 |
+| Complete | 41 | 3 | 44 |
+| In Progress | 0 | 1 | 1 |
+| Backlog | 0 | 33 | 33 |
 
 ```
-Completed:  ████████████████████ 100%
+Overall:  ████████████░░░░░░░░ 58%
+MVP:      ████████████████████ 100%
+Growth:   ███░░░░░░░░░░░░░░░░░ 11%
 ```
-
-**MVP COMPLETE! All 40 stories implemented.**
 
 ---
 
@@ -189,12 +190,16 @@ A story is **done** when:
 - [ ] Build succeeds
 - [ ] Deployed to production
 - [ ] Story file updated with completion notes
+- [ ] Truth Chain record created (for significant changes)
 
 ---
 
 ## Workflow Commands
 
 ```bash
+# Check current status
+/bmad:bmm:workflows:workflow-status
+
 # Mark story ready for dev
 /bmad:bmm:workflows:story-ready
 
@@ -213,4 +218,5 @@ A story is **done** when:
 
 ---
 
-*Last Updated: 2025-12-03*
+*Last Updated: 2025-12-07*
+*"Agents you can anchor to."*

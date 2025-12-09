@@ -424,3 +424,151 @@ function mapProtectionRequest(data: any): ProtectionRequest {
     createdAt: data.created_at,
   }
 }
+
+// ============================================================================
+// Story 11-4: Walk-Away Termination (FR126)
+// ============================================================================
+
+/**
+ * Execute walk-away termination - no penalty clean exit
+ * FR126: Consumer can walk away clean during notice period
+ */
+export async function walkAwayClean(
+  consumerId: string,
+  acquisitionId: string,
+  reason: string = 'walk_away'
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient()
+
+  // Get the acquisition
+  const { data: acquisition } = await supabase
+    .from('acquisitions')
+    .select('*, agents!inner(name)')
+    .eq('id', acquisitionId)
+    .eq('consumer_id', consumerId)
+    .single()
+
+  if (!acquisition) {
+    return { success: false, error: 'Acquisition not found' }
+  }
+
+  if (acquisition.status !== 'active') {
+    return { success: false, error: 'Acquisition is not active' }
+  }
+
+  // Check if this is a walk-away eligible case (pending ownership change)
+  const { data: pendingChange } = await supabase
+    .from('ownership_changes')
+    .select('*')
+    .eq('agent_id', acquisition.agent_id)
+    .gt('effective_date', new Date().toISOString())
+    .limit(1)
+    .single()
+
+  const isWalkAwayEligible = !!pendingChange || acquisition.can_walk_away
+
+  // Terminate the acquisition with no penalty
+  await supabase
+    .from('acquisitions')
+    .update({
+      status: 'terminated',
+      terminated_at: new Date().toISOString(),
+      termination_reason: isWalkAwayEligible ? 'walk_away_clean' : 'consumer_terminated',
+      walk_away_reason: reason,
+    })
+    .eq('id', acquisitionId)
+
+  // Record on Truth Chain
+  await recordOwnershipChange({
+    agent_id: acquisition.agent_id,
+    agent_name: (acquisition.agents as any)?.name || 'Unknown',
+    previous_owner_id: consumerId,
+    new_owner_id: 'platform',
+    change_type: 'walk_away',
+  })
+
+  // Update opt-out count if applicable
+  if (pendingChange) {
+    await supabase
+      .from('ownership_changes')
+      .update({ opt_out_count: (pendingChange.opt_out_count || 0) + 1 })
+      .eq('id', pendingChange.id)
+  }
+
+  return { success: true }
+}
+
+// ============================================================================
+// Story 11-5: Protection Truth Chain Records (FR128)
+// ============================================================================
+
+/**
+ * Record a protection decision on Truth Chain
+ */
+export async function recordProtectionDecision(
+  requestId: string,
+  decision: 'approved' | 'rejected',
+  decidedBy: string,
+  reason: string
+): Promise<void> {
+  const supabase = await createClient()
+
+  // Get the protection request
+  const { data: request } = await supabase
+    .from('protection_requests')
+    .select('*, agents!inner(name)')
+    .eq('id', requestId)
+    .single()
+
+  if (!request) {
+    throw new Error('Protection request not found')
+  }
+
+  // Record on Truth Chain
+  await recordOwnershipChange({
+    agent_id: request.agent_id,
+    agent_name: (request.agents as any)?.name || 'Unknown',
+    previous_owner_id: request.consumer_id,
+    new_owner_id: decision === 'approved' ? 'consumer_protected' : 'request_denied',
+    change_type: 'protection_decision',
+  })
+}
+
+/**
+ * Get the Client Bill of Rights summary for display
+ */
+export function getClientBillOfRights(): {
+  rights: Array<{ id: string; title: string; description: string }>
+  version: string
+} {
+  return {
+    version: '1.0',
+    rights: [
+      {
+        id: 'notice',
+        title: '30-Day Notice',
+        description: 'You will receive at least 30 days notice before any ownership change affects your agents.',
+      },
+      {
+        id: 'opt_out',
+        title: 'Opt-Out Rights',
+        description: 'You can opt out of using any agent at any time, especially during ownership transitions.',
+      },
+      {
+        id: 'walk_away',
+        title: 'Walk Away Clean',
+        description: 'During ownership change notice periods, you can terminate with no penalty.',
+      },
+      {
+        id: 'continuity',
+        title: 'Service Continuity',
+        description: 'Platform guarantees agent availability during ownership transitions.',
+      },
+      {
+        id: 'transparency',
+        title: 'Full Transparency',
+        description: 'All protection decisions are recorded on the immutable Truth Chain.',
+      },
+    ],
+  }
+}

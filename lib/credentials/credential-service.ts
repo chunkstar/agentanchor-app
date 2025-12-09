@@ -386,3 +386,270 @@ export function decodeCredential(token: string): PTCPayload | null {
     return null
   }
 }
+
+// ============================================================================
+// STORY 15-4: Credential Refresh (Auto-refresh before expiry)
+// ============================================================================
+
+/**
+ * Refresh request with current agent data
+ */
+export interface RefreshCredentialRequest {
+  existingToken: string
+  currentTrustScore: number
+  trainerId: string
+  governanceSummary?: {
+    totalDecisions: number
+    approvalRate: number
+    escalationRate: number
+    lastCouncilReview?: string
+  }
+  certificationData?: {
+    academyGraduated: boolean
+    graduationDate?: string
+    specializations: string[]
+    mentorCertified: boolean
+  }
+  truthChainHash?: string
+  truthChainBlockHeight?: number
+}
+
+/**
+ * Refresh result with new credential and metadata
+ */
+export interface RefreshResult {
+  success: boolean
+  credential?: IssuedCredential
+  parentJwtId?: string
+  error?: string
+  errorCode?: 'not_refreshable' | 'expired' | 'revoked' | 'ineligible' | 'invalid'
+}
+
+/**
+ * Refresh an existing credential before it expires (FR160)
+ *
+ * @param request - The refresh request with existing token and current agent data
+ * @param options - Optional callbacks for revocation checking
+ * @returns Refresh result with new credential or error
+ */
+export async function refreshCredential(
+  request: RefreshCredentialRequest,
+  options?: {
+    checkRevocation?: (jwtId: string) => Promise<boolean>
+  }
+): Promise<RefreshResult> {
+  try {
+    // Decode the existing token (don't verify expiry yet)
+    const decoded = decodeCredential(request.existingToken)
+    if (!decoded) {
+      return {
+        success: false,
+        error: 'Invalid credential format',
+        errorCode: 'invalid',
+      }
+    }
+
+    // Check if revoked
+    if (options?.checkRevocation) {
+      const isRevoked = await options.checkRevocation(decoded.jti)
+      if (isRevoked) {
+        return {
+          success: false,
+          error: 'Credential has been revoked',
+          errorCode: 'revoked',
+        }
+      }
+    }
+
+    // Check expiry status
+    const now = Math.floor(Date.now() / 1000)
+    const expiresAt = new Date(decoded.exp * 1000)
+
+    // Allow refresh if within window OR if just expired (grace period of 1 hour)
+    const hoursSinceExpiry = (now - decoded.exp) / 3600
+    const hoursUntilExpiry = (decoded.exp - now) / 3600
+
+    if (hoursSinceExpiry > 1) {
+      // Expired more than 1 hour ago
+      return {
+        success: false,
+        error: 'Credential has expired beyond refresh grace period',
+        errorCode: 'expired',
+      }
+    }
+
+    if (hoursUntilExpiry > CREDENTIAL_REFRESH_WINDOW_HOURS) {
+      return {
+        success: false,
+        error: `Credential can only be refreshed within ${CREDENTIAL_REFRESH_WINDOW_HOURS} hours of expiry`,
+        errorCode: 'not_refreshable',
+      }
+    }
+
+    // Check eligibility with current trust score
+    if (request.currentTrustScore < MIN_CREDENTIAL_TRUST_SCORE) {
+      return {
+        success: false,
+        error: `Agent no longer meets minimum trust score requirement. Required: ${MIN_CREDENTIAL_TRUST_SCORE}, Current: ${request.currentTrustScore}`,
+        errorCode: 'ineligible',
+      }
+    }
+
+    // Issue new credential with updated data
+    const newCredential = await issueCredential({
+      agentId: decoded.sub,
+      trainerId: request.trainerId,
+      trustScore: request.currentTrustScore,
+      governanceSummary: request.governanceSummary,
+      certificationData: request.certificationData,
+      truthChainHash: request.truthChainHash,
+      truthChainBlockHeight: request.truthChainBlockHeight,
+    })
+
+    return {
+      success: true,
+      credential: newCredential,
+      parentJwtId: decoded.jti,
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      errorCode: 'invalid',
+    }
+  }
+}
+
+/**
+ * Get credentials that need refresh (within refresh window)
+ * Useful for background refresh jobs
+ */
+export function getRefreshWindowEndTime(expiresAt: Date): Date {
+  return new Date(expiresAt.getTime() - CREDENTIAL_REFRESH_WINDOW_HOURS * 60 * 60 * 1000)
+}
+
+// ============================================================================
+// STORY 15-5: Revocation System (Instant invalidation)
+// ============================================================================
+
+/**
+ * Revocation reasons
+ */
+export type RevocationReason =
+  | 'trust_score_dropped'
+  | 'agent_paused'
+  | 'agent_terminated'
+  | 'security_incident'
+  | 'trainer_request'
+  | 'council_decision'
+  | 'platform_action'
+  | 'other'
+
+/**
+ * Revocation request
+ */
+export interface RevokeCredentialRequest {
+  jwtId: string
+  agentId: string
+  reason: RevocationReason
+  revokedBy: string
+  notes?: string
+}
+
+/**
+ * Revocation result
+ */
+export interface RevocationResult {
+  success: boolean
+  jwtId: string
+  revokedAt?: Date
+  error?: string
+}
+
+/**
+ * In-memory revocation cache for fast checking
+ * In production, this should be backed by Redis or similar
+ */
+const revocationCache = new Map<string, { revokedAt: Date; reason: RevocationReason }>()
+
+/**
+ * Add a credential to the revocation list
+ */
+export function addToRevocationCache(
+  jwtId: string,
+  reason: RevocationReason,
+  revokedAt: Date = new Date()
+): void {
+  revocationCache.set(jwtId, { revokedAt, reason })
+}
+
+/**
+ * Check if a credential is revoked (from cache)
+ */
+export function isRevokedInCache(jwtId: string): boolean {
+  return revocationCache.has(jwtId)
+}
+
+/**
+ * Get revocation details from cache
+ */
+export function getRevocationDetails(jwtId: string): { revokedAt: Date; reason: RevocationReason } | null {
+  return revocationCache.get(jwtId) || null
+}
+
+/**
+ * Clear revocation cache (for testing)
+ */
+export function clearRevocationCache(): void {
+  revocationCache.clear()
+}
+
+/**
+ * Batch revoke all credentials for an agent
+ * Called when agent is paused, terminated, or trust score drops below threshold
+ */
+export async function revokeAllAgentCredentials(
+  agentId: string,
+  reason: RevocationReason,
+  revokedBy: string,
+  getActiveCredentials: (agentId: string) => Promise<Array<{ jwtId: string }>>
+): Promise<{ revokedCount: number; jwtIds: string[] }> {
+  const credentials = await getActiveCredentials(agentId)
+  const jwtIds: string[] = []
+
+  for (const cred of credentials) {
+    addToRevocationCache(cred.jwtId, reason)
+    jwtIds.push(cred.jwtId)
+  }
+
+  return {
+    revokedCount: jwtIds.length,
+    jwtIds,
+  }
+}
+
+/**
+ * Check revocation with database fallback
+ * First checks cache, then database if cache miss
+ */
+export async function checkRevocation(
+  jwtId: string,
+  dbCheck?: (jwtId: string) => Promise<boolean>
+): Promise<boolean> {
+  // Check cache first
+  if (isRevokedInCache(jwtId)) {
+    return true
+  }
+
+  // Fall back to database check
+  if (dbCheck) {
+    const isRevoked = await dbCheck(jwtId)
+    if (isRevoked) {
+      // Populate cache for future checks
+      addToRevocationCache(jwtId, 'other')
+      return true
+    }
+  }
+
+  return false
+}

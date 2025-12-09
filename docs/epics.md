@@ -1878,9 +1878,161 @@ So that I can integrate quickly and correctly.
 
 ---
 
-**Document Generated:** 2025-12-05
+## Growth Phase Epics
+
+### Epic 16: Circuit Breaker & Kill Switch [COUNCIL PRIORITY]
+
+**Goal:** Emergency stop capability for all agent operations - Council Vote #3 Priority (39 points)
+
+**User Value:** Platform operators can instantly halt problematic agents, ensuring safety remains paramount.
+
+**FRs Covered:** FR163-FR166 (new)
+
+---
+
+### Story 16.1: Agent Pause/Resume
+
+As a **Trainer**,
+I want to pause my agent with a reason,
+So that I can stop operations during issues without losing state.
+
+**Acceptance Criteria:**
+
+**Given** I am viewing my agent
+**When** I click "Pause Agent"
+**Then** I must provide a reason and agent stops accepting new tasks
+
+**And** given agent is paused
+**When** I view agent status
+**Then** I see "PAUSED" badge with reason and timestamp
+
+**And** given agent is paused
+**When** I click "Resume Agent"
+**Then** agent becomes active and pause period is logged to Truth Chain
+
+**Prerequisites:** Epic 5 (Observer & Truth Chain)
+
+**Technical Notes:**
+- Pause state stored in agents table
+- Active tasks complete, new tasks rejected
+- Pause reason required (enum: investigation, maintenance, consumer_request, other)
+- Resume requires confirmation
+
+---
+
+### Story 16.2: Global Kill Switch
+
+As a **Platform Admin**,
+I want to halt all agent operations instantly,
+So that I can respond to platform-wide emergencies.
+
+**Acceptance Criteria:**
+
+**Given** I am a platform admin
+**When** I access Admin Panel > Safety
+**Then** I see "GLOBAL KILL SWITCH" with MFA confirmation required
+
+**And** given I activate kill switch
+**When** I confirm with MFA
+**Then** ALL agents stop immediately, all pending tasks cancelled
+
+**And** given kill switch is active
+**When** users visit platform
+**Then** they see emergency maintenance banner with expected resolution
+
+**And** given incident is resolved
+**When** I deactivate kill switch
+**Then** agents return to pre-halt state, event recorded to Truth Chain
+
+**Prerequisites:** Story 16.1
+
+**Technical Notes:**
+- Kill switch is atomic operation
+- Stored in platform_settings with timestamp
+- Broadcasts via Pusher to all connected clients
+- Automatic notification to all Trainers/Consumers
+- Requires 2 admin approvals for activation (future)
+
+---
+
+### Story 16.3: Cascade Halt Protocol
+
+As the **platform**,
+I want dependent agents to halt when parent agent halts,
+So that cascading failures are prevented.
+
+**Acceptance Criteria:**
+
+**Given** Agent A depends on Agent B
+**When** Agent B is paused/halted
+**Then** Agent A receives warning and enters "waiting" state
+
+**And** given multiple agents in dependency chain
+**When** root agent halts
+**Then** all downstream agents halt in order with notification
+
+**And** given dependency is broken
+**When** I view affected agents
+**Then** I see dependency graph with halt propagation path
+
+**Prerequisites:** Story 16.2
+
+**Technical Notes:**
+- agent_dependencies table tracks relationships
+- Halt propagates depth-first
+- Maximum cascade depth: 5 (configurable)
+- Circular dependency detection
+
+---
+
+### Story 16.4: Kill Switch Truth Chain Records
+
+As the **platform**,
+I want all halt events recorded immutably,
+So that safety actions are auditable and legally defensible.
+
+**Acceptance Criteria:**
+
+**Given** any agent is paused
+**When** pause occurs
+**Then** Truth Chain record created with: agent, reason, initiator, timestamp
+
+**And** given kill switch is activated
+**When** activation completes
+**Then** Truth Chain record includes: all affected agents, reason, admin, timestamp
+
+**And** given I need audit trail
+**When** I view Truth Chain
+**Then** I can filter by halt events and see full history
+
+**Prerequisites:** Story 16.3
+
+**Technical Notes:**
+- New Truth Chain event types: AGENT_PAUSED, AGENT_RESUMED, KILL_SWITCH_ACTIVATED, KILL_SWITCH_DEACTIVATED
+- Hash chain continuity maintained
+- Public verification available
+- Compliance export includes halt events
+
+---
+
+### Epic 16 Summary
+
+| Story | Title | Status |
+|-------|-------|--------|
+| 16.1 | Agent Pause/Resume | Backlog |
+| 16.2 | Global Kill Switch | Backlog |
+| 16.3 | Cascade Halt Protocol | Backlog |
+| 16.4 | Kill Switch Truth Chain Records | Backlog |
+
+**Total Stories:** 4
+**Council Priority:** #3 (39 points)
+**Rationale:** "Build the kill switch FIRST." - Jocko Willink
+
+---
+
+**Document Updated:** 2025-12-07
 **Workflow:** create-epics-and-stories (BMad Method)
-**Source:** PRD v2.0 + Architecture v3.0
+**Source:** PRD v2.0 + Architecture v3.0 + Council Vote
 
 *"Agents you can anchor to."*
 

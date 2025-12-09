@@ -14,6 +14,7 @@ export type TruthChainRecordType =
   | 'trust_milestone'
   | 'marketplace_listing'
   | 'acquisition'
+  | 'circuit_breaker'       // Story 16-4: Kill Switch Truth Chain Records
 
 // Base record structure
 export interface TruthChainRecord {
