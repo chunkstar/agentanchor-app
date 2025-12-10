@@ -13,6 +13,11 @@ const createAgentSchema = z.object({
   specialization: z.string().optional(),
   personality_traits: z.array(z.string()).default([]),
   capabilities: z.array(z.string()).default([]),
+  // Extra config from frontend form
+  config: z.object({
+    guardrails: z.any().optional(),
+    governance: z.any().optional(),
+  }).optional(),
 })
 
 // GET /api/agents - List all agents for the current user
@@ -128,6 +133,8 @@ export async function POST(request: NextRequest) {
         specialization: input.specialization || null,
         personality_traits: input.personality_traits,
         capabilities: input.capabilities,
+        // Store extra config (guardrails, governance)
+        config: input.config || null,
         // Governance defaults
         trust_score: 0,
         trust_tier: 'untrusted',
