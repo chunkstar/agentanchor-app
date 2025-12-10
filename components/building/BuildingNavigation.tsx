@@ -23,108 +23,153 @@ import {
   Briefcase
 } from 'lucide-react'
 
-// Building floor configuration
+// Building floor configuration - "The Anchor" Tower (10 floors, 1-10)
 export const BUILDING_FLOORS = [
   {
-    floor: 9,
+    floor: 10,
     name: 'Council Chambers',
     icon: Crown,
     path: '/council',
     description: 'Governance & Decisions',
     color: 'from-purple-600 to-indigo-700',
-    badge: 'RESTRICTED'
+    badge: 'RESTRICTED',
+    wing: 'governance',
+    vibe: 'Marble halls, council table, serious deliberation'
   },
   {
-    floor: 8,
+    floor: 9,
     name: 'Tribunal',
     icon: Gavel,
     path: '/tribunal',
     description: 'Appeals & Disputes',
     color: 'from-red-600 to-rose-700',
-    badge: 'JUDICIAL'
+    badge: 'JUDICIAL',
+    wing: 'governance',
+    vibe: 'Courtroom aesthetic, balanced scales, fair hearing'
   },
   {
-    floor: 7,
+    floor: 8,
     name: 'Arena',
     icon: Sparkles,
     path: '/shadow-training',
     description: 'A/B Testing & Comparison',
     color: 'from-orange-500 to-amber-600',
-    badge: 'TRAINING'
+    badge: 'TRAINING',
+    wing: 'trainer',
+    vibe: 'Sparring grounds, side-by-side displays, competition'
   },
   {
-    floor: 6,
+    floor: 7,
     name: 'Observer Deck',
     icon: Eye,
     path: '/observer',
     description: 'Audit Trail & Monitoring',
     color: 'from-cyan-500 to-blue-600',
-    badge: 'SURVEILLANCE'
+    badge: 'SURVEILLANCE',
+    wing: 'governance',
+    vibe: 'Glass walls, panoramic views, watchful presence'
   },
   {
-    floor: 5,
+    floor: 6,
     name: 'Academy',
     icon: GraduationCap,
     path: '/academy',
     description: 'Training & Certification',
     color: 'from-green-500 to-emerald-600',
-    badge: 'EDUCATION'
+    badge: 'EDUCATION',
+    wing: 'trainer',
+    vibe: 'Classrooms, libraries, graduation ceremonies'
   },
   {
-    floor: 4,
+    floor: 5,
     name: 'Trust Vault',
     icon: Shield,
     path: '/trust',
     description: 'Scores & Credentials',
     color: 'from-blue-500 to-indigo-600',
-    badge: 'SECURE'
+    badge: 'SECURE',
+    wing: 'consumer',
+    vibe: 'Bank vault aesthetic, credentials on display, earned badges'
   },
   {
-    floor: 3,
+    floor: 4,
     name: 'Marketplace',
     icon: Store,
     path: '/marketplace',
     description: 'Browse & Acquire Agents',
     color: 'from-pink-500 to-rose-600',
-    badge: 'COMMERCE'
+    badge: 'COMMERCE',
+    wing: 'consumer',
+    vibe: 'Bustling bazaar, agent storefronts, live ticker'
   },
   {
-    floor: 2,
+    floor: 3,
     name: 'Workshop',
     icon: Wrench,
     path: '/agents',
     description: 'Build & Configure',
     color: 'from-yellow-500 to-orange-600',
-    badge: 'CREATION'
+    badge: 'CREATION',
+    wing: 'trainer',
+    vibe: 'Maker space, tools on walls, agents under construction'
+  },
+  {
+    floor: 2,
+    name: 'Compliance Vault',
+    icon: Shield,
+    path: '/compliance',
+    description: 'SOC2, HIPAA, ISO 27001',
+    color: 'from-slate-700 to-zinc-800',
+    badge: 'COMPLIANCE',
+    wing: 'governance',
+    vibe: 'Secure archive, filing cabinets, audit rooms'
   },
   {
     floor: 1,
     name: 'Lobby',
     icon: Building2,
     path: '/dashboard',
-    description: 'Main Dashboard',
+    description: 'Main Dashboard & Welcome',
     color: 'from-gray-600 to-slate-700',
-    badge: 'WELCOME'
+    badge: 'WELCOME',
+    wing: 'shared',
+    vibe: 'Grand entrance, directory, concierge desk'
   },
 ] as const
 
-// Wing configuration
+// Wing type for filtering
+export type WingType = 'trainer' | 'consumer' | 'governance' | 'shared'
+
+// Wing configuration - Three distinct areas of The Anchor
 export const WINGS = {
   trainer: {
     name: 'Trainer Wing',
     icon: Briefcase,
+    tagline: 'Build. Train. Earn.',
     description: 'Build, train, and monetize agents',
     color: 'from-blue-500 to-indigo-600',
-    paths: ['/agents', '/academy', '/earnings', '/settings']
+    floors: [3, 6, 8], // Workshop, Academy, Arena
+    paths: ['/agents', '/academy', '/shadow-training', '/earnings', '/settings']
   },
   consumer: {
     name: 'Consumer Wing',
     icon: User,
+    tagline: 'Discover. Trust. Deploy.',
     description: 'Discover and acquire trusted agents',
     color: 'from-green-500 to-emerald-600',
-    paths: ['/marketplace', '/my-agents', '/subscriptions']
+    floors: [1, 4, 5], // Lobby, Marketplace, Trust Vault
+    paths: ['/marketplace', '/my-agents', '/subscriptions', '/dashboard']
+  },
+  governance: {
+    name: 'Governance Wing',
+    icon: Crown,
+    tagline: 'Oversee. Audit. Protect.',
+    description: 'Oversight, compliance, and governance',
+    color: 'from-purple-500 to-indigo-600',
+    floors: [2, 7, 9, 10], // Compliance, Observer, Tribunal, Council
+    paths: ['/compliance', '/observer', '/tribunal', '/council']
   }
-}
+} as const
 
 interface BuildingNavigationProps {
   currentFloor?: number
