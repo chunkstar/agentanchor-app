@@ -216,12 +216,12 @@ development_status:
   # FRs: FR47-48
   # Moat: Depth
   # ═══════════════════════════════════════════════════════════════════
-  epic-13: contexted
-  13-1-specialization-tracks: drafted
-  13-2-specialization-enrollment: drafted
-  13-3-mentor-certification: drafted
-  13-4-mentorship-program: drafted
-  epic-13-retrospective: optional
+  epic-13: done                               # ALL 4 STORIES COMPLETE
+  13-1-specialization-tracks: done            # 8 tracks seeded, API
+  13-2-specialization-enrollment: done        # enrollment service, progress
+  13-3-mentor-certification: done             # 800+ trust eligibility
+  13-4-mentorship-program: done               # relationships, trust bonuses
+  epic-13-retrospective: completed
 
   # ═══════════════════════════════════════════════════════════════════
   # EPIC 14: Precedent Flywheel [MOAT BUILDER] (5 stories)
@@ -229,13 +229,13 @@ development_status:
   # FRs: FR150-156
   # Moat: DATA - Cannot be replicated
   # ═══════════════════════════════════════════════════════════════════
-  epic-14: contexted
-  14-1-decision-indexing: drafted
-  14-2-precedent-similarity-search: drafted
-  14-3-validator-precedent-context: drafted
-  14-4-consistency-tracking: drafted
-  14-5-validator-fine-tuning-pipeline: drafted
-  epic-14-retrospective: optional
+  epic-14: done                               # ALL 5 STORIES COMPLETE
+  14-1-decision-indexing: done                # OpenAI embeddings
+  14-2-precedent-similarity-search: done      # pgvector semantic search
+  14-3-validator-precedent-context: done      # buildValidatorContext
+  14-4-consistency-tracking: done             # flags and resolution
+  14-5-validator-fine-tuning-pipeline: done   # prompt versioning
+  epic-14-retrospective: completed
 
   # ═══════════════════════════════════════════════════════════════════
   # EPIC 15: Portable Trust Credentials [MOAT BUILDER] (5 stories)
