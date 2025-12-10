@@ -223,20 +223,6 @@ export function GuidedTour({
     return () => clearTimeout(timer)
   }, [isActive, isPaused, isTyping, currentStopIndex, currentStop, tour.length])
 
-  const goNext = useCallback(() => {
-    if (currentStopIndex < tour.length - 1) {
-      setCurrentStopIndex(prev => prev + 1)
-    } else {
-      completeTour()
-    }
-  }, [currentStopIndex, tour.length])
-
-  const goPrev = useCallback(() => {
-    if (currentStopIndex > 0) {
-      setCurrentStopIndex(prev => prev - 1)
-    }
-  }, [currentStopIndex])
-
   const completeTour = useCallback(() => {
     setIsActive(false)
     saveTourState({
@@ -247,12 +233,26 @@ export function GuidedTour({
     onComplete?.()
   }, [tour, onComplete])
 
+  const goNext = useCallback(() => {
+    if (currentStopIndex < tour.length - 1) {
+      setCurrentStopIndex(prev => Math.min(prev + 1, tour.length - 1))
+    } else {
+      completeTour()
+    }
+  }, [currentStopIndex, tour.length, completeTour])
+
+  const goPrev = useCallback(() => {
+    if (currentStopIndex > 0) {
+      setCurrentStopIndex(prev => prev - 1)
+    }
+  }, [currentStopIndex])
+
   const startTour = useCallback(() => {
     setCurrentStopIndex(0)
     setIsActive(true)
   }, [])
 
-  if (!isActive) {
+  if (!isActive || !currentStop) {
     return null
   }
 
