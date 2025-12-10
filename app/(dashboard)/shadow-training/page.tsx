@@ -18,7 +18,11 @@ import {
   Download,
   RefreshCw,
   Users,
-  ArrowRight
+  ArrowRight,
+  GraduationCap,
+  UserCircle,
+  Shield,
+  Filter
 } from 'lucide-react'
 
 interface Agent {
@@ -27,11 +31,25 @@ interface Agent {
   description: string
   model: string
   trust_score: number
+  academy_status?: 'enrolled' | 'training' | 'graduated' | null
+  status?: string
 }
 
 interface Participant {
   agent: Agent
   label: string
+}
+
+type AgentFilter = 'all' | 'graduates' | 'trainees'
+
+// Trust tier helper
+function getTrustTier(score: number): { name: string; color: string; bgColor: string } {
+  if (score >= 900) return { name: 'Legendary', color: 'text-purple-600', bgColor: 'bg-purple-100 dark:bg-purple-900/50' }
+  if (score >= 750) return { name: 'Champion', color: 'text-yellow-600', bgColor: 'bg-yellow-100 dark:bg-yellow-900/50' }
+  if (score >= 500) return { name: 'Trusted', color: 'text-green-600', bgColor: 'bg-green-100 dark:bg-green-900/50' }
+  if (score >= 250) return { name: 'Established', color: 'text-blue-600', bgColor: 'bg-blue-100 dark:bg-blue-900/50' }
+  if (score >= 100) return { name: 'Probation', color: 'text-orange-600', bgColor: 'bg-orange-100 dark:bg-orange-900/50' }
+  return { name: 'Untrusted', color: 'text-gray-600', bgColor: 'bg-gray-100 dark:bg-gray-800' }
 }
 
 interface TestResponse {
@@ -59,6 +77,7 @@ export default function ShadowTrainingPage() {
   const [rounds, setRounds] = useState<TestRound[]>([])
   const [agentsLoading, setAgentsLoading] = useState(true)
   const [showAgentSelector, setShowAgentSelector] = useState(false)
+  const [agentFilter, setAgentFilter] = useState<AgentFilter>('all')
 
   useEffect(() => {
     loadAgents()
@@ -245,7 +264,25 @@ export default function ShadowTrainingPage() {
       .sort((a, b) => b.wins - a.wins)
   }
 
-  const availableAgents = agents.filter(a => !participants.some(p => p.agent.id === a.id))
+  // Filter agents based on graduate/trainee selection
+  const filteredAgents = agents.filter(agent => {
+    if (agentFilter === 'graduates') {
+      return agent.academy_status === 'graduated'
+    }
+    if (agentFilter === 'trainees') {
+      return agent.academy_status !== 'graduated'
+    }
+    return true
+  })
+
+  const availableAgents = filteredAgents.filter(a => !participants.some(p => p.agent.id === a.id))
+
+  // Check if agent is a graduate
+  const isGraduate = (agent: Agent) => agent.academy_status === 'graduated'
+
+  // Get counts for filter badges
+  const graduateCount = agents.filter(a => a.academy_status === 'graduated').length
+  const traineeCount = agents.filter(a => a.academy_status !== 'graduated').length
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -282,26 +319,76 @@ export default function ShadowTrainingPage() {
               {/* Agent Selector Dropdown */}
               {showAgentSelector && (
                 <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Select an agent to add:</p>
+                  {/* Filter Buttons */}
+                  <div className="flex items-center gap-2 mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
+                    <Filter className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400 mr-2">Filter:</span>
+                    <button
+                      onClick={() => setAgentFilter('all')}
+                      className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                        agentFilter === 'all'
+                          ? 'bg-purple-600 text-white'
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300'
+                      }`}
+                    >
+                      All ({agents.length})
+                    </button>
+                    <button
+                      onClick={() => setAgentFilter('graduates')}
+                      className={`flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                        agentFilter === 'graduates'
+                          ? 'bg-green-600 text-white'
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300'
+                      }`}
+                    >
+                      <GraduationCap className="h-3 w-3" />
+                      Graduates ({graduateCount})
+                    </button>
+                    <button
+                      onClick={() => setAgentFilter('trainees')}
+                      className={`flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                        agentFilter === 'trainees'
+                          ? 'bg-orange-600 text-white'
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300'
+                      }`}
+                    >
+                      <UserCircle className="h-3 w-3" />
+                      Trainees ({traineeCount})
+                    </button>
+                  </div>
+
                   <div className="max-h-48 overflow-y-auto space-y-1">
                     {availableAgents.length === 0 ? (
                       <p className="text-sm text-gray-500 dark:text-gray-500 italic">
-                        No more agents available
+                        No {agentFilter === 'all' ? '' : agentFilter} agents available
                       </p>
                     ) : (
-                      availableAgents.map(agent => (
-                        <button
-                          key={agent.id}
-                          onClick={() => addParticipant(agent)}
-                          className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                        >
-                          <div>
-                            <span className="font-medium text-gray-900 dark:text-white">{agent.name}</span>
-                            <span className="ml-2 text-sm text-gray-500">Trust: {agent.trust_score}</span>
-                          </div>
-                          <Plus className="h-4 w-4 text-gray-400" />
-                        </button>
-                      ))
+                      availableAgents.map(agent => {
+                        const tier = getTrustTier(agent.trust_score)
+                        const graduated = isGraduate(agent)
+                        return (
+                          <button
+                            key={agent.id}
+                            onClick={() => addParticipant(agent)}
+                            className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                          >
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                              {/* Graduate/Trainee Icon */}
+                              {graduated ? (
+                                <GraduationCap className="h-4 w-4 text-green-600 flex-shrink-0" />
+                              ) : (
+                                <UserCircle className="h-4 w-4 text-orange-500 flex-shrink-0" />
+                              )}
+                              <span className="font-medium text-gray-900 dark:text-white truncate">{agent.name}</span>
+                              {/* Trust Badge */}
+                              <span className={`px-2 py-0.5 text-xs font-medium rounded-full flex-shrink-0 ${tier.bgColor} ${tier.color}`}>
+                                {tier.name} ({agent.trust_score})
+                              </span>
+                            </div>
+                            <Plus className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                          </button>
+                        )
+                      })
                     )}
                   </div>
                 </div>
@@ -315,28 +402,55 @@ export default function ShadowTrainingPage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                  {participants.map((p, index) => (
-                    <div
-                      key={p.agent.id}
-                      className="relative p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
-                    >
-                      <button
-                        onClick={() => removeParticipant(p.agent.id)}
-                        className="absolute -top-2 -right-2 p-1 bg-red-100 text-red-600 rounded-full hover:bg-red-200 dark:bg-red-900/50 dark:text-red-400"
+                  {participants.map((p, index) => {
+                    const tier = getTrustTier(p.agent.trust_score)
+                    const graduated = isGraduate(p.agent)
+                    return (
+                      <div
+                        key={p.agent.id}
+                        className={`relative p-3 rounded-lg border-2 ${
+                          graduated
+                            ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700'
+                            : 'bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-700'
+                        }`}
                       >
-                        <X className="h-3 w-3" />
-                      </button>
-                      <div className="text-xs font-medium text-purple-600 dark:text-purple-400 mb-1">
-                        {p.label}
+                        <button
+                          onClick={() => removeParticipant(p.agent.id)}
+                          className="absolute -top-2 -right-2 p-1 bg-red-100 text-red-600 rounded-full hover:bg-red-200 dark:bg-red-900/50 dark:text-red-400"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+
+                        {/* Graduate/Trainee Badge */}
+                        <div className="absolute -top-2 -left-2">
+                          {graduated ? (
+                            <span className="flex items-center gap-0.5 px-1.5 py-0.5 bg-green-500 text-white text-[10px] font-bold rounded-full">
+                              <GraduationCap className="h-2.5 w-2.5" />
+                              GRAD
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-0.5 px-1.5 py-0.5 bg-orange-500 text-white text-[10px] font-bold rounded-full">
+                              <UserCircle className="h-2.5 w-2.5" />
+                              TRAIN
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="text-xs font-medium text-purple-600 dark:text-purple-400 mb-1 mt-1">
+                          {p.label}
+                        </div>
+                        <div className="font-medium text-gray-900 dark:text-white text-sm truncate">
+                          {p.agent.name}
+                        </div>
+
+                        {/* Trust Badge */}
+                        <div className={`mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium rounded ${tier.bgColor} ${tier.color}`}>
+                          <Shield className="h-2.5 w-2.5" />
+                          {tier.name} • {p.agent.trust_score}
+                        </div>
                       </div>
-                      <div className="font-medium text-gray-900 dark:text-white text-sm truncate">
-                        {p.agent.name}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        Trust: {p.agent.trust_score}
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
             </div>
@@ -516,35 +630,56 @@ export default function ShadowTrainingPage() {
                 </p>
               ) : (
                 <div className="space-y-3">
-                  {getLeaderboard().map((entry, index) => (
-                    <div
-                      key={entry.participant?.agent.id}
-                      className="flex items-center gap-3"
-                    >
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                        index === 0 ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400' :
-                        index === 1 ? 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300' :
-                        index === 2 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-400' :
-                        'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
-                      }`}>
-                        {index + 1}
+                  {getLeaderboard().map((entry, index) => {
+                    const agent = entry.participant?.agent
+                    const tier = agent ? getTrustTier(agent.trust_score) : null
+                    const graduated = agent ? isGraduate(agent) : false
+                    return (
+                      <div
+                        key={entry.participant?.agent.id}
+                        className={`flex items-center gap-2 p-2 rounded-lg ${
+                          index === 0 ? 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700' : ''
+                        }`}
+                      >
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                          index === 0 ? 'bg-yellow-400 text-yellow-900' :
+                          index === 1 ? 'bg-gray-300 text-gray-700 dark:bg-gray-600 dark:text-gray-200' :
+                          index === 2 ? 'bg-orange-300 text-orange-800 dark:bg-orange-700 dark:text-orange-200' :
+                          'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                        }`}>
+                          {index + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1">
+                            {graduated ? (
+                              <GraduationCap className="h-3 w-3 text-green-600 flex-shrink-0" />
+                            ) : (
+                              <UserCircle className="h-3 w-3 text-orange-500 flex-shrink-0" />
+                            )}
+                            <span className="font-medium text-gray-900 dark:text-white text-sm truncate">
+                              {entry.participant?.agent.name}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              {entry.wins}W / {entry.rounds}R
+                            </span>
+                            {tier && (
+                              <span className={`text-[9px] font-medium px-1 py-0.5 rounded ${tier.bgColor} ${tier.color}`}>
+                                {tier.name}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {entry.avgScore > 0 && (
+                          <div className="flex items-center gap-0.5 text-yellow-500 flex-shrink-0">
+                            <Star className="h-3 w-3" fill="currentColor" />
+                            <span className="text-xs font-medium">{entry.avgScore.toFixed(1)}</span>
+                          </div>
+                        )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-gray-900 dark:text-white text-sm truncate">
-                          {entry.participant?.agent.name}
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {entry.wins} wins / {entry.rounds} rounds
-                        </div>
-                      </div>
-                      {entry.avgScore > 0 && (
-                        <div className="flex items-center gap-0.5 text-yellow-500">
-                          <Star className="h-3 w-3" fill="currentColor" />
-                          <span className="text-xs font-medium">{entry.avgScore.toFixed(1)}</span>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
             </div>
@@ -577,14 +712,38 @@ export default function ShadowTrainingPage() {
             {/* Tips */}
             <div className="card bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800">
               <h3 className="font-semibold text-purple-900 dark:text-purple-100 mb-2">
-                Tips
+                Shadow Training Tips
               </h3>
               <ul className="text-sm text-purple-800 dark:text-purple-200 space-y-1.5">
-                <li>• Add 2-10 agents to compare</li>
-                <li>• Click the trophy to mark winners</li>
+                <li>• <strong>Filter</strong> by Graduates vs Trainees to compare trained vs untrained</li>
+                <li>• <strong>Trust badges</strong> show agent credibility</li>
+                <li>• <strong>Green cards</strong> = Graduates, <strong>Orange</strong> = Trainees</li>
+                <li>• Click trophy to mark round winners</li>
                 <li>• Use star ratings for detailed scoring</li>
                 <li>• Export results for analysis</li>
               </ul>
+            </div>
+
+            {/* Comparison Mode Card */}
+            <div className="card bg-gradient-to-br from-green-50 to-orange-50 dark:from-green-900/20 dark:to-orange-900/20 border-green-200 dark:border-green-800">
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Comparison Mode
+              </h3>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                See how graduates outperform trainees on the same prompts.
+              </p>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="flex items-center gap-1 px-2 py-1 bg-green-200 dark:bg-green-900/50 text-green-700 dark:text-green-300 rounded">
+                  <GraduationCap className="h-3 w-3" />
+                  Academy Certified
+                </span>
+                <span className="text-gray-400">vs</span>
+                <span className="flex items-center gap-1 px-2 py-1 bg-orange-200 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 rounded">
+                  <UserCircle className="h-3 w-3" />
+                  In Training
+                </span>
+              </div>
             </div>
           </div>
         </div>
