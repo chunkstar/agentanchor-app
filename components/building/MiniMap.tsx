@@ -33,10 +33,19 @@ const ACTIVITY_COLORS = {
 
 // Hook to get floor activity (simulated for now)
 function useFloorActivity(): FloorActivity[] {
-  const [activity, setActivity] = useState<FloorActivity[]>([])
+  // Initialize with default values to avoid hydration mismatch
+  const [activity, setActivity] = useState<FloorActivity[]>(() =>
+    BUILDING_FLOORS.map(f => ({
+      floor: f.floor,
+      users: 5,
+      activity: 'quiet' as const,
+      recentEvents: 0,
+      trending: false
+    }))
+  )
 
   useEffect(() => {
-    // Simulate initial activity
+    // Simulate initial activity (only on client)
     const generateActivity = () => {
       return BUILDING_FLOORS.map(f => ({
         floor: f.floor,
@@ -47,7 +56,8 @@ function useFloorActivity(): FloorActivity[] {
       }))
     }
 
-    setActivity(generateActivity())
+    // Delay to avoid hydration mismatch
+    const timer = setTimeout(() => setActivity(generateActivity()), 100)
 
     // Update activity periodically
     const interval = setInterval(() => {
@@ -60,7 +70,10 @@ function useFloorActivity(): FloorActivity[] {
       })))
     }, 5000)
 
-    return () => clearInterval(interval)
+    return () => {
+      clearTimeout(timer)
+      clearInterval(interval)
+    }
   }, [])
 
   return activity
