@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import Breadcrumbs from './Breadcrumbs'
+import { FloorIndicator, QuickTravelHint } from '@/components/building'
 
 interface HeaderProps {
   onMenuClick: () => void
@@ -76,7 +77,11 @@ export default function Header({ onMenuClick, sidebarCollapsed }: HeaderProps) {
             <span className="sr-only">Open sidebar</span>
           </button>
 
-          {/* Breadcrumbs */}
+          {/* Floor Indicator + Breadcrumbs */}
+          <div className="hidden lg:flex items-center gap-3">
+            <FloorIndicator />
+            <span className="text-gray-300 dark:text-gray-600">/</span>
+          </div>
           <Breadcrumbs />
         </div>
 
@@ -91,6 +96,11 @@ export default function Header({ onMenuClick, sidebarCollapsed }: HeaderProps) {
                 className="w-64 rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-4 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
               />
             </div>
+          </div>
+
+          {/* Keyboard shortcuts hint */}
+          <div className="hidden xl:block">
+            <QuickTravelHint />
           </div>
 
           {/* Notifications */}

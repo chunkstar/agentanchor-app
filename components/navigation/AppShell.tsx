@@ -8,6 +8,13 @@ import Header from './Header'
 import { useSidebar } from '@/hooks/useSidebar'
 import { useIsMobile } from '@/hooks/useMediaQuery'
 import { type UserRole } from '@/lib/navigation/menu-items'
+import {
+  MiniMap,
+  QuickTravelProvider,
+  FloorMemoryProvider,
+  TourStartButton,
+  hasCompletedTour
+} from '@/components/building'
 
 interface AppShellProps {
   children: React.ReactNode
@@ -19,10 +26,16 @@ export default function AppShell({ children, userRole = 'consumer' }: AppShellPr
   const isMobile = useIsMobile()
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
+  const [showTourPrompt, setShowTourPrompt] = useState(false)
 
   // Handle hydration
   useEffect(() => {
     setMounted(true)
+    // Show tour prompt for first-time users after a short delay
+    if (!hasCompletedTour()) {
+      const timer = setTimeout(() => setShowTourPrompt(true), 2000)
+      return () => clearTimeout(timer)
+    }
   }, [])
 
   // Close mobile sidebar on route change
@@ -55,39 +68,53 @@ export default function AppShell({ children, userRole = 'consumer' }: AppShellPr
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Desktop Sidebar */}
-      {!isMobile && (
-        <Sidebar
-          isCollapsed={isCollapsed}
-          onToggleCollapse={toggleCollapse}
-          userRole={userRole}
-        />
-      )}
+    <FloorMemoryProvider>
+      <QuickTravelProvider>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          {/* Desktop Sidebar */}
+          {!isMobile && (
+            <Sidebar
+              isCollapsed={isCollapsed}
+              onToggleCollapse={toggleCollapse}
+              userRole={userRole}
+            />
+          )}
 
-      {/* Mobile Sidebar */}
-      <MobileSidebar
-        isOpen={isMobileOpen}
-        onClose={closeMobile}
-        userRole={userRole}
-      />
+          {/* Mobile Sidebar */}
+          <MobileSidebar
+            isOpen={isMobileOpen}
+            onClose={closeMobile}
+            userRole={userRole}
+          />
 
-      {/* Header */}
-      <Header
-        onMenuClick={toggleMobile}
-        sidebarCollapsed={isCollapsed}
-      />
+          {/* Header */}
+          <Header
+            onMenuClick={toggleMobile}
+            sidebarCollapsed={isCollapsed}
+          />
 
-      {/* Main Content */}
-      <main
-        className={`pt-16 transition-all duration-300 ${
-          !isMobile ? (isCollapsed ? 'lg:ml-16' : 'lg:ml-64') : ''
-        }`}
-      >
-        <div className="p-6">
-          {children}
+          {/* Main Content */}
+          <main
+            className={`pt-16 transition-all duration-300 ${
+              !isMobile ? (isCollapsed ? 'lg:ml-16' : 'lg:ml-64') : ''
+            }`}
+          >
+            <div className="p-6">
+              {children}
+            </div>
+          </main>
+
+          {/* Building Navigation - MiniMap (bottom-right corner) */}
+          {!isMobile && <MiniMap position="bottom-right" showActivity />}
+
+          {/* Tour prompt for first-time users */}
+          {showTourPrompt && (
+            <div className="fixed bottom-24 right-6 z-40 animate-in slide-in-from-bottom-4">
+              <TourStartButton tourType="quick" />
+            </div>
+          )}
         </div>
-      </main>
-    </div>
+      </QuickTravelProvider>
+    </FloorMemoryProvider>
   )
 }
