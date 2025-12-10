@@ -1,92 +1,94 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Store, RefreshCw, Sparkles, TrendingUp } from 'lucide-react'
-import ListingCard from '@/components/marketplace/ListingCard'
-import MarketplaceFilters from '@/components/marketplace/MarketplaceFilters'
-import { ListingWithAgent, MarketplaceCategory, ListingSearchParams } from '@/lib/marketplace/types'
+import { Store, RefreshCw, Sparkles, TrendingUp, Search, Filter, Bot } from 'lucide-react'
+import Link from 'next/link'
+
+interface Agent {
+  id: string
+  name: string
+  description: string | null
+  specialization: string | null
+  trust_score: number
+  trust_tier: string
+  capabilities: string[]
+  personality_traits: string[]
+  avatar_url: string | null
+  created_at: string
+}
 
 export default function MarketplacePage() {
-  const [listings, setListings] = useState<ListingWithAgent[]>([])
-  const [featuredListings, setFeaturedListings] = useState<ListingWithAgent[]>([])
-  const [categories, setCategories] = useState<MarketplaceCategory[]>([])
+  const [agents, setAgents] = useState<Agent[]>([])
+  const [categories, setCategories] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [total, setTotal] = useState(0)
   const [hasMore, setHasMore] = useState(false)
-  const [offset, setOffset] = useState(0)
-  const [searchParams, setSearchParams] = useState<ListingSearchParams>({})
+  const [page, setPage] = useState(1)
+
+  // Filters
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('all')
+  const [sortBy, setSortBy] = useState('trust_score')
 
   useEffect(() => {
-    fetchCategories()
-    fetchFeatured()
-  }, [])
+    fetchAgents()
+  }, [page, selectedCategory, sortBy])
 
-  useEffect(() => {
-    fetchListings()
-  }, [searchParams, offset])
-
-  async function fetchCategories() {
-    try {
-      const res = await fetch('/api/marketplace/listings?categories=true')
-      if (res.ok) {
-        const data = await res.json()
-        setCategories(data.categories || [])
-      }
-    } catch (err) {
-      console.error('Failed to fetch categories:', err)
-    }
-  }
-
-  async function fetchFeatured() {
-    try {
-      const res = await fetch('/api/marketplace/listings?featured=true&limit=4')
-      if (res.ok) {
-        const data = await res.json()
-        setFeaturedListings(data.listings || [])
-      }
-    } catch (err) {
-      console.error('Failed to fetch featured:', err)
-    }
-  }
-
-  async function fetchListings() {
+  async function fetchAgents(reset = false) {
     setLoading(true)
     try {
-      const params = new URLSearchParams()
+      const currentPage = reset ? 1 : page
+      const params = new URLSearchParams({
+        page: String(currentPage),
+        per_page: '24',
+        sort_by: sortBy,
+      })
 
-      if (searchParams.query) params.set('query', searchParams.query)
-      if (searchParams.category) params.set('category', searchParams.category)
-      if (searchParams.min_trust_score) params.set('min_trust_score', String(searchParams.min_trust_score))
-      if (searchParams.min_rating) params.set('min_rating', String(searchParams.min_rating))
-      if (searchParams.sort_by) params.set('sort_by', searchParams.sort_by)
-      params.set('limit', '20')
-      params.set('offset', String(offset))
+      if (searchQuery) params.set('query', searchQuery)
+      if (selectedCategory !== 'all') params.set('category', selectedCategory)
 
-      const res = await fetch(`/api/marketplace/listings?${params}`)
+      const res = await fetch(`/api/agents/public?${params}`)
       if (res.ok) {
         const data = await res.json()
-        if (offset === 0) {
-          setListings(data.listings || [])
+        if (reset || currentPage === 1) {
+          setAgents(data.agents || [])
+          setPage(1)
         } else {
-          setListings(prev => [...prev, ...(data.listings || [])])
+          setAgents(prev => [...prev, ...(data.agents || [])])
         }
         setTotal(data.total || 0)
         setHasMore(data.has_more || false)
+        if (data.categories) {
+          setCategories(data.categories)
+        }
       }
     } catch (err) {
-      console.error('Failed to fetch listings:', err)
+      console.error('Failed to fetch agents:', err)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleSearch = (params: ListingSearchParams) => {
-    setOffset(0)
-    setSearchParams(params)
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    setPage(1)
+    fetchAgents(true)
   }
 
   const loadMore = () => {
-    setOffset(prev => prev + 20)
+    setPage(prev => prev + 1)
+  }
+
+  const getTrustBadgeColor = (tier: string) => {
+    switch (tier?.toLowerCase()) {
+      case 'legendary': return 'bg-yellow-500 text-black'
+      case 'certified': return 'bg-purple-500 text-white'
+      case 'verified': return 'bg-blue-500 text-white'
+      case 'trusted': return 'bg-green-500 text-white'
+      case 'established': return 'bg-teal-500 text-white'
+      case 'provisional': return 'bg-orange-500 text-white'
+      default: return 'bg-neutral-500 text-white'
+    }
   }
 
   return (
@@ -95,64 +97,151 @@ export default function MarketplacePage() {
       <div>
         <h1 className="text-2xl font-bold text-neutral-100 flex items-center gap-3">
           <Store className="w-7 h-7 text-blue-400" />
-          Marketplace
+          Agent Marketplace
         </h1>
         <p className="text-neutral-400 mt-1">
-          Discover governed AI agents from trusted trainers with transparent trust scores
+          Discover {total.toLocaleString()} governed AI agents with transparent trust scores
         </p>
       </div>
 
-      {/* Featured Section */}
-      {featuredListings.length > 0 && !searchParams.query && !searchParams.category && (
-        <div>
-          <h2 className="text-lg font-semibold text-neutral-100 mb-4 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-yellow-400" />
-            Featured Agents
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {featuredListings.map((listing) => (
-              <ListingCard key={listing.id} listing={listing} />
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Search & Filters */}
-      <MarketplaceFilters
-        categories={categories}
-        onSearch={handleSearch}
-        initialParams={searchParams}
-      />
+      <div className="bg-neutral-900 rounded-lg border border-neutral-800 p-4">
+        <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
+          {/* Search Input */}
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
+            <input
+              type="text"
+              placeholder="Search agents by name, description, or specialization..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-neutral-800 border border-neutral-700 rounded-lg text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Category Filter */}
+          <div className="flex items-center gap-2">
+            <Filter className="w-5 h-5 text-neutral-500" />
+            <select
+              value={selectedCategory}
+              onChange={(e) => {
+                setSelectedCategory(e.target.value)
+                setPage(1)
+              }}
+              className="px-3 py-2.5 bg-neutral-800 border border-neutral-700 rounded-lg text-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Categories</option>
+              {categories.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Sort */}
+          <select
+            value={sortBy}
+            onChange={(e) => {
+              setSortBy(e.target.value)
+              setPage(1)
+            }}
+            className="px-3 py-2.5 bg-neutral-800 border border-neutral-700 rounded-lg text-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="trust_score">Highest Trust</option>
+            <option value="name">Name A-Z</option>
+            <option value="newest">Newest</option>
+          </select>
+
+          <button
+            type="submit"
+            className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+          >
+            Search
+          </button>
+        </form>
+      </div>
 
       {/* Results */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-neutral-100 flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-green-400" />
-            {searchParams.query || searchParams.category ? 'Search Results' : 'All Agents'}
+            {searchQuery || selectedCategory !== 'all' ? 'Search Results' : 'All Agents'}
           </h2>
           <span className="text-sm text-neutral-500">
-            {total} {total === 1 ? 'agent' : 'agents'} found
+            {total.toLocaleString()} {total === 1 ? 'agent' : 'agents'}
           </span>
         </div>
 
-        {loading && listings.length === 0 ? (
+        {loading && agents.length === 0 ? (
           <div className="flex items-center justify-center py-12">
             <RefreshCw className="w-8 h-8 animate-spin text-neutral-500" />
           </div>
-        ) : listings.length === 0 ? (
+        ) : agents.length === 0 ? (
           <div className="text-center py-12 bg-neutral-900 rounded-lg border border-neutral-800">
-            <Store className="w-12 h-12 mx-auto mb-3 text-neutral-600" />
+            <Bot className="w-12 h-12 mx-auto mb-3 text-neutral-600" />
             <p className="text-neutral-400">No agents found</p>
             <p className="text-sm text-neutral-500 mt-1">
-              Try adjusting your search filters
+              Try adjusting your search or filters
             </p>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {listings.map((listing) => (
-                <ListingCard key={listing.id} listing={listing} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {agents.map((agent) => (
+                <Link
+                  key={agent.id}
+                  href={`/marketplace/${agent.id}`}
+                  className="bg-neutral-900 rounded-lg border border-neutral-800 p-4 hover:border-neutral-700 transition-colors group"
+                >
+                  {/* Avatar & Name */}
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                      {agent.name?.charAt(0) || '?'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-neutral-100 truncate group-hover:text-blue-400 transition-colors">
+                        {agent.name}
+                      </h3>
+                      <p className="text-sm text-neutral-500 truncate">
+                        {agent.specialization || 'General Assistant'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-sm text-neutral-400 line-clamp-2 mb-3">
+                    {agent.description || 'No description available'}
+                  </p>
+
+                  {/* Trust Badge */}
+                  <div className="flex items-center justify-between">
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${getTrustBadgeColor(agent.trust_tier)}`}>
+                      {agent.trust_tier || 'Untrusted'}
+                    </span>
+                    <span className="text-sm text-neutral-500">
+                      Score: {agent.trust_score}
+                    </span>
+                  </div>
+
+                  {/* Capabilities */}
+                  {agent.capabilities && agent.capabilities.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-1">
+                      {agent.capabilities.slice(0, 3).map((cap, i) => (
+                        <span
+                          key={i}
+                          className="px-2 py-0.5 bg-neutral-800 rounded text-xs text-neutral-400"
+                        >
+                          {cap}
+                        </span>
+                      ))}
+                      {agent.capabilities.length > 3 && (
+                        <span className="px-2 py-0.5 text-xs text-neutral-500">
+                          +{agent.capabilities.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </Link>
               ))}
             </div>
 

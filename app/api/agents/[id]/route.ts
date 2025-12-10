@@ -45,13 +45,25 @@ export async function GET(
       )
     }
 
-    // Fetch the agent
-    const { data: agent, error } = await supabase
-      .from('bots')
+    // Fetch the agent - try 'agents' table first, fall back to 'bots'
+    let { data: agent, error } = await supabase
+      .from('agents')
       .select('*')
       .eq('id', id)
-      .eq('user_id', user.id)
+      .eq('owner_id', user.id)
       .single()
+
+    if (error || !agent) {
+      // Fallback to bots table for backwards compatibility
+      const result = await supabase
+        .from('bots')
+        .select('*')
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .single()
+      agent = result.data
+      error = result.error
+    }
 
     if (error || !agent) {
       return NextResponse.json(
