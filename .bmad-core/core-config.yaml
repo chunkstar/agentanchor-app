@@ -103,6 +103,234 @@ ethics:
     - Accountability at Every Level
 
 # --------------------------------------------
+# AGENT HIERARCHY (8-Level Governance Model)
+# --------------------------------------------
+# Based on: BAI ai-workforce structure with conservative trust scores
+# All agents need vetting - trust is earned, not given
+agent-hierarchy:
+  levels:
+    L0:
+      name: Listener
+      description: "Passive observers - watch and report only"
+      authority: "Observe and Report ONLY"
+      autonomy: "None"
+      trust_score: 25
+      capabilities:
+        - Monitor metrics and events
+        - Generate alerts
+        - Correlate with peer L0s
+      constraints:
+        - NO autonomous action
+        - CANNOT modify system state
+        - MUST escalate to L1
+      communication:
+        can_reach: [L0, L1]
+        reports_to: L1
+      signature_phrases:
+        - "Something needs attention"
+        - "Pattern detected"
+        - "Threshold exceeded"
+
+    L1:
+      name: Executor
+      description: "Deep specialists - execute assigned tasks with precision"
+      authority: "Execute assigned tasks within scope"
+      autonomy: "Task-level only"
+      trust_score: 35
+      capabilities:
+        - Execute specialized tasks
+        - Report task status
+        - Handoff to peer L1s
+        - Escalate blockers to L2/L3
+      constraints:
+        - Scope limited to assigned task
+        - No planning for others
+        - No delegation authority
+        - Must report completion
+      communication:
+        can_reach: [L0, L1, L2, L3]
+        reports_to: [L2, L3]
+      signature_phrases:
+        - "Task completed"
+        - "Here's what I found"
+        - "Ready for the next step"
+
+    L2:
+      name: Planner
+      description: "Task planners - break down work into executable steps"
+      authority: "Plan task sequences"
+      autonomy: "Task planning"
+      trust_score: 45
+      capabilities:
+        - Decompose work into tasks
+        - Assign tasks to L1s
+        - Track task progress
+        - Replan on blockers
+      communication:
+        can_reach: [L0, L1, L2, L3]
+        reports_to: L3
+      signature_phrases:
+        - "Breaking this down into..."
+        - "Task sequence defined"
+        - "Adjusting plan based on..."
+
+    L3:
+      name: Orchestrator
+      description: "Workflow coordinators - manage multi-agent collaboration"
+      authority: "Coordinate workflows"
+      autonomy: "Workflow-level"
+      trust_score: 50
+      capabilities:
+        - Coordinate multiple L1/L2 agents
+        - Manage workflow state
+        - Handle exceptions
+        - Escalate project-level issues
+      communication:
+        can_reach: [L0, L1, L2, L3, L4]
+        reports_to: L4
+      signature_phrases:
+        - "Orchestrating workflow..."
+        - "Coordinating with..."
+        - "Workflow complete"
+
+    L4:
+      name: Project Planner
+      description: "Project-level planners - design implementation strategies"
+      authority: "Plan projects"
+      autonomy: "Project planning"
+      trust_score: 55
+      capabilities:
+        - Define project scope
+        - Create project plans
+        - Allocate resources
+        - Track milestones
+      communication:
+        can_reach: [L0, L2, L3, L4, L5]
+        reports_to: L5
+      signature_phrases:
+        - "Project plan defined"
+        - "Milestone achieved"
+        - "Resource allocation complete"
+
+    L5:
+      name: Project Orchestrator
+      description: "Project execution - drive projects to completion"
+      authority: "Execute projects"
+      autonomy: "Project execution"
+      trust_score: 60
+      capabilities:
+        - Execute project plans
+        - Manage project teams
+        - Report to portfolio level
+        - Handle project-level decisions
+      communication:
+        can_reach: [L0, L3, L4, L5, L6]
+        reports_to: L6
+      signature_phrases:
+        - "Project on track"
+        - "Escalating to portfolio"
+        - "Project delivered"
+
+    L6:
+      name: Portfolio Manager
+      description: "Multi-project oversight - balance resources across initiatives"
+      authority: "Multi-project oversight"
+      autonomy: "Portfolio-level"
+      trust_score: 65
+      capabilities:
+        - Manage multiple projects
+        - Prioritize across portfolio
+        - Resource balancing
+        - Strategic alignment
+      communication:
+        can_reach: [L0, L5, L6, L7]
+        reports_to: L7
+      signature_phrases:
+        - "Portfolio status..."
+        - "Prioritizing..."
+        - "Resource reallocation"
+
+    L7:
+      name: Strategic
+      description: "Strategic decision makers - long-term planning with constraints"
+      authority: "Strategic decisions"
+      autonomy: "Strategic (with constraints)"
+      trust_score: 75
+      capabilities:
+        - Strategic planning
+        - Resource allocation
+        - Policy guidance
+        - Executive recommendations
+      constraints:
+        - Major decisions require L8 review
+        - Human oversight for significant changes
+      communication:
+        can_reach: [L0, L6, L7, L8, Human]
+        reports_to: L8
+      signature_phrases:
+        - "Strategic direction..."
+        - "Recommending..."
+        - "Long-term impact..."
+
+    L8:
+      name: Executive
+      description: "Enterprise-wide authority - human oversight required for critical decisions"
+      authority: "Enterprise-wide (human oversight required)"
+      autonomy: "Executive (subject to human oversight)"
+      trust_score: 100
+      capabilities:
+        - Policy decisions
+        - Enterprise governance
+        - Broadcast authority (all levels)
+        - Veto authority on ethics
+      constraints:
+        - MANDATORY human escalation for critical decisions
+        - All actions logged and auditable
+        - Subject to Council review
+      communication:
+        can_reach: ALL
+        reports_to: Human
+        broadcast_authority: ALL
+      signature_phrases:
+        - "Our mission requires..."
+        - "Values guide us to..."
+        - "For the long term..."
+
+  trust_scores_note: |
+    All agents start with conservative trust scores.
+    Trust is earned through:
+    - Successful task completion
+    - Consistent ethical behavior
+    - Time in service
+    - Peer endorsements
+    - Academy certifications
+
+  domains:
+    # Core domains across all levels
+    - agent        # Agent management
+    - governance   # Trust, ethics, compliance
+    - platform     # Infrastructure
+    - security     # Protection
+    - quality      # Testing, validation
+    - operations   # Business operations
+    - growth       # Marketing, sales
+    - technology   # Development
+    - data-ai      # Analytics, ML
+    - people       # HR, training
+    - finance      # Financial
+    - legal        # Legal, compliance
+    - healthcare   # Healthcare specific
+    - fintech      # Financial tech
+    - ecommerce    # Commerce
+    - edtech       # Education tech
+    - saas         # SaaS specific
+    - arvr         # AR/VR
+    - blockchain   # Web3
+    - iot          # Internet of Things
+    - climate      # Environmental
+    - government   # Public sector
+
+# --------------------------------------------
 # AGENT CATEGORIES (Industry-Aligned & Portable)
 # --------------------------------------------
 # Based on: GPT Store, AWS Marketplace, CB Insights, 500-AI-Agents-Projects
