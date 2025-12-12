@@ -33,10 +33,11 @@ ALTER TABLE bots ADD COLUMN IF NOT EXISTS personality_traits JSONB DEFAULT '[]':
 ALTER TABLE bots ADD COLUMN IF NOT EXISTS capabilities JSONB DEFAULT '[]'::jsonb;
 
 -- ============================================================================
--- 2. Create View Alias for "agents" (backward compatibility)
+-- 2. SKIPPED: View Alias for "agents"
+-- NOTE: "agents" already exists as a TABLE in the database (not a view)
+-- The original line "CREATE OR REPLACE VIEW agents AS SELECT * FROM bots;"
+-- fails with error 42809 because PostgreSQL cannot replace a table with a view.
 -- ============================================================================
-
-CREATE OR REPLACE VIEW agents AS SELECT * FROM bots;
 
 -- ============================================================================
 -- 3. Trust History Table

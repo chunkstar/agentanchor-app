@@ -24,10 +24,11 @@ export async function GET(request: NextRequest) {
     const perPage = parseInt(searchParams.get('per_page') || '24')
     const offset = (page - 1) * perPage
 
-    // Build query for agents table
+    // Build query for bots table (agents is a view that doesn't exist)
     let agentQuery = supabase
-      .from('agents')
+      .from('bots')
       .select('*', { count: 'exact' })
+      .eq('status', 'active')
 
     // Filter by search query
     if (query) {
@@ -74,8 +75,9 @@ export async function GET(request: NextRequest) {
 
     // Get unique specializations for categories
     const { data: specializations } = await supabase
-      .from('agents')
+      .from('bots')
       .select('specialization')
+      .eq('status', 'active')
       .not('specialization', 'is', null)
 
     const categories = [...new Set(

@@ -61,7 +61,21 @@
       "Bash(vercel logs:*)",
       "WebFetch(domain:vercel.com)",
       "Bash(GIT_COMMITTER_NAME=\"chunkstar\" GIT_COMMITTER_EMAIL=\"racason@gmail.com\" git commit -m \"$(cat <<''EOF''\nImplement Epic 13 (Academy Specializations) & Epic 14 (Precedent Flywheel)\n\nEpic 13 - Academy Specializations & Mentorship (Stories 13-1 to 13-4):\n- Specialization tracks with 8 domains (Healthcare, Finance, Legal, etc.)\n- Enrollment system with progress tracking\n- Mentor certification (800+ trust requirement)\n- Mentorship relationships with trust bonuses\n\nEpic 14 - Precedent Flywheel [MOAT BUILDER] (Stories 14-1 to 14-5):\n- pgvector semantic search with OpenAI embeddings\n- Decision indexing and similarity cache\n- Validator precedent context generation\n- Consistency tracking for decision divergence\n- Fine-tuning pipeline for validator prompts\n\nNew APIs:\n- /api/v1/academy/specializations - Track enrollment\n- /api/v1/academy/mentorship - Mentor certification\n- /api/v1/council/precedents - Semantic search\n- /api/v1/council/consistency - Decision consistency\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "WebFetch(domain:aiagentstore.ai)",
+      "WebFetch(domain:github.com)",
+      "Bash(node scripts/enrich-agents-soul-doc.js:*)",
+      "Bash(node scripts/import-additional-agents.js:*)",
+      "Bash(GIT_COMMITTER_NAME=\"chunkstar\" GIT_COMMITTER_EMAIL=\"racason@gmail.com\" git commit -m \"$(cat <<''EOF''\nAdd missing floor pages: Compliance, Tribunal, Trust Vault\n\nFloor 2 - Compliance Vault (/compliance):\n- SOC 2, HIPAA, ISO 27001 framework dashboards\n- Control category breakdowns with progress bars\n- Recent audit events feed\n- Documentation links\n\nFloor 9 - Tribunal (/tribunal):\n- Appeals, disputes, governance reviews\n- Case status tracking (pending/in_review/resolved)\n- Case submission interface\n- Resolution workflow info\n\nFloor 5 - Trust Vault (/trust):\n- Agent trust score overview\n- Trust tier legend (Legendary to Untrusted)\n- Trend indicators (rising/falling/stable)\n- Earned credentials display\n\nAll floors in The Anchor building now have working pages.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "WebFetch(domain:app.agentanchorai.com)",
+      "WebFetch(domain:agentanchorai-gsmw360wx-banquetai.vercel.app)",
+      "Bash(node scripts/merge-bai-agents.js:*)",
+      "Bash(GIT_COMMITTER_NAME=\"chunkstar\" GIT_COMMITTER_EMAIL=\"racason@gmail.com\" git commit -m \"$(cat <<''EOF''\nBAI Integration: 2025 agents with L0-L8 hierarchy\n\nNew systems integrated from BAI ai-workforce:\n- Hierarchy levels (L0-L8) as role designation\n- Consultation system with consensus calculation\n- Knowledge system (18 types) with vector embeddings\n- Shadow Agent system (10 observer types)\n- Agent signals & callbacks for event-driven behavior\n\nAgent stats:\n- Total: 2025 agents (was 1888)\n- Upgraded: 852 with BAI features\n- Added new: 1025 agents\n- Hierarchy: L0(219) L1(1331) L2(209) L3(114) L4(58) L5(30) L6(23) L7(22) L8(19)\n\nNew features:\n- lib/hierarchy/types.ts - L0-L8 role definitions\n- lib/consultation/ - Agent-to-agent consultation + safety gates\n- lib/knowledge/types.ts - 18-type knowledge system\n- lib/shadow/ - Shadow agent observations & alerts\n- lib/agents/agent-signals.ts - Event-driven signal system\n- lib/agents/agent-callbacks.ts - Automated callback handlers\n- lib/monitoring/agent-monitor.ts - Real-time agent monitoring\n- lib/vetting/pipeline.ts - Agent vetting pipeline\n- 3 new Supabase migrations for all systems\n- 266 tests (all passing)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(node scripts/import-merged-agents.js:*)",
+      "Bash(node scripts/count-agents-by-level.js:*)",
+      "Bash(node scripts/analyze-hierarchy-migration.js:*)",
+      "Bash(node scripts/dedupe-and-migrate-hierarchy.js:*)",
+      "Bash(node scripts/sync-bai-agents.js:*)"
     ],
     "deny": [],
     "ask": []

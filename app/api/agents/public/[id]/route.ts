@@ -21,7 +21,7 @@ export async function GET(
     const supabase = createClient()
 
     const { data: agent, error } = await supabase
-      .from('agents')
+      .from('bots')
       .select('*')
       .eq('id', id)
       .single()

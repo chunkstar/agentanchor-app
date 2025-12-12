@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Store, RefreshCw, Sparkles, TrendingUp, Search, Filter, Bot } from 'lucide-react'
+import { useState, useEffect, useMemo } from 'react'
+import { Store, RefreshCw, Sparkles, TrendingUp, Search, Filter, Bot, LayoutGrid, List } from 'lucide-react'
 import Link from 'next/link'
 
 interface Agent {
@@ -17,6 +17,84 @@ interface Agent {
   created_at: string
 }
 
+// Group agents by first letter
+function groupByFirstLetter(agents: Agent[]): Map<string, Agent[]> {
+  const groups = new Map<string, Agent[]>()
+  for (const agent of agents) {
+    const firstLetter = (agent.name?.[0] || '#').toUpperCase()
+    const key = /[A-Z]/.test(firstLetter) ? firstLetter : '#'
+    if (!groups.has(key)) {
+      groups.set(key, [])
+    }
+    groups.get(key)!.push(agent)
+  }
+  // Sort keys alphabetically with # at the end
+  return new Map([...groups.entries()].sort((a, b) => {
+    if (a[0] === '#') return 1
+    if (b[0] === '#') return -1
+    return a[0].localeCompare(b[0])
+  }))
+}
+
+// Agent Card Component
+function AgentCard({ agent, getTrustBadgeColor }: { agent: Agent; getTrustBadgeColor: (tier: string) => string }) {
+  return (
+    <Link
+      href={`/marketplace/${agent.id}`}
+      className="bg-neutral-900 rounded-lg border border-neutral-800 p-4 hover:border-neutral-700 transition-colors group"
+    >
+      {/* Avatar & Name */}
+      <div className="flex items-start gap-3 mb-3">
+        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+          {agent.name?.charAt(0) || '?'}
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-neutral-100 truncate group-hover:text-blue-400 transition-colors">
+            {agent.name}
+          </h3>
+          <p className="text-sm text-neutral-500 truncate">
+            {agent.specialization || 'General Assistant'}
+          </p>
+        </div>
+      </div>
+
+      {/* Description */}
+      <p className="text-sm text-neutral-400 line-clamp-2 mb-3">
+        {agent.description || 'No description available'}
+      </p>
+
+      {/* Trust Badge */}
+      <div className="flex items-center justify-between">
+        <span className={`px-2 py-1 rounded text-xs font-medium ${getTrustBadgeColor(agent.trust_tier)}`}>
+          {agent.trust_tier || 'Untrusted'}
+        </span>
+        <span className="text-sm text-neutral-500">
+          Score: {agent.trust_score}
+        </span>
+      </div>
+
+      {/* Capabilities */}
+      {agent.capabilities && agent.capabilities.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1">
+          {agent.capabilities.slice(0, 3).map((cap, i) => (
+            <span
+              key={i}
+              className="px-2 py-0.5 bg-neutral-800 rounded text-xs text-neutral-400"
+            >
+              {cap}
+            </span>
+          ))}
+          {agent.capabilities.length > 3 && (
+            <span className="px-2 py-0.5 text-xs text-neutral-500">
+              +{agent.capabilities.length - 3} more
+            </span>
+          )}
+        </div>
+      )}
+    </Link>
+  )
+}
+
 export default function MarketplacePage() {
   const [agents, setAgents] = useState<Agent[]>([])
   const [categories, setCategories] = useState<string[]>([])
@@ -28,7 +106,16 @@ export default function MarketplacePage() {
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
-  const [sortBy, setSortBy] = useState('trust_score')
+  const [sortBy, setSortBy] = useState('name')
+  const [viewMode, setViewMode] = useState<'grid' | 'grouped'>('grouped')
+
+  // Group agents alphabetically when in grouped mode
+  const groupedAgents = useMemo(() => {
+    if (sortBy === 'name') {
+      return groupByFirstLetter(agents)
+    }
+    return null
+  }, [agents, sortBy])
 
   useEffect(() => {
     fetchAgents()
@@ -146,10 +233,30 @@ export default function MarketplacePage() {
             }}
             className="px-3 py-2.5 bg-neutral-800 border border-neutral-700 rounded-lg text-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="trust_score">Highest Trust</option>
             <option value="name">Name A-Z</option>
+            <option value="trust_score">Highest Trust</option>
             <option value="newest">Newest</option>
           </select>
+
+          {/* View Mode Toggle */}
+          {sortBy === 'name' && (
+            <div className="flex items-center border border-neutral-700 rounded-lg overflow-hidden">
+              <button
+                onClick={() => setViewMode('grouped')}
+                className={`p-2.5 ${viewMode === 'grouped' ? 'bg-blue-600 text-white' : 'bg-neutral-800 text-neutral-400 hover:text-white'}`}
+                title="Grouped by letter"
+              >
+                <List className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2.5 ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-neutral-800 text-neutral-400 hover:text-white'}`}
+                title="Grid view"
+              >
+                <LayoutGrid className="w-5 h-5" />
+              </button>
+            </div>
+          )}
 
           <button
             type="submit"
@@ -186,64 +293,49 @@ export default function MarketplacePage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {agents.map((agent) => (
-                <Link
-                  key={agent.id}
-                  href={`/marketplace/${agent.id}`}
-                  className="bg-neutral-900 rounded-lg border border-neutral-800 p-4 hover:border-neutral-700 transition-colors group"
-                >
-                  {/* Avatar & Name */}
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
-                      {agent.name?.charAt(0) || '?'}
+            {/* Grouped View (A-Z sections) */}
+            {groupedAgents && viewMode === 'grouped' ? (
+              <div className="space-y-8">
+                {/* Alphabet Navigation */}
+                <div className="flex flex-wrap gap-1 sticky top-0 bg-neutral-950/90 backdrop-blur-sm py-2 z-10">
+                  {Array.from(groupedAgents.keys()).map(letter => (
+                    <a
+                      key={letter}
+                      href={`#section-${letter}`}
+                      className="w-8 h-8 flex items-center justify-center rounded bg-neutral-800 hover:bg-blue-600 text-neutral-300 hover:text-white text-sm font-medium transition-colors"
+                    >
+                      {letter}
+                    </a>
+                  ))}
+                </div>
+
+                {/* Grouped Sections */}
+                {Array.from(groupedAgents.entries()).map(([letter, letterAgents]) => (
+                  <div key={letter} id={`section-${letter}`} className="scroll-mt-16">
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="w-10 h-10 flex items-center justify-center rounded-lg bg-blue-600 text-white text-xl font-bold">
+                        {letter}
+                      </span>
+                      <span className="text-neutral-500 text-sm">
+                        {letterAgents.length} {letterAgents.length === 1 ? 'agent' : 'agents'}
+                      </span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-neutral-100 truncate group-hover:text-blue-400 transition-colors">
-                        {agent.name}
-                      </h3>
-                      <p className="text-sm text-neutral-500 truncate">
-                        {agent.specialization || 'General Assistant'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Description */}
-                  <p className="text-sm text-neutral-400 line-clamp-2 mb-3">
-                    {agent.description || 'No description available'}
-                  </p>
-
-                  {/* Trust Badge */}
-                  <div className="flex items-center justify-between">
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${getTrustBadgeColor(agent.trust_tier)}`}>
-                      {agent.trust_tier || 'Untrusted'}
-                    </span>
-                    <span className="text-sm text-neutral-500">
-                      Score: {agent.trust_score}
-                    </span>
-                  </div>
-
-                  {/* Capabilities */}
-                  {agent.capabilities && agent.capabilities.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-1">
-                      {agent.capabilities.slice(0, 3).map((cap, i) => (
-                        <span
-                          key={i}
-                          className="px-2 py-0.5 bg-neutral-800 rounded text-xs text-neutral-400"
-                        >
-                          {cap}
-                        </span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {letterAgents.map((agent) => (
+                        <AgentCard key={agent.id} agent={agent} getTrustBadgeColor={getTrustBadgeColor} />
                       ))}
-                      {agent.capabilities.length > 3 && (
-                        <span className="px-2 py-0.5 text-xs text-neutral-500">
-                          +{agent.capabilities.length - 3} more
-                        </span>
-                      )}
                     </div>
-                  )}
-                </Link>
-              ))}
-            </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              /* Grid View */
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {agents.map((agent) => (
+                  <AgentCard key={agent.id} agent={agent} getTrustBadgeColor={getTrustBadgeColor} />
+                ))}
+              </div>
+            )}
 
             {/* Load More */}
             {hasMore && (

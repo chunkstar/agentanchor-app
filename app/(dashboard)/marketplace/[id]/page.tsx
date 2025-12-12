@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import TrustBadge from '@/components/agents/TrustBadge'
 import { TrustTier } from '@/lib/agents/types'
+import { AcquireModal } from '@/components/marketplace/AcquireModal'
 
 interface Agent {
   id: string
@@ -43,6 +44,7 @@ export default function AgentDetailPage() {
   const [agent, setAgent] = useState<Agent | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showAcquireModal, setShowAcquireModal] = useState(false)
 
   useEffect(() => {
     if (params.id) {
@@ -143,7 +145,7 @@ export default function AgentDetailPage() {
                 <Play className="w-4 h-4" />
                 Try in Sandbox
               </Link>
-              <button className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
+              <button onClick={() => setShowAcquireModal(true)} className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
                 <ShoppingCart className="w-4 h-4" />
                 Acquire Agent
               </button>
@@ -256,6 +258,16 @@ export default function AgentDetailPage() {
           </li>
         </ul>
       </div>
+
+      {/* Acquire Modal */}
+      <AcquireModal
+        agent={agent}
+        isOpen={showAcquireModal}
+        onClose={() => setShowAcquireModal(false)}
+        onSuccess={(model, agentId) => {
+          router.push('/agents')
+        }}
+      />
     </div>
   )
 }

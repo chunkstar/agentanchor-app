@@ -48,3 +48,10 @@ export {
   hasCompletedTour,
   resetTourState
 } from './GuidedTour'
+
+// Floor landing with themed decorations
+export { FloorLanding } from './FloorLanding'
+
+// Floor themes configuration
+export { FLOOR_THEMES as FloorThemes, getFloorTheme, getFloorLandingClasses, getDoorStyling } from '@/lib/building/floor-themes'
+export type { FloorTheme, FloorThemeDetails } from '@/lib/building/floor-themes'
