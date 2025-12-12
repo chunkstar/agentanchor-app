@@ -1,7 +1,7 @@
 /**
  * Capability Boundaries Service
  *
- * BAI-OS v2.0 Core Component
+ * A3I-OS v2.0 Core Component
  *
  * Philosophy: Clear, enforced boundaries build trust.
  * Hard limits are inviolable. Soft limits escalate.

@@ -8,7 +8,7 @@
  * - Their domain (some domains require higher baseline trust)
  * - Their lineage (cloned from trusted agent? trained by whom?)
  *
- * This aligns with BAI-OS personality scaling:
+ * This aligns with A3I-OS personality scaling:
  * - L0-L4: Functional tier - trust through execution
  * - L5-L8: Persona tier - trust through judgment
  */
@@ -86,7 +86,7 @@ export type SupervisionLevel =
 // =============================================================================
 
 /**
- * BAI-OS Alignment:
+ * A3I-OS Alignment:
  * L0-L4 (Functional Tier): Trust through execution
  * L5-L8 (Persona Tier): Trust through judgment
  */

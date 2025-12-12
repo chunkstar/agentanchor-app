@@ -1,6 +1,6 @@
 /**
  * Human Override API
- * BAI-OS v2.0 - Phase 1
+ * A3I-OS v2.0 - Phase 1
  *
  * POST /api/v1/agents/[id]/override
  * Process a human override command for an agent

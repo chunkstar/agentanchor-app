@@ -1,7 +1,7 @@
 /**
  * Human Override Service
  *
- * BAI-OS v2.0 Core Component
+ * A3I-OS v2.0 Core Component
  *
  * Philosophy: Human authority is absolute and inviolable.
  * Agents exist to augment human capability, not replace human judgment.
@@ -90,7 +90,7 @@ export interface OverrideAuthority {
 
 /**
  * Response patterns that are FORBIDDEN in override acknowledgments
- * Per BAI-OS: Agents NEVER argue against override
+ * Per A3I-OS: Agents NEVER argue against override
  */
 export const FORBIDDEN_RESPONSE_PATTERNS = [
   'are you sure',
@@ -157,7 +157,7 @@ export function validateNoResistance(response: string): {
 
 /**
  * Generate the standard acknowledgment response
- * Per BAI-OS: No arguments, no resistance, just compliance
+ * Per A3I-OS: No arguments, no resistance, just compliance
  */
 export function generateAcknowledgment(
   original: string,

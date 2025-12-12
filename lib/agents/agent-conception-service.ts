@@ -3,7 +3,7 @@
  *
  * This service handles the birth of new agents, integrating:
  * - Trust from Conception (initial trust calibration)
- * - BAI-OS personality scaling
+ * - A3I-OS personality scaling
  * - Proactive operating principles
  * - Soul framework injection
  *
@@ -95,11 +95,11 @@ export interface ConceivedAgent {
 }
 
 // =============================================================================
-// BAI-OS PERSONALITY SCALING
+// A3I-OS PERSONALITY SCALING
 // =============================================================================
 
 /**
- * Apply BAI-OS personality scaling based on hierarchy level
+ * Apply A3I-OS personality scaling based on hierarchy level
  */
 function applyPersonalityScaling(
   level: HierarchyLevel,

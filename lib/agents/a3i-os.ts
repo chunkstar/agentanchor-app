@@ -77,37 +77,44 @@ export type {
 // =============================================================================
 
 export {
-  BAIOSDecisionLogger,
-  baiosDecisionLogger,
+  A3IDecisionLogger,
+  a3iDecisionLogger,
+  // Backwards compatibility
+  A3IDecisionLogger as BAIOSDecisionLogger,
+  a3iDecisionLogger as baiosDecisionLogger,
   formatDecisionForUser,
   createReasoningTransparency,
   createDecisionLog,
-} from './baios-decision-logger'
+} from './a3i-decision-logger'
 
 export type {
-  BAIOSDecisionLog,
+  A3IDecisionLog,
+  // Backwards compatibility
+  A3IDecisionLog as BAIOSDecisionLog,
   DecisionType,
   DecisionOutcome,
   ReasoningTransparency,
   DecisionQueryOptions,
   ChainVerificationResult,
-} from './baios-decision-logger'
+} from './a3i-decision-logger'
 
 // =============================================================================
 // TRUST GUARD (UNIFIED INTERFACE)
 // =============================================================================
 
 export {
-  BAIOSTrustGuard,
+  A3ITrustGuard,
+  // Backwards compatibility
+  A3ITrustGuard as BAIOSTrustGuard,
   createTrustGuard,
   createTrustMiddleware,
-} from './baios-trust-guard'
+} from './a3i-trust-guard'
 
 export type {
   TrustGuardResult,
   ExecutionOptions,
   TrustGuardConfig,
-} from './baios-trust-guard'
+} from './a3i-trust-guard'
 
 // =============================================================================
 // VERSION INFO
@@ -223,4 +230,4 @@ export function getLevelCapabilities(agentLevel: HierarchyLevel) {
 // Import types and utilities for the quick helpers
 import type { ProposedAction, HierarchyLevel, ActionValidationResult } from './capability-boundaries'
 import { CAPABILITY_MATRIX } from './capability-boundaries'
-import { createTrustGuard } from './baios-trust-guard'
+import { createTrustGuard } from './a3i-trust-guard'

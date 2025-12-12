@@ -1,8 +1,8 @@
 /**
- * BAI-OS Trust Guard
+ * A3I-OS Trust Guard
  *
- * Unified integration of BAI-OS v2.0 Phase 1 trust mechanisms.
- * This is the main entry point for BAI-OS trust enforcement.
+ * Unified integration of A3I-OS v2.0 Phase 1 trust mechanisms.
+ * This is the main entry point for A3I-OS trust enforcement.
  *
  * Integrates:
  * - Human Override Protocol
@@ -10,7 +10,7 @@
  * - Decision Logging
  *
  * Usage:
- *   const guard = new BAIOSTrustGuard(agentId, agentLevel)
+ *   const guard = new A3ITrustGuard(agentId, agentLevel)
  *   const result = await guard.validateAndExecute(action, execute)
  */
 
@@ -35,14 +35,14 @@ import {
   type HierarchyLevel,
 } from './capability-boundaries'
 import {
-  baiosDecisionLogger,
+  a3iDecisionLogger,
   createDecisionLog,
   createReasoningTransparency,
   formatDecisionForUser,
-  type BAIOSDecisionLog,
+  type A3IDecisionLog,
   type DecisionType,
   type ReasoningTransparency,
-} from './baios-decision-logger'
+} from './a3i-decision-logger'
 
 // =============================================================================
 // TYPES
@@ -62,7 +62,7 @@ export interface TrustGuardResult<T = unknown> {
   validation: ActionValidationResult
 
   // Decision log (if logged)
-  decision?: BAIOSDecisionLog
+  decision?: A3IDecisionLog
 
   // Human interaction required
   needsConfirmation: boolean
@@ -121,7 +121,7 @@ export interface TrustGuardConfig {
 // TRUST GUARD CLASS
 // =============================================================================
 
-export class BAIOSTrustGuard {
+export class A3ITrustGuard {
   private agentId: string
   private agentLevel: HierarchyLevel
   private config: TrustGuardConfig
@@ -238,7 +238,7 @@ export class BAIOSTrustGuard {
     decisionType: DecisionType,
     options: ExecutionOptions,
     outcome: 'pending' | 'success' | 'failure' | 'partial' | 'cancelled' = 'pending'
-  ): Promise<BAIOSDecisionLog | undefined> {
+  ): Promise<A3IDecisionLog | undefined> {
     if (!this.config.logAllDecisions && !options.logDecision) {
       return undefined
     }
@@ -258,10 +258,10 @@ export class BAIOSTrustGuard {
       }
     )
 
-    const logged = await baiosDecisionLogger.logDecision(decision)
+    const logged = await a3iDecisionLogger.logDecision(decision)
 
     if (outcome !== 'pending') {
-      await baiosDecisionLogger.updateDecisionOutcome(logged.id, outcome)
+      await a3iDecisionLogger.updateDecisionOutcome(logged.id, outcome)
     }
 
     return logged
@@ -356,7 +356,7 @@ export class BAIOSTrustGuard {
 
       // Update decision outcome
       if (decision) {
-        await baiosDecisionLogger.updateDecisionOutcome(decision.id, 'success')
+        await a3iDecisionLogger.updateDecisionOutcome(decision.id, 'success')
       }
 
       return {
@@ -372,7 +372,7 @@ export class BAIOSTrustGuard {
     } catch (error) {
       // Update decision outcome to failure
       if (decision) {
-        await baiosDecisionLogger.updateDecisionOutcome(
+        await a3iDecisionLogger.updateDecisionOutcome(
           decision.id,
           'failure',
           error instanceof Error ? error.message : 'Unknown error'
@@ -419,7 +419,7 @@ export class BAIOSTrustGuard {
   async logRecommendation(
     recommendation: string,
     options: ExecutionOptions
-  ): Promise<BAIOSDecisionLog | undefined> {
+  ): Promise<A3IDecisionLog | undefined> {
     return this.logDecision('recommendation', {
       ...options,
       rationale: recommendation,
@@ -433,7 +433,7 @@ export class BAIOSTrustGuard {
     reason: string,
     escalateTo: 'human' | 'council',
     options: ExecutionOptions
-  ): Promise<BAIOSDecisionLog | undefined> {
+  ): Promise<A3IDecisionLog | undefined> {
     return this.logDecision('escalation', {
       ...options,
       rationale: `Escalated to ${escalateTo}: ${reason}`,
@@ -447,7 +447,7 @@ export class BAIOSTrustGuard {
     targetAgentId: string,
     reason: string,
     options: ExecutionOptions
-  ): Promise<BAIOSDecisionLog | undefined> {
+  ): Promise<A3IDecisionLog | undefined> {
     return this.logDecision('handoff', {
       ...options,
       rationale: `Handed off to agent ${targetAgentId}: ${reason}`,
@@ -463,21 +463,21 @@ export class BAIOSTrustGuard {
     to?: Date
     limit?: number
   }) {
-    return baiosDecisionLogger.getDecisionChain(this.agentId, options)
+    return a3iDecisionLogger.getDecisionChain(this.agentId, options)
   }
 
   /**
    * Get decision statistics for this agent
    */
   async getDecisionStats(from?: Date, to?: Date) {
-    return baiosDecisionLogger.getDecisionStats(this.agentId, from, to)
+    return a3iDecisionLogger.getDecisionStats(this.agentId, from, to)
   }
 
   /**
    * Verify the integrity of this agent's decision chain
    */
   async verifyDecisionChain(from?: Date, to?: Date) {
-    return baiosDecisionLogger.verifyChainIntegrity(this.agentId, from, to)
+    return a3iDecisionLogger.verifyChainIntegrity(this.agentId, from, to)
   }
 }
 
@@ -492,8 +492,8 @@ export function createTrustGuard(
   agentId: string,
   agentLevel: HierarchyLevel,
   config?: Partial<TrustGuardConfig>
-): BAIOSTrustGuard {
-  return new BAIOSTrustGuard(agentId, agentLevel, config)
+): A3ITrustGuard {
+  return new A3ITrustGuard(agentId, agentLevel, config)
 }
 
 /**
@@ -517,7 +517,7 @@ export function createTrustMiddleware(
     execute: () => Promise<Response>
   ): Promise<Response> {
     const { agentId, agentLevel } = getAgentInfo(req)
-    const guard = new BAIOSTrustGuard(agentId, agentLevel)
+    const guard = new A3ITrustGuard(agentId, agentLevel)
 
     const sessionId = req.headers.get('x-session-id') || createId()
     const userId = req.headers.get('x-user-id') || 'anonymous'
@@ -551,7 +551,7 @@ export function createTrustMiddleware(
 // =============================================================================
 
 export default {
-  BAIOSTrustGuard,
+  A3ITrustGuard,
   createTrustGuard,
   createProposedAction,
   createTrustMiddleware,
@@ -572,7 +572,7 @@ export type {
 } from './capability-boundaries'
 
 export type {
-  BAIOSDecisionLog,
+  A3IDecisionLog,
   DecisionType,
   ReasoningTransparency,
-} from './baios-decision-logger'
+} from './a3i-decision-logger'

@@ -1,4 +1,4 @@
--- BAI-OS v2.0 "Trust Edition" Database Migration
+-- A3I-OS v2.0 "Trust Edition" Database Migration
 -- Council Approved: 16-0 Unanimous
 -- Phase 1: Human Override + Capability Boundaries + Decision Logging
 
@@ -37,7 +37,7 @@ CREATE INDEX IF NOT EXISTS idx_agent_overrides_command ON agent_overrides(comman
 
 -- =============================================================================
 -- AGENT DECISIONS TABLE
--- BAI-OS decision logging with hash chain for immutable audit trail
+-- A3I-OS decision logging with hash chain for immutable audit trail
 -- =============================================================================
 
 CREATE TABLE IF NOT EXISTS agent_decisions (
@@ -275,9 +275,9 @@ CREATE TRIGGER update_agent_decisions_updated_at
 -- COMMENTS FOR DOCUMENTATION
 -- =============================================================================
 
-COMMENT ON TABLE agent_overrides IS 'BAI-OS v2.0: Human override commands with no-resistance compliance tracking';
-COMMENT ON TABLE agent_decisions IS 'BAI-OS v2.0: Immutable decision log with hash chain for audit trail';
-COMMENT ON TABLE agent_capability_validations IS 'BAI-OS v2.0: Pre-action capability boundary validations';
+COMMENT ON TABLE agent_overrides IS 'A3I-OS v2.0: Human override commands with no-resistance compliance tracking';
+COMMENT ON TABLE agent_decisions IS 'A3I-OS v2.0: Immutable decision log with hash chain for audit trail';
+COMMENT ON TABLE agent_capability_validations IS 'A3I-OS v2.0: Pre-action capability boundary validations';
 
 COMMENT ON COLUMN agent_decisions.previous_hash IS 'SHA-256 hash of previous decision for chain verification';
 COMMENT ON COLUMN agent_decisions.current_hash IS 'SHA-256 hash of this decision including previous_hash';

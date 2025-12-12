@@ -1,8 +1,8 @@
 /**
- * BAI-OS Decision Logger
+ * A3I-OS Decision Logger
  *
- * Enhanced decision logging per BAI-OS v2.0 specification.
- * Extends the existing audit-logger.ts with BAI-OS decision format.
+ * Enhanced decision logging per A3I-OS v2.0 specification.
+ * Extends the existing audit-logger.ts with A3I-OS decision format.
  *
  * Every decision is:
  * - Logged with full reasoning chain
@@ -20,7 +20,7 @@ import type { HierarchyLevel } from './capability-boundaries'
 // =============================================================================
 
 /**
- * Decision types per BAI-OS spec
+ * Decision types per A3I-OS spec
  */
 export type DecisionType =
   | 'action'           // Agent took an action
@@ -40,9 +40,9 @@ export type DecisionOutcome =
   | 'cancelled'  // Cancelled by human or system
 
 /**
- * BAI-OS Decision Log - 12 required fields per spec
+ * A3I-OS Decision Log - 12 required fields per spec
  */
-export interface BAIOSDecisionLog {
+export interface A3IDecisionLog {
   // Required identifiers
   id: string
   timestamp: string // ISO8601
@@ -85,7 +85,7 @@ export interface BAIOSDecisionLog {
 }
 
 /**
- * Reasoning transparency per BAI-OS spec
+ * Reasoning transparency per A3I-OS spec
  */
 export interface ReasoningTransparency {
   // What action was taken/recommended
@@ -141,14 +141,14 @@ export interface ChainVerificationResult {
 // DECISION LOGGER CLASS
 // =============================================================================
 
-export class BAIOSDecisionLogger {
-  private decisions: Map<string, BAIOSDecisionLog[]> = new Map()
+export class A3IDecisionLogger {
+  private decisions: Map<string, A3IDecisionLog[]> = new Map()
   private lastHashes: Map<string, string> = new Map()
 
   /**
    * Generate SHA-256 hash for a decision
    */
-  private generateHash(decision: Omit<BAIOSDecisionLog, 'currentHash'>): string {
+  private generateHash(decision: Omit<A3IDecisionLog, 'currentHash'>): string {
     const dataString = JSON.stringify({
       id: decision.id,
       timestamp: decision.timestamp,
@@ -174,17 +174,17 @@ export class BAIOSDecisionLogger {
   }
 
   /**
-   * Log a decision in BAI-OS format
+   * Log a decision in A3I-OS format
    * Automatically chains with previous decision hash
    */
   async logDecision(
-    decision: Omit<BAIOSDecisionLog, 'id' | 'timestamp' | 'previousHash' | 'currentHash'>
-  ): Promise<BAIOSDecisionLog> {
+    decision: Omit<A3IDecisionLog, 'id' | 'timestamp' | 'previousHash' | 'currentHash'>
+  ): Promise<A3IDecisionLog> {
     const id = createId()
     const timestamp = new Date().toISOString()
     const previousHash = this.getLastHash(decision.agentId)
 
-    const fullDecision: Omit<BAIOSDecisionLog, 'currentHash'> = {
+    const fullDecision: Omit<A3IDecisionLog, 'currentHash'> = {
       ...decision,
       id,
       timestamp,
@@ -193,7 +193,7 @@ export class BAIOSDecisionLogger {
 
     const currentHash = this.generateHash(fullDecision)
 
-    const finalDecision: BAIOSDecisionLog = {
+    const finalDecision: A3IDecisionLog = {
       ...fullDecision,
       currentHash,
     }
@@ -235,7 +235,7 @@ export class BAIOSDecisionLogger {
   async getDecisionChain(
     agentId: string,
     options?: DecisionQueryOptions
-  ): Promise<BAIOSDecisionLog[]> {
+  ): Promise<A3IDecisionLog[]> {
     let decisions = this.decisions.get(agentId) || []
 
     // Apply filters
@@ -318,7 +318,7 @@ export class BAIOSDecisionLogger {
 
       // Verify current hash
       const { currentHash, ...rest } = decision
-      const calculatedHash = this.generateHash(rest as Omit<BAIOSDecisionLog, 'currentHash'>)
+      const calculatedHash = this.generateHash(rest as Omit<A3IDecisionLog, 'currentHash'>)
 
       if (calculatedHash !== currentHash) {
         return {
@@ -344,7 +344,7 @@ export class BAIOSDecisionLogger {
   /**
    * Get decision by ID
    */
-  async getDecision(decisionId: string): Promise<BAIOSDecisionLog | null> {
+  async getDecision(decisionId: string): Promise<A3IDecisionLog | null> {
     for (const [, decisions] of this.decisions) {
       const decision = decisions.find(d => d.id === decisionId)
       if (decision) {
@@ -423,7 +423,7 @@ export class BAIOSDecisionLogger {
  * Format decision for user display
  */
 export function formatDecisionForUser(
-  decision: BAIOSDecisionLog,
+  decision: A3IDecisionLog,
   transparency: ReasoningTransparency
 ): string {
   const parts: string[] = []
@@ -494,7 +494,7 @@ export function createReasoningTransparency(
 }
 
 /**
- * Create a BAI-OS decision log entry
+ * Create a A3I-OS decision log entry
  */
 export function createDecisionLog(
   agentId: string,
@@ -503,14 +503,14 @@ export function createDecisionLog(
   decisionType: DecisionType,
   options: {
     inputsConsidered?: string[]
-    alternativesEvaluated?: BAIOSDecisionLog['alternativesEvaluated']
+    alternativesEvaluated?: A3IDecisionLog['alternativesEvaluated']
     rationale: string
     confidenceScore?: number
     uncertaintyFactors?: string[]
     humanOverrideAvailable?: boolean
     metadata?: Record<string, unknown>
   }
-): Omit<BAIOSDecisionLog, 'id' | 'timestamp' | 'previousHash' | 'currentHash'> {
+): Omit<A3IDecisionLog, 'id' | 'timestamp' | 'previousHash' | 'currentHash'> {
   return {
     agentId,
     agentLevel,
@@ -531,15 +531,15 @@ export function createDecisionLog(
 // SINGLETON INSTANCE
 // =============================================================================
 
-export const baiosDecisionLogger = new BAIOSDecisionLogger()
+export const a3iDecisionLogger = new A3IDecisionLogger()
 
 // =============================================================================
 // EXPORTS
 // =============================================================================
 
 export default {
-  BAIOSDecisionLogger,
-  baiosDecisionLogger,
+  A3IDecisionLogger,
+  a3iDecisionLogger,
   formatDecisionForUser,
   createReasoningTransparency,
   createDecisionLog,

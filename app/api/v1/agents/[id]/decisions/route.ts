@@ -13,7 +13,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { validateApiKey, checkRateLimit, logApiUsage } from '@/lib/api'
 import {
-  baiosDecisionLogger,
+  a3iDecisionLogger,
   createDecisionLog,
   type DecisionType,
   type HierarchyLevel,
@@ -120,11 +120,11 @@ export async function GET(
     // Optionally verify chain integrity
     let chainVerification = null
     if (verifyChain) {
-      chainVerification = await baiosDecisionLogger.verifyChainIntegrity(agentId)
+      chainVerification = await a3iDecisionLogger.verifyChainIntegrity(agentId)
     }
 
     // Calculate stats
-    const stats = await baiosDecisionLogger.getDecisionStats(agentId)
+    const stats = await a3iDecisionLogger.getDecisionStats(agentId)
 
     const responseTime = Date.now() - startTime
     if (userId) {
@@ -267,7 +267,7 @@ export async function POST(
     )
 
     // Log the decision (includes hash chain)
-    const decision = await baiosDecisionLogger.logDecision(decisionInput)
+    const decision = await a3iDecisionLogger.logDecision(decisionInput)
 
     // Also store in database for persistence
     await supabase.from('agent_decisions').insert({

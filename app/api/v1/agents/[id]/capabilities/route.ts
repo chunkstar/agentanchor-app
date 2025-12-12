@@ -1,6 +1,6 @@
 /**
  * Capabilities API
- * BAI-OS v2.0 - Phase 1
+ * A3I-OS v2.0 - Phase 1
  *
  * GET /api/v1/agents/[id]/capabilities
  * Get capability matrix and limits for an agent

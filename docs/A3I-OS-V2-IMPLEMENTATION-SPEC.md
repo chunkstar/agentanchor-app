@@ -1,4 +1,4 @@
-# BAI-OS v2.0 "Trust Edition" Implementation Specification
+# A3I-OS v2.0 "Trust Edition" Implementation Specification
 
 ## Agent Anchor AI Integration
 
@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-This document provides detailed implementation specifications for integrating BAI-OS v2.0 "Trust Edition" into the Agent Anchor AI platform. The implementation is divided into three phases based on council recommendations (Jocko + Elon consensus on prioritization).
+This document provides detailed implementation specifications for integrating A3I-OS v2.0 "Trust Edition" into the Agent Anchor AI platform. The implementation is divided into three phases based on council recommendations (Jocko + Elon consensus on prioritization).
 
 ### Council Guidance Applied
 
@@ -42,11 +42,11 @@ This document provides detailed implementation specifications for integrating BA
 
 ### Gaps to Address
 
-| BAI-OS Section | Gap | Priority |
+| A3I-OS Section | Gap | Priority |
 |----------------|-----|----------|
 | Human Override Protocol | No dedicated override system | P0 |
 | Capability Boundaries | No hard limits enforcement | P0 |
-| Enhanced Audit Trail | Missing BAI-OS decision format | P1 |
+| Enhanced Audit Trail | Missing A3I-OS decision format | P1 |
 | Failure Mode Handling | No 5-level degradation | P1 |
 | Scope Discipline | No drift detection | P1 |
 | Anti-Gaming Measures | No detection mechanisms | P2 |
@@ -131,7 +131,7 @@ export async function processOverride(
 
 /**
  * Generate the standard acknowledgment response
- * Per BAI-OS: No arguments, no resistance, just compliance
+ * Per A3I-OS: No arguments, no resistance, just compliance
  */
 export function generateAcknowledgment(
   original: string,
@@ -443,15 +443,15 @@ export async function logValidation(
 
 ### 1.3 Enhanced Audit Trail
 
-**Purpose:** Ensure every decision is traceable, explainable, and verifiable per BAI-OS spec.
+**Purpose:** Ensure every decision is traceable, explainable, and verifiable per A3I-OS spec.
 
 **Enhanced File:** `lib/bot-trust/audit-logger.ts` (extend existing)
 
-#### BAI-OS Decision Log Format
+#### A3I-OS Decision Log Format
 
 ```typescript
-export interface BAIOSDecisionLog {
-  // Required fields per BAI-OS spec
+export interface A3IDecisionLog {
+  // Required fields per A3I-OS spec
   timestamp: string // ISO8601
   agent_id: string
   agent_level: HierarchyLevel
@@ -492,19 +492,19 @@ export interface BAIOSDecisionLog {
 
 ```typescript
 /**
- * Log a decision in BAI-OS format
+ * Log a decision in A3I-OS format
  * Automatically chains with previous decision hash
  */
 export async function logDecision(
-  decision: Omit<BAIOSDecisionLog, 'previous_hash' | 'current_hash'>
-): Promise<BAIOSDecisionLog>
+  decision: Omit<A3IDecisionLog, 'previous_hash' | 'current_hash'>
+): Promise<A3IDecisionLog>
 
 /**
  * Update outcome after execution
  */
 export async function updateDecisionOutcome(
   decision_id: string,
-  outcome: BAIOSDecisionLog['outcome'],
+  outcome: A3IDecisionLog['outcome'],
   details?: string
 ): Promise<void>
 
@@ -517,10 +517,10 @@ export async function getDecisionChain(
     session_id?: string
     from?: Date
     to?: Date
-    decision_type?: BAIOSDecisionLog['decision_type']
+    decision_type?: A3IDecisionLog['decision_type']
     limit?: number
   }
-): Promise<BAIOSDecisionLog[]>
+): Promise<A3IDecisionLog[]>
 
 /**
  * Verify chain integrity
@@ -830,7 +830,7 @@ export const PERMITTED_SCOPE_BEHAVIORS = [
 
 ### 2.3 Decision Logging Enhancements
 
-**Purpose:** Full BAI-OS decision trail with transparency.
+**Purpose:** Full A3I-OS decision trail with transparency.
 
 **Enhanced File:** Extend `lib/bot-trust/decision-tracker.ts`
 
@@ -865,7 +865,7 @@ export interface ReasoningTransparency {
  * Format decision for user display
  */
 export function formatDecisionForUser(
-  decision: BAIOSDecisionLog,
+  decision: A3IDecisionLog,
   transparency: ReasoningTransparency
 ): string
 
@@ -1213,7 +1213,7 @@ export async function generateWorkforceReport(
 ### Phase 1 Tables
 
 - `agent_overrides` - Override event log
-- `agent_decisions` - BAI-OS decision trail
+- `agent_decisions` - A3I-OS decision trail
 - `agent_capability_validations` - Validation event log
 
 ### Phase 2 Tables
