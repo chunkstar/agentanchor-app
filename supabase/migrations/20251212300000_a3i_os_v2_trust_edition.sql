@@ -156,7 +156,7 @@ CREATE POLICY "Users can create override events for their agents"
   WITH CHECK (
     auth.uid() = user_id
     AND EXISTS (
-      SELECT 1 FROM bots WHERE id = agent_id AND creator_id = auth.uid()
+      SELECT 1 FROM bots WHERE id = agent_id AND owner_id = auth.uid()
     )
   );
 
@@ -165,7 +165,7 @@ CREATE POLICY "Users can view decisions for their agents"
   ON agent_decisions FOR SELECT
   USING (
     EXISTS (
-      SELECT 1 FROM bots WHERE id = agent_id AND creator_id = auth.uid()
+      SELECT 1 FROM bots WHERE id = agent_id AND owner_id = auth.uid()
     )
   );
 
@@ -183,7 +183,7 @@ CREATE POLICY "Users can create validations for their agents"
   WITH CHECK (
     auth.uid() = user_id
     AND EXISTS (
-      SELECT 1 FROM bots WHERE id = agent_id AND creator_id = auth.uid()
+      SELECT 1 FROM bots WHERE id = agent_id AND owner_id = auth.uid()
     )
   );
 
