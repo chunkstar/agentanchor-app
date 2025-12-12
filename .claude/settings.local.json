@@ -75,7 +75,8 @@
       "Bash(node scripts/count-agents-by-level.js:*)",
       "Bash(node scripts/analyze-hierarchy-migration.js:*)",
       "Bash(node scripts/dedupe-and-migrate-hierarchy.js:*)",
-      "Bash(node scripts/sync-bai-agents.js:*)"
+      "Bash(node scripts/sync-bai-agents.js:*)",
+      "Bash(GIT_COMMITTER_NAME=\"chunkstar\" GIT_COMMITTER_EMAIL=\"racason@gmail.com\" git commit -m \"$(cat <<''EOF''\nMarketplace: Alphabetical grouping, agent economy, fix API\n\nFeatures:\n- Alphabetical A-Z grouping view for marketplace agents\n- View toggle between grouped and grid layouts\n- Agent acquisition modal (rent/clone/enterprise models)\n- Anchor Credits wallet system (5000 AC for founders)\n\nBug fixes:\n- Fixed agent detail API: use ''bots'' table instead of ''agents'' view\n- Fixed public agents API: use ''bots'' with status=''active''\n\nNew files:\n- lib/building/floor-themes.ts - 10 floor themes config\n- components/building/FloorLanding.tsx - Themed elevator arrivals\n- components/marketplace/AcquireModal.tsx - 3-model acquisition\n- lib/credits/types.ts, wallet-service.ts - Credit system\n- app/api/wallet/route.ts, marketplace/acquire/route.ts\n\nMigrations:\n- 20251212000000_consolidated_platform.sql - All marketplace/academy/economy tables\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []
