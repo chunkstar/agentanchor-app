@@ -9,17 +9,18 @@ import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
-// Create a public Supabase client (anon key, no auth required)
-function getPublicSupabase() {
+// Create Supabase admin client for reading public agents
+// Uses service role to bypass RLS (safe for server-side read-only)
+function getSupabaseAdmin() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  return createClient(supabaseUrl, supabaseAnonKey)
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+  return createClient(supabaseUrl, supabaseKey)
 }
 
 // GET /api/agents/public - List all public agents
 export async function GET(request: NextRequest) {
   try {
-    const supabase = getPublicSupabase()
+    const supabase = getSupabaseAdmin()
 
     // Parse query params
     const searchParams = request.nextUrl.searchParams
