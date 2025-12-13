@@ -5,14 +5,21 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
+
+// Create a public Supabase client (anon key, no auth required)
+function getPublicSupabase() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  return createClient(supabaseUrl, supabaseAnonKey)
+}
 
 // GET /api/agents/public - List all public agents
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = getPublicSupabase()
 
     // Parse query params
     const searchParams = request.nextUrl.searchParams
@@ -24,20 +31,15 @@ export async function GET(request: NextRequest) {
     const perPage = parseInt(searchParams.get('per_page') || '24')
     const offset = (page - 1) * perPage
 
-    // Build query for bots table (agents is a view that doesn't exist)
+    // Build query for agents table
     let agentQuery = supabase
-      .from('bots')
-      .select('*', { count: 'exact' })
+      .from('agents')
+      .select('id, name, description, trust_score, config, metadata, created_at', { count: 'exact' })
       .eq('status', 'active')
 
     // Filter by search query
     if (query) {
-      agentQuery = agentQuery.or(`name.ilike.%${query}%,description.ilike.%${query}%,specialization.ilike.%${query}%`)
-    }
-
-    // Filter by category/specialization
-    if (category && category !== 'all') {
-      agentQuery = agentQuery.eq('specialization', category)
+      agentQuery = agentQuery.or(`name.ilike.%${query}%,description.ilike.%${query}%`)
     }
 
     // Filter by minimum trust score
@@ -68,30 +70,62 @@ export async function GET(request: NextRequest) {
     if (error) {
       console.error('Error fetching public agents:', error)
       return NextResponse.json(
-        { error: 'Failed to fetch agents' },
+        { error: 'Failed to fetch agents', details: error.message },
         { status: 500 }
       )
     }
 
-    // Get unique specializations for categories
-    const { data: specializations } = await supabase
-      .from('bots')
-      .select('specialization')
-      .eq('status', 'active')
-      .not('specialization', 'is', null)
+    // Transform agents to expected format
+    const transformedAgents = (agents || []).map(agent => {
+      const config = typeof agent.config === 'string' ? JSON.parse(agent.config) : agent.config || {}
+      const metadata = typeof agent.metadata === 'string' ? JSON.parse(agent.metadata) : agent.metadata || {}
 
-    const categories = [...new Set(
-      (specializations || [])
-        .map(s => s.specialization)
-        .filter(Boolean)
-    )].sort()
+      // Calculate trust tier from score
+      const score = agent.trust_score || 0
+      let trustTier = 'Untrusted'
+      if (score >= 900) trustTier = 'Legendary'
+      else if (score >= 750) trustTier = 'Certified'
+      else if (score >= 600) trustTier = 'Verified'
+      else if (score >= 450) trustTier = 'Trusted'
+      else if (score >= 300) trustTier = 'Established'
+      else if (score >= 100) trustTier = 'Provisional'
+
+      return {
+        id: agent.id,
+        name: agent.name,
+        description: agent.description,
+        specialization: config.specialization || metadata.type || 'General',
+        trust_score: score,
+        trust_tier: trustTier,
+        capabilities: config.capabilities || [],
+        personality_traits: config.personalityTraits || [],
+        avatar_url: metadata.avatarUrl || null,
+        created_at: agent.created_at
+      }
+    })
+
+    // Get unique specializations for categories (sample from first 1000)
+    const { data: allAgents } = await supabase
+      .from('agents')
+      .select('config, metadata')
+      .eq('status', 'active')
+      .limit(1000)
+
+    const categoriesSet = new Set<string>()
+    ;(allAgents || []).forEach(a => {
+      const config = typeof a.config === 'string' ? JSON.parse(a.config) : a.config || {}
+      const metadata = typeof a.metadata === 'string' ? JSON.parse(a.metadata) : a.metadata || {}
+      const spec = config.specialization || metadata.type
+      if (spec) categoriesSet.add(spec)
+    })
+    const categories = Array.from(categoriesSet).sort()
 
     return NextResponse.json({
-      agents: agents || [],
+      agents: transformedAgents,
       total: count || 0,
       page,
       per_page: perPage,
-      has_more: (offset + (agents?.length || 0)) < (count || 0),
+      has_more: (offset + transformedAgents.length) < (count || 0),
       categories,
     })
   } catch (error) {

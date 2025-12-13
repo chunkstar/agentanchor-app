@@ -12,7 +12,10 @@ import {
   ArrowRight,
   HelpCircle,
   Compass,
-  Star
+  Star,
+  Store,
+  Wrench,
+  GraduationCap
 } from 'lucide-react'
 import { BUILDING_FLOORS, WINGS } from './BuildingNavigation'
 
@@ -45,27 +48,27 @@ export function Concierge({
     "Whether you're here to build agents, discover trusted AI, or oversee governance - I'll point you in the right direction."
   ]
 
-  // Quick action suggestions
+  // Quick action suggestions - Floor 4=Marketplace, Floor 3=Workshop, Floor 6=Academy
   const suggestions: SuggestionType[] = [
     {
       id: 'marketplace',
       text: 'Browse the Marketplace',
       action: () => router.push('/marketplace'),
-      icon: BUILDING_FLOORS.find(f => f.floor === 3)!.icon,
+      icon: BUILDING_FLOORS.find(f => f.floor === 4)?.icon ?? Store,
       color: 'from-pink-500 to-rose-600'
     },
     {
       id: 'workshop',
       text: 'Build a new Agent',
       action: () => router.push('/agents/new'),
-      icon: BUILDING_FLOORS.find(f => f.floor === 2)!.icon,
+      icon: BUILDING_FLOORS.find(f => f.floor === 3)?.icon ?? Wrench,
       color: 'from-yellow-500 to-orange-600'
     },
     {
       id: 'academy',
       text: 'Train your Agents',
       action: () => router.push('/academy'),
-      icon: BUILDING_FLOORS.find(f => f.floor === 5)!.icon,
+      icon: BUILDING_FLOORS.find(f => f.floor === 6)?.icon ?? GraduationCap,
       color: 'from-green-500 to-emerald-600'
     },
     {
